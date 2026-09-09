@@ -1,0 +1,29 @@
+{
+	auto_https off
+	admin off
+}
+
+:{$PORT:8080} {
+	root * /srv
+	encode zstd gzip
+	file_server
+
+	# clean URLs: /program -> /program/index.html
+	try_files {path} {path}/ {path}.html
+
+	@assets path /assets/* /favicon.* /*.png
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+	header /assets/media/* Cache-Control "public, max-age=604800"
+
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options SAMEORIGIN
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+
+	handle_errors {
+		rewrite * /index.html
+		file_server
+	}
+}
