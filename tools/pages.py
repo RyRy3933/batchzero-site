@@ -251,7 +251,22 @@ ABOUT = """
         <li><strong>Safety by design.</strong> Adults meet students on the platform, sessions are recorded, mentors are vetted, and contact is opt-in.</li>
       </ul>
       <h2>Who's behind it</h2>
-      <p>Batch Zero was founded by a high-school student in California who got tired of the gap between "youth entrepreneurship" and actual entrepreneurship. The mentor network is made up of operators and founders who volunteer two months at a time. Sponsors fund the Demo Day prize. If you want to be part of any of that, the doors are below.</p>
+      <div class="founder">
+        <div class="founder-photo">
+          <picture>
+            <source srcset="/assets/img/founder.webp" type="image/webp">
+            <img src="/assets/img/founder.jpg" alt="Rayan Sohrabian, founder of Batch Zero" width="900" height="900" loading="lazy">
+          </picture>
+          <span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span>
+        </div>
+        <div class="founder-bio">
+          <span class="label">Founder</span>
+          <h3>Rayan Sohrabian</h3>
+          <p>Rayan started Batch Zero while still in high school in California, after getting tired of the gap between "youth entrepreneurship" and actual entrepreneurship. He builds the product, runs the cohorts, and reads every application himself.</p>
+          <p>The mentor network is made up of operators and founders who volunteer two months at a time. Sponsors fund the Demo Day prize. If you want to be part of any of that, the doors are below.</p>
+          <div class="founder-links"><a href="mailto:rayan@batchzero.co">rayan@batchzero.co</a></div>
+        </div>
+      </div>
       <div class="hero-actions" style="margin-top:12px">
         <a class="btn btn-primary btn-bracket" href="/apply/founders/">Apply as a founder</a>
         <a class="btn btn-ghost" href="/apply/mentors/">Mentor a cohort</a>

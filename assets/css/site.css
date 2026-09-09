@@ -383,3 +383,15 @@ form.app.sent + .form-done { display: block; }
 .count div { display: grid; gap: 2px; text-align: center; min-width: 58px; padding: 10px 8px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,0.02); }
 .count b { font-family: var(--mono); font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
 .count small { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted-2); }
+
+/* ---------- founder (about) ---------- */
+.founder { display: grid; grid-template-columns: 300px 1fr; gap: 36px; align-items: start; margin: 8px 0 12px; }
+.founder-photo { position: relative; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line-strong); background: #0a0c10; box-shadow: 0 30px 80px -40px rgba(59,108,255,0.5); }
+.founder-photo img { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; filter: saturate(0.92) contrast(1.02); display: block; }
+.founder-photo::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, transparent 60%, rgba(7,8,10,0.55) 100%); }
+.founder-photo .hud-corner { z-index: 2; }
+.founder-bio { display: grid; gap: 14px; }
+.founder-bio h3 { font-size: 30px; color: var(--ink); }
+.founder-bio p { color: var(--muted); }
+.founder-links a { font-family: var(--mono); font-size: 13px; color: var(--accent-2); }
+@media (max-width: 720px) { .founder { grid-template-columns: 1fr; } .founder-photo { max-width: 340px; } }
