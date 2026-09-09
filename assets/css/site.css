@@ -161,7 +161,8 @@ body.menu-open .burger span:nth-child(3) { transform: translateY(-4.5px) rotate(
 .hero-meta .k { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted-2); }
 .hero-meta .v { font-family: var(--mono); font-size: 15px; color: var(--ink); }
 
-.hero-visual { position: relative; z-index: 1; aspect-ratio: 1; }
+.hero-visual { position: relative; z-index: 1; aspect-ratio: 16 / 9; align-self: center; }
+.hero-visual::before { content: ""; position: absolute; inset: -30% -20%; background: radial-gradient(closest-side, rgba(59,108,255,0.22), transparent 70%); filter: blur(30px); z-index: 0; pointer-events: none; }
 .hud {
   position: relative; width: 100%; height: 100%; border-radius: 18px; overflow: hidden;
   background: #04060c; border: 1px solid var(--line-strong);
@@ -192,7 +193,7 @@ body.menu-open .burger span:nth-child(3) { transform: translateY(-4.5px) rotate(
 @media (max-width: 980px) {
   .hero { min-height: 0; }
   .hero .wrap { grid-template-columns: 1fr; }
-  .hero-visual { max-width: 520px; width: 100%; margin: 0 auto; }
+  .hero-visual { max-width: 640px; width: 100%; margin: 0 auto; }
 }
 
 /* ---------- ticker ---------- */

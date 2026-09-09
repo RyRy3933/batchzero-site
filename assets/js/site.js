@@ -78,8 +78,12 @@
     upd(); setInterval(upd, 1000);
   }
 
-  /* ---- hero video: make sure both copies stay in sync-ish and play ---- */
-  $$("video[autoplay]").forEach(v => { v.muted = true; const p = v.play(); if (p && p.catch) p.catch(() => {}); });
+  /* ---- hero video: plays once on page load, then holds on the final frame ---- */
+  $$("video[autoplay]").forEach(v => {
+    v.muted = true; v.loop = false;
+    const p = v.play(); if (p && p.catch) p.catch(() => {});
+    v.addEventListener("ended", () => { v.pause(); v.currentTime = Math.max(0, v.duration - 0.05); });
+  });
 
   /* ---- forms (UI only for now) ---- */
   $$("form.app").forEach(form => {
