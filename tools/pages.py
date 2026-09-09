@@ -68,7 +68,7 @@ HOME = """
       <h2 class="rv rv-d1">Apply. Get picked. Build for eight weeks. Pitch.</h2>
     </div>
     <div class="steps rv">
-      <div class="step"><span class="n">01</span><span class="t">Weeks −4 → 0</span><h3>Apply</h3><p>A short form, a 90-second video, and proof you shipped: a link, a demo, a screenshot of your first sale.</p></div>
+      <div class="step"><span class="n">01</span><span class="t">Weeks −4 → 0</span><h3>Apply</h3><p>A short form, a 60-second video, and proof you shipped: a link, a demo, a screenshot of your first sale.</p></div>
       <div class="step"><span class="n">02</span><span class="t">2 weeks</span><h3>Review</h3><p>Every application is scored on a fixed rubric — problem, traction, team, coachability, ambition. Top five are in. Everyone else gets written feedback.</p></div>
       <div class="step"><span class="n">03</span><span class="t">8 weeks</span><h3>Program</h3><p>Two mentors per team, weekly sessions, a milestone tracker, guest office hours, and a cohort that keeps you honest.</p></div>
       <div class="step"><span class="n">04</span><span class="t">Week 8</span><h3>Demo Day</h3><p>Online pitch to a judging panel and an audience of investors and companies. Scores land in-app. One team takes the prize.</p></div>
