@@ -13,9 +13,10 @@ HOME = """
       <h1 class="rv rv-d1">The accelerator for founders who haven't <span class="accent">graduated</span> yet.</h1>
       <p class="lede rv rv-d2">Batch Zero takes five high-school startups per cohort, pairs each one with two mentors for eight weeks, and puts them in front of investors at an online Demo Day. You already shipped something. We help you make it real.</p>
       <div class="hero-actions rv rv-d3">
-        <a class="btn btn-primary btn-bracket" href="/apply/founders/">Apply as a founder <span class="arr">→</span></a>
-        <a class="btn btn-ghost" href="/program/">See the 8-week program</a>
+        <a class="btn btn-primary btn-lg btn-bracket" href="/apply/founders/">I'm a founder — apply <span class="arr">→</span></a>
+        <a class="btn btn-ghost btn-lg" href="/partners/">I'm a business partner <span class="arr">→</span></a>
       </div>
+      <p class="dim" style="font-size:14px;margin-top:-10px">Investor, sponsor company, or mentor? <a href="/partners/" style="color:var(--accent-2)">Pick your door →</a> &nbsp;·&nbsp; <a href="/program/" style="color:var(--accent-2)">See the 8-week program</a></p>
       <div class="hero-meta rv rv-d4">
         <div><span class="k">Per cohort</span><span class="v">05 startups</span></div>
         <div><span class="k">Length</span><span class="v">08 weeks</span></div>
@@ -40,8 +41,8 @@ HOME = """
 
 <div class="ticker" aria-hidden="true">
   <div class="ticker-track">
-    <span><i>//</i>Apply with a startup you've already started</span><span><i>//</i>5 startups per cohort</span><span><i>//</i>2 mentors per team</span><span><i>//</i>8 weeks</span><span><i>//</i>Online Demo Day</span><span><i>//</i>Judged in-app</span><span><i>//</i>Investor access</span><span><i>//</i>Hiring channel for companies</span><span><i>//</i>Free for founders</span>
-    <span><i>//</i>Apply with a startup you've already started</span><span><i>//</i>5 startups per cohort</span><span><i>//</i>2 mentors per team</span><span><i>//</i>8 weeks</span><span><i>//</i>Online Demo Day</span><span><i>//</i>Judged in-app</span><span><i>//</i>Investor access</span><span><i>//</i>Hiring channel for companies</span><span><i>//</i>Free for founders</span>
+    <span><i>//</i>Apply with a startup you've already started</span><span><i>//</i>5 startups per cohort</span><span><i>//</i>2 mentors per team</span><span><i>//</i>8 weeks</span><span><i>//</i>Online Demo Day</span><span><i>//</i>Judged in-app</span><span><i>//</i>Investor access</span><span><i>//</i>Sponsor a cohort</span><span><i>//</i>Free for founders</span>
+    <span><i>//</i>Apply with a startup you've already started</span><span><i>//</i>5 startups per cohort</span><span><i>//</i>2 mentors per team</span><span><i>//</i>8 weeks</span><span><i>//</i>Online Demo Day</span><span><i>//</i>Judged in-app</span><span><i>//</i>Investor access</span><span><i>//</i>Sponsor a cohort</span><span><i>//</i>Free for founders</span>
   </div>
 </div>
 
@@ -78,15 +79,24 @@ HOME = """
 <section id="doors">
   <div class="wrap">
     <div class="section-head">
-      <span class="label rv">Four doors in</span>
-      <h2 class="rv rv-d1">Everyone in the room has a reason to be there.</h2>
-      <p class="lede rv rv-d2">Founders never pay. The people who get value from meeting them early do.</p>
+      <span class="label rv">Two doors in</span>
+      <h2 class="rv rv-d1">Which one are you?</h2>
     </div>
-    <div class="doors">
-      <a class="door rv" href="/apply/founders/"><span class="who">Founders</span><h3>Get in the batch</h3><p>High-school students with a startup that already exists. Selection, mentors, structure, Demo Day, prize, exposure.</p><span class="price">FREE · APPLICATION</span><span class="go">Apply now <span class="arr">→</span></span></a>
-      <a class="door rv rv-d1" href="/apply/mentors/"><span class="who">Mentors</span><h3>Give two months</h3><p>Operators, founders, engineers and designers who want to back a teenage founder with real advice, not a LinkedIn post.</p><span class="price">VOLUNTEER · VETTED</span><span class="go">Become a mentor <span class="arr">→</span></span></a>
-      <a class="door rv rv-d2" href="/apply/investors/"><span class="who">Investors</span><h3>See them first</h3><p>A curated feed of every selected startup, Demo Day access, and intro requests routed through the platform.</p><span class="price">SUBSCRIPTION · FOUNDING TIER FREE</span><span class="go">Request access <span class="arr">→</span></span></a>
-      <a class="door rv rv-d3" href="/apply/companies/"><span class="who">Companies</span><h3>Hire the builders</h3><p>Reach founders and team members who opted in to internships, apprenticeships and project work. Meet them before everyone else does.</p><span class="price">SUBSCRIPTION · PER SEAT</span><span class="go">Talk to us <span class="arr">→</span></span></a>
+    <div class="paths">
+      <a class="path rv" href="/apply/founders/">
+        <span class="who">Founders</span>
+        <h3>I'm a high-school founder.</h3>
+        <p>You've already started something — users, revenue, a live product. Apply to the next cohort: five spots, two mentors, eight weeks, Demo Day. Free, always.</p>
+        <span class="path-cta btn btn-primary">Apply as a founder <span class="arr">→</span></span>
+        <span class="path-meta">10-minute application · 1 link · 1 short video</span>
+      </a>
+      <a class="path rv rv-d1" href="/partners/">
+        <span class="who">Business partners</span>
+        <h3>I want to back them.</h3>
+        <p>Investors who want to see the cohort first, companies that sponsor a prize and meet the builders early, and operators who mentor a team for two months.</p>
+        <span class="path-cta btn btn-ghost">Partner with Batch Zero <span class="arr">→</span></span>
+        <span class="path-meta">Investors · Sponsor companies · Mentors</span>
+      </a>
     </div>
   </div>
 </section>
@@ -98,7 +108,7 @@ HOME = """
         <span class="label rv">Demo Day</span>
         <h2 class="rv rv-d1">Scored in the open. Judged in the app.</h2>
         <p class="lede rv rv-d2">Every cohort ends with a live, online Demo Day. Teams pitch for five minutes, judges score on a fixed rubric inside Batch Zero, and the results are visible the moment the last vote lands. Investors and companies watch live. The winner takes a sponsor-funded prize; every team leaves with feedback they can act on.</p>
-        <div class="hero-actions rv rv-d3"><a class="btn btn-ghost" href="/apply/investors/">Watch the next Demo Day →</a></div>
+        <div class="hero-actions rv rv-d3"><a class="btn btn-ghost" href="/partners/">Watch the next Demo Day →</a></div>
       </div>
       <div class="scorecard rv">
         <div class="hd"><span>demo_day / cohort_01</span><span>judge 3 of 5</span></div>
@@ -161,8 +171,8 @@ HOME = """
       <h2>You already built the thing. Now build the company.</h2>
       <p class="lede" style="text-align:center">Applications for Cohort 01 close October 31. Five spots.</p>
       <div class="hero-actions" style="justify-content:center">
-        <a class="btn btn-primary btn-bracket" href="/apply/founders/">Apply as a founder <span class="arr">→</span></a>
-        <a class="btn btn-ghost" href="/apply/mentors/">Become a mentor</a>
+        <a class="btn btn-primary btn-lg btn-bracket" href="/apply/founders/">I'm a founder — apply <span class="arr">→</span></a>
+        <a class="btn btn-ghost btn-lg" href="/partners/">I'm a business partner</a>
       </div>
     </div>
   </div>
@@ -277,6 +287,42 @@ ABOUT = """
 </section>
 """
 
+PARTNERS = """
+<div class="wrap page-hero">
+  <span class="label rv">Business partners</span>
+  <h1 class="rv rv-d1">Which one are you?</h1>
+  <p class="lede rv rv-d2">Founders never pay for Batch Zero. The people who get value from meeting them early make it possible. Pick your door — each one is a two-minute form.</p>
+</div>
+<section style="padding-top:16px">
+  <div class="wrap">
+    <div class="choose">
+      <a class="choice rv" href="/apply/investors/">
+        <span class="n">01</span>
+        <span class="who">Investor</span>
+        <h3>I want to see the cohort first.</h3>
+        <p>Angels, scouts, micro-VCs, family offices. A curated feed of every selected startup, live Demo Day access, intro requests through the platform. Founding tier is free through Cohort 02.</p>
+        <span class="go">Request investor access <span class="arr">→</span></span>
+      </a>
+      <a class="choice rv rv-d1" href="/apply/sponsors/">
+        <span class="n">02</span>
+        <span class="who">Sponsor company</span>
+        <h3>I want to back a cohort.</h3>
+        <p>Fund the Demo Day prize, put your name on a cohort, and meet the builders early — opt-in access to founders and team members for internships and project work.</p>
+        <span class="go">Sponsor a cohort <span class="arr">→</span></span>
+      </a>
+      <a class="choice rv rv-d2" href="/apply/mentors/">
+        <span class="n">03</span>
+        <span class="who">Mentor</span>
+        <h3>I want to give two months.</h3>
+        <p>Operators, founders, engineers, designers. Two mentors per team, weekly sessions on the platform, eight weeks. Vetted, recorded, and the most direct way to change a founder's trajectory.</p>
+        <span class="go">Apply to mentor <span class="arr">→</span></span>
+      </a>
+    </div>
+    <p class="dim" style="margin-top:28px;font-size:14px">Not sure, or something else (press, schools, partnerships)? <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a></p>
+  </div>
+</section>
+"""
+
 def form_page(label, h1, lede, aside_title, aside_items, form_fields, submit_label, done_title, done_text):
     items = "".join(f"<li>{i}</li>" for i in aside_items)
     return f"""
@@ -329,25 +375,20 @@ def consent(text):
 
 FOUNDERS_FORM = f"""
 <div class="fieldset"><span class="label plain">01 · You</span>
-  <div class="f-row">{field("first_name","First name",placeholder="Ada")}{field("last_name","Last name",placeholder="Lovelace")}</div>
-  <div class="f-row">{field("email","Email","email",placeholder="you@school.edu")}{field("grad_year","Graduation year",as_="select",options=["2027","2028","2029","2030"])}</div>
-  <div class="f-row">{field("school","School",placeholder="Lincoln High School")}{field("location","City, country",placeholder="Los Angeles, USA")}</div>
+  <div class="f-row">{field("name","Your name",placeholder="First and last")}{field("email","Email","email",placeholder="you@school.edu")}</div>
+  <div class="f-row">{field("school","School + city",placeholder="Lincoln High, Los Angeles")}{field("grad_year","Graduation year",as_="select",options=["2027","2028","2029","2030"])}</div>
 </div>
 <div class="fieldset"><span class="label plain">02 · Your startup</span>
-  {field("company","Startup name",placeholder="What do you call it?")}
-  {field("one_liner","One-liner",placeholder="We help X do Y so they can Z",hint="// one sentence, no buzzwords")}
-  {field("url","Link to the thing","url",placeholder="https://",hint="// website, app store, demo video, GitHub — anything we can click")}
-  {field("stage","Where are you today?",as_="select",options=["Prototype with real users","Live product, no revenue yet","Live product with revenue","Something else (explain below)"])}
-  {field("traction","Traction, in numbers",as_="textarea",placeholder="Users, revenue, downloads, waitlist, retention — whatever you actually have. Be specific.")}
-  {field("problem","What problem are you solving and why does it matter?",as_="textarea",placeholder="Who has this problem, how do you know, what happens today without you?")}
+  <div class="f-row">{field("company","Startup name",placeholder="What do you call it?")}{field("url","Link to it","url",placeholder="https://",hint="// website, app, demo, GitHub — anything we can click")}</div>
+  {field("one_liner","What does it do, in one sentence?",placeholder="We help X do Y so they can Z",hint="// no buzzwords, max 120 characters").replace('type="text"', 'type="text" maxlength="120"')}
+  {field("progress","How far along are you? Numbers, please.",as_="textarea",placeholder="Users, revenue, downloads, waitlist, customers — whatever you actually have. Two or three lines.")}
+  {field("why","Why this, and why you?",as_="textarea",placeholder="What do you know about this problem that most people don't? Two or three lines.")}
 </div>
 <div class="fieldset"><span class="label plain">03 · Team &amp; video</span>
-  {field("team","Who's on the team?",as_="textarea",placeholder="Names, roles, schools, and how you know each other. Solo founders welcome.",required=False)}
-  {field("video","90-second video","url",placeholder="https://",hint="// unlisted YouTube or Loom. Show us the product and tell us why you.")}
-  {chips("help","What do you need most from the program?",["Product","Growth","Fundraising","Hiring","Legal / incorporation","Pricing","Design","Just people who get it"])}
-  {field("why","Why Batch Zero, why now?",as_="textarea",placeholder="What would change for you in eight weeks?",required=False)}
+  {field("team","Who's on the team?",placeholder="Names + what each person does. 'Just me' is fine.")}
+  {field("video","60-second video","url",placeholder="https://",hint="// unlisted YouTube or Loom. Show the product, say who you are. Phone camera is fine.")}
 </div>
-{consent("I'm currently a high-school student. I understand a parent or guardian will need to sign a consent form if I'm selected and under 18. I agree to the <a href='/terms/' style='color:var(--accent-2)'>terms</a> and <a href='/privacy/' style='color:var(--accent-2)'>privacy policy</a>.")}
+{consent("I'm currently a high-school student. If I'm selected and under 18, a parent or guardian will sign a consent form. I agree to the <a href='/terms/' style='color:var(--accent-2)'>terms</a> and <a href='/privacy/' style='color:var(--accent-2)'>privacy policy</a>.")}
 """
 
 MENTORS_FORM = f"""
@@ -385,25 +426,24 @@ INVESTORS_FORM = f"""
 </div>
 """
 
-COMPANIES_FORM = f"""
+SPONSORS_FORM = f"""
 <div class="fieldset"><span class="label plain">01 · Company</span>
   <div class="f-row">{field("company","Company")}{field("website","Website","url",placeholder="https://")}</div>
   <div class="f-row">{field("first_name","Your name")}{field("email","Work email","email")}</div>
   <div class="f-row">{field("role","Your role")}{field("size","Company size",as_="select",options=["1–10","11–50","51–200","201–1000","1000+"])}</div>
 </div>
-<div class="fieldset"><span class="label plain">02 · Who you want to meet</span>
-  {chips("roles","Roles",["Engineering","Design","Product","Marketing","Sales","Operations","Data","Content / community"])}
-  {chips("format","Format",["Summer internship","Part-time (school year)","Apprenticeship","Project-based / contract","Future full-time pipeline"])}
-  {field("pitch","Why should a high-school founder want to work with you?",as_="textarea",placeholder="Be specific — they'll read this.")}
+<div class="fieldset"><span class="label plain">02 · How you want to back a cohort</span>
+  {chips("interest","I'm interested in",["Sponsoring the Demo Day prize","Naming a cohort","Meeting founders for internships / projects","Hosting office hours or a workshop","Something else"])}
+  {field("budget","Rough sponsorship range",as_="select",options=["$1k–$5k","$5k–$15k","$15k+","Not sure yet — let's talk"])}
+  {field("pitch","Why should a high-school founder want your company in the room?",as_="textarea",placeholder="Be specific — they'll read this.")}
 </div>
 <div class="fieldset"><span class="label plain">03 · Access</span>
-  {field("seats","Seats needed",as_="select",options=["1","2–5","6–10","10+"])}
   {consent("I understand all contact with students goes through the Batch Zero platform, that students opt in individually, and that engagements for anyone under 18 must comply with applicable youth-employment law and require parental consent.")}
 </div>
 """
 
-FOUNDERS = form_page("Founders · Cohort 01", "Apply to the batch.", "Five spots. You need a startup that already exists — users, revenue, a live product, a working prototype people are using. Ten minutes, one video, one link.",
-    "What you'll need", ["A link to something real", "Numbers, even small ones", "A 90-second video (phone is fine)", "Who's on the team", "Parent/guardian consent if selected and under 18"],
+FOUNDERS = form_page("Founders · Cohort 01", "Apply to the batch.", "Five spots. You need a startup that already exists — users, revenue, a live product, a working prototype people are using. Nine questions, one link, one 60-second video. About ten minutes.",
+    "What you'll need", ["A link to something real", "Numbers, even small ones", "A 60-second video (phone is fine)", "Who's on the team", "Parent/guardian consent if selected and under 18"],
     FOUNDERS_FORM, "Submit application", "Application received.", "We review every application on the same rubric and reply within two weeks of the window closing — with feedback either way.")
 
 MENTORS = form_page("Mentors", "Give a founder two months.", "Two mentors per team, weekly sessions on the platform, eight weeks. We're looking for people who've built things and can say what they actually think.",
@@ -414,9 +454,14 @@ INVESTORS = form_page("Investors", "See the cohort before anyone else.", "A cura
     "How it works", ["Visibility and intros only — no deal-making on the platform", "Founders opt in before any intro", "No fees or carry, ever", "Founding tier free through Cohort 02"],
     INVESTORS_FORM, "Request access", "Request received.", "We approve investor accounts manually. You'll hear from us within a few days.")
 
-COMPANIES = form_page("Companies", "Hire the builders early.", "Reach founders and team members who opted in to internships, apprenticeships and project work. Meet the people who are already shipping — before they're on anyone's radar.",
-    "How it works", ["Searchable directory of opted-in builders", "Intro requests through the platform", "Per-seat subscription", "Internships, part-time, project work — never full-time placement for minors"],
-    COMPANIES_FORM, "Talk to us", "Got it.", "We'll reach out to set up your seats and walk you through the directory.")
+SPONSORS = form_page("Sponsor companies", "Back a cohort. Meet the builders early.", "Sponsors fund the Demo Day prize and put their name on a cohort. In return: a seat at Demo Day, your brand in front of the next generation of founders, and opt-in access to the people already shipping — for internships, apprenticeships and project work.",
+    "How it works", ["Prize sponsorship from $1k per cohort", "Logo on the cohort page and Demo Day stream", "Opt-in intros to founders and team members", "Internships, part-time, project work — never full-time placement for minors"],
+    SPONSORS_FORM, "Talk to us", "Got it.", "We'll reach out within a few days to talk through the cohort and what sponsorship looks like.")
+
+COMPANIES_REDIRECT = """
+<div class="wrap page-hero"><span class="label">Moved</span><h1>This page moved.</h1><p class="lede">Companies now come in through the sponsor door. Redirecting…</p><div class="hero-actions"><a class="btn btn-primary" href="/apply/sponsors/">Go to sponsor companies →</a></div></div>
+<meta http-equiv="refresh" content="2;url=/apply/sponsors/">
+"""
 
 PRIVACY = """
 <div class="wrap page-hero"><span class="label">Legal</span><h1>Privacy policy</h1><p class="lede">Draft — to be reviewed before launch.</p></div>
@@ -454,7 +499,9 @@ PAGES = [
     ("apply/founders/index.html", "Apply as a founder — Batch Zero", "Apply to Cohort 01. Five spots for high-school startups that already exist.", FOUNDERS, "/apply/founders/"),
     ("apply/mentors/index.html", "Become a mentor — Batch Zero", "Give a high-school founder two months. Weekly sessions, vetted mentors, real impact.", MENTORS, "/apply/mentors/"),
     ("apply/investors/index.html", "Investor access — Batch Zero", "See every selected startup first. Demo Day access and intro requests through the platform.", INVESTORS, "/apply/investors/"),
-    ("apply/companies/index.html", "Hire from the cohort — Batch Zero", "Reach high-school founders and builders who opted in to internships and project work.", COMPANIES, "/apply/companies/"),
+    ("partners/index.html", "Business partners — Batch Zero", "Investors, sponsor companies and mentors: pick your door into Batch Zero.", PARTNERS, "/partners/"),
+    ("apply/sponsors/index.html", "Sponsor a cohort — Batch Zero", "Fund the Demo Day prize, name a cohort, and meet high-school founders early.", SPONSORS, "/apply/sponsors/"),
+    ("apply/companies/index.html", "Moved — Batch Zero", "This page moved to sponsor companies.", COMPANIES_REDIRECT, "/apply/sponsors/"),
     ("privacy/index.html", "Privacy — Batch Zero", "Batch Zero privacy policy.", PRIVACY, "/privacy/"),
     ("terms/index.html", "Terms — Batch Zero", "Batch Zero terms of use.", TERMS, "/terms/"),
 ]

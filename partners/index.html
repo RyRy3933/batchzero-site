@@ -1,21 +1,11 @@
-#!/usr/bin/env python3
-"""Assemble the Batch Zero static site from partials + page bodies. Run: python3 build.py"""
-import os, sys, importlib
-HERE = os.path.dirname(os.path.abspath(__file__))
-SITE = os.path.abspath(os.path.join(HERE, ".."))
-sys.path.insert(0, HERE)
-
-SITE_URL = "https://batchzero.co"
-
-def head(title, desc, path):
-    return f"""<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{title}</title>
-<meta name="description" content="{desc}">
-<link rel="canonical" href="{SITE_URL}{path}">
+<title>Business partners — Batch Zero</title>
+<meta name="description" content="Investors, sponsor companies and mentors: pick your door into Batch Zero.">
+<link rel="canonical" href="https://batchzero.co/partners/">
 <meta name="theme-color" content="#07080a">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -23,10 +13,10 @@ def head(title, desc, path):
 <link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Batch Zero">
-<meta property="og:title" content="{title}">
-<meta property="og:description" content="{desc}">
-<meta property="og:url" content="{SITE_URL}{path}">
-<meta property="og:image" content="{SITE_URL}/og-image.png">
+<meta property="og:title" content="Business partners — Batch Zero">
+<meta property="og:description" content="Investors, sponsor companies and mentors: pick your door into Batch Zero.">
+<meta property="og:url" content="https://batchzero.co/partners/">
+<meta property="og:image" content="https://batchzero.co/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
@@ -37,9 +27,7 @@ def head(title, desc, path):
 </head>
 <body>
 <div class="grid-bg"></div><div class="noise"></div><div class="spot"></div>
-"""
-
-NAV = """<header class="nav">
+<header class="nav">
   <div class="wrap">
     <a class="brand" href="/" aria-label="Batch Zero home"><img src="/assets/img/b0-mark-paper.svg" alt="[B0]" width="84" height="26"><span>BATCH ZERO</span></a>
     <nav class="nav-links" aria-label="Primary">
@@ -59,9 +47,41 @@ NAV = """<header class="nav">
   <a href="/apply/founders/" style="color:var(--accent-2)">I'm a founder → apply</a><a href="/partners/">I'm a business partner</a>
   <a href="/program/">Program</a><a href="/#how">How it works</a><a href="/#demo-day">Demo Day</a><a href="/about/">About</a>
 </div>
-"""
 
-FOOTER = """<footer>
+<div class="wrap page-hero">
+  <span class="label rv">Business partners</span>
+  <h1 class="rv rv-d1">Which one are you?</h1>
+  <p class="lede rv rv-d2">Founders never pay for Batch Zero. The people who get value from meeting them early make it possible. Pick your door — each one is a two-minute form.</p>
+</div>
+<section style="padding-top:16px">
+  <div class="wrap">
+    <div class="choose">
+      <a class="choice rv" href="/apply/investors/">
+        <span class="n">01</span>
+        <span class="who">Investor</span>
+        <h3>I want to see the cohort first.</h3>
+        <p>Angels, scouts, micro-VCs, family offices. A curated feed of every selected startup, live Demo Day access, intro requests through the platform. Founding tier is free through Cohort 02.</p>
+        <span class="go">Request investor access <span class="arr">→</span></span>
+      </a>
+      <a class="choice rv rv-d1" href="/apply/sponsors/">
+        <span class="n">02</span>
+        <span class="who">Sponsor company</span>
+        <h3>I want to back a cohort.</h3>
+        <p>Fund the Demo Day prize, put your name on a cohort, and meet the builders early — opt-in access to founders and team members for internships and project work.</p>
+        <span class="go">Sponsor a cohort <span class="arr">→</span></span>
+      </a>
+      <a class="choice rv rv-d2" href="/apply/mentors/">
+        <span class="n">03</span>
+        <span class="who">Mentor</span>
+        <h3>I want to give two months.</h3>
+        <p>Operators, founders, engineers, designers. Two mentors per team, weekly sessions on the platform, eight weeks. Vetted, recorded, and the most direct way to change a founder's trajectory.</p>
+        <span class="go">Apply to mentor <span class="arr">→</span></span>
+      </a>
+    </div>
+    <p class="dim" style="margin-top:28px;font-size:14px">Not sure, or something else (press, schools, partnerships)? <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a></p>
+  </div>
+</section>
+<footer>
   <div class="wrap">
     <div class="foot">
       <div>
@@ -82,37 +102,3 @@ FOOTER = """<footer>
 <script src="/assets/js/site.js" defer></script>
 </body>
 </html>
-"""
-
-def page(out_path, title, desc, body, canonical):
-    html = head(title, desc, canonical) + NAV + body + FOOTER
-    full = os.path.join(SITE, out_path.lstrip("/"))
-    os.makedirs(os.path.dirname(full), exist_ok=True)
-    with open(full, "w") as f:
-        f.write(html)
-    print("wrote", out_path)
-
-if __name__ == "__main__":
-    import pages
-    for p in pages.PAGES:
-        page(*p)
-    # manifest
-    with open(os.path.join(SITE, "site.webmanifest"), "w") as f:
-        f.write('''{
-  "name": "Batch Zero", "short_name": "Batch Zero",
-  "icons": [
-    { "src": "/android-chrome-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/android-chrome-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
-  ],
-  "theme_color": "#07080a", "background_color": "#07080a", "display": "standalone", "start_url": "/"
-}''')
-    with open(os.path.join(SITE, "robots.txt"), "w") as f:
-        f.write(f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n")
-    with open(os.path.join(SITE, "sitemap.xml"), "w") as f:
-        seen = []
-        for p in pages.PAGES:
-            if p[0].startswith("404") or p[0].startswith("apply/companies") or p[4] in seen: continue
-            seen.append(p[4])
-        urls = "".join(f"<url><loc>{SITE_URL}{u}</loc></url>" for u in seen)
-        f.write(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>')

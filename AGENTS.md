@@ -25,10 +25,13 @@ The public marketing site for **Batch Zero**, an online accelerator for high-sch
 ```
 index.html                       home
 program/  about/  privacy/  terms/   inner pages (each is <dir>/index.html)
-apply/{founders,mentors,investors,companies}/   application forms
+partners/                        chooser page: investor / sponsor company / mentor
+apply/{founders,mentors,investors,sponsors}/   application forms (companies/ is a redirect to sponsors/)
+supabase/schema.sql              applications table + RLS (anon = insert only)
 404.html                         GitHub Pages 404
 assets/css/site.css              all styling; design tokens in :root at the top
-assets/js/site.js                nav, reveal-on-scroll, countdown, counters, form validation
+assets/js/config.js              Supabase URL + anon key (public by design; the DB only allows inserts)
+assets/js/site.js                nav, reveal-on-scroll, countdown, counters, form validation + Supabase submit
 assets/media/                    hero-loop.webm/.mp4 (seamless loop), hero-poster.jpg
 assets/img/                      logo SVGs (final approved [B0] mark — do not redesign)
 tools/build.py, tools/pages.py   HTML generator (see below)
@@ -46,6 +49,12 @@ The HTML files are **generated**. Shared `<head>`, nav and footer live in `tools
 
 Editing the generated HTML directly works for a quick fix but will be overwritten the next time the generator runs — prefer `pages.py`.
 
+## Site structure
+
+Two primary CTAs everywhere (nav, hero, home "Which one are you?", bottom band): **I'm a founder** → `/apply/founders/` and **I'm a business partner** → `/partners/`, which fans out to investors / sponsor companies / mentors. Keep that split; don't add a fourth top-level audience without asking.
+
+The founder application is deliberately short (nine questions, YC-style, for high-schoolers). Don't add fields without a strong reason.
+
 ## Design rules
 
 - Dark instrument-panel aesthetic: ink `#07080a` background, paper `#f5f5f0` text, accent blue `#3b6cff` (`--accent-2 #7aa0ff` for text on dark). **No green/lime anywhere** — the founder rejected it.
@@ -56,7 +65,7 @@ Editing the generated HTML directly works for a quick fix but will be overwritte
 
 ## Things that are intentionally unfinished
 
-- **Forms are UI-only.** They validate client-side and show a confirmation, but submit nowhere. The hook is in `assets/js/site.js` at `TODO: wire to backend` (planned: Supabase `applications` table). Don't tell users applications are being received until this is wired.
+- **Forms submit to Supabase** via plain `fetch` to the REST endpoint (`submitApplication()` in `site.js`), one row per submission in `public.applications` (`type`, `name`, `email`, `payload` jsonb, `status`). If `assets/js/config.js` has an empty URL/key the form shows the confirmation but stores nothing — check the console. Never add a SELECT policy for `anon`; applications from minors must not be publicly readable.
 - **Cohort dates** are placeholders: countdown target `CONFIG.cohortDeadline` in `site.js`; the schedule table and "closes October 31" lines are text in `pages.py`. Keep them consistent when you change one.
 - **Privacy / Terms** are placeholder copy pending legal review.
 - `hello@batchzero.co` is referenced but the mailbox may not exist yet.

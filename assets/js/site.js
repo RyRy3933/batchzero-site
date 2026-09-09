@@ -85,10 +85,37 @@
     v.addEventListener("ended", () => { v.pause(); v.currentTime = Math.max(0, v.duration - 0.05); });
   });
 
-  /* ---- forms (UI only for now) ---- */
+  /* ---- forms → Supabase ---- */
+  const CFG = window.B0_CONFIG || {};
+  const formType = () => {
+    const m = location.pathname.match(/\/apply\/(founders|mentors|investors|sponsors|companies)\//);
+    return m ? { founders: "founder", mentors: "mentor", investors: "investor", sponsors: "sponsor", companies: "sponsor" }[m[1]] : "unknown";
+  };
+  async function submitApplication(type, data) {
+    if (!CFG.SUPABASE_URL || !CFG.SUPABASE_ANON_KEY) {
+      console.warn("[B0] Supabase not configured — application not stored:", data);
+      return { ok: true, stored: false };
+    }
+    const row = {
+      type,
+      name: data.name || [data.first_name, data.last_name].filter(Boolean).join(" ") || null,
+      email: data.email || null,
+      payload: data,
+      source: location.pathname,
+      user_agent: navigator.userAgent.slice(0, 200),
+    };
+    const res = await fetch(`${CFG.SUPABASE_URL}/rest/v1/${CFG.TABLE || "applications"}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "apikey": CFG.SUPABASE_ANON_KEY, "Authorization": `Bearer ${CFG.SUPABASE_ANON_KEY}`, "Prefer": "return=minimal" },
+      body: JSON.stringify(row),
+    });
+    if (!res.ok) throw new Error(`Supabase ${res.status}: ${await res.text()}`);
+    return { ok: true, stored: true };
+  }
   $$("form.app").forEach(form => {
     form.setAttribute("novalidate", "");
-    form.addEventListener("submit", (e) => {
+    if (!$(".form-error", form)) { const e = document.createElement("div"); e.className = "form-error"; e.textContent = "// couldn't send — check your connection and try again, or email hello@batchzero.co"; form.appendChild(e); }
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
       let ok = true;
       $$(".field", form).forEach(f => {
@@ -104,11 +131,18 @@
       const consent = $("input[name=consent]", form);
       if (consent && !consent.checked) { ok = false; consent.focus(); consent.parentElement.style.color = "#ff8a95"; }
       if (!ok) { const first = $(".field.err", form); if (first) first.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
-      // TODO: wire to backend (Supabase / form endpoint). For now, show the confirmation state.
-      const data = Object.fromEntries(new FormData(form).entries());
-      console.log("[B0] application (not sent yet):", data);
-      form.classList.add("sent");
-      window.scrollTo({ top: form.getBoundingClientRect().top + window.scrollY - 120, behavior: "smooth" });
+      // collect (checkbox groups → arrays)
+      const data = {};
+      new FormData(form).forEach((v, k) => { if (k in data) { data[k] = [].concat(data[k], v); } else { data[k] = v; } });
+      form.classList.add("busy"); form.classList.remove("failed");
+      try {
+        await submitApplication(formType(), data);
+        form.classList.add("sent");
+        window.scrollTo({ top: form.getBoundingClientRect().top + window.scrollY - 120, behavior: "smooth" });
+      } catch (err) {
+        console.error("[B0] submit failed", err);
+        form.classList.add("failed");
+      } finally { form.classList.remove("busy"); }
     });
     $$("input, textarea, select", form).forEach(i => i.addEventListener("input", () => i.closest(".field") && i.closest(".field").classList.remove("err")));
   });

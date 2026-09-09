@@ -6,11 +6,15 @@ Static site. No framework, no build step required to serve it — every file in 
 index.html                 home (video hero, how it works, four doors, demo day, schedule, FAQ)
 program/                   week-by-week program + selection rubric
 about/
-apply/founders|mentors|investors|companies/   application forms (UI only — see below)
+partners/                  "Which one are you?" chooser: investors / sponsor companies / mentors
+apply/founders|mentors|investors|sponsors/   application forms → Supabase (see below)
+apply/companies/           redirect to /apply/sponsors/
+supabase/schema.sql        the `applications` table + insert-only RLS policy
 privacy/  terms/           placeholder legal pages
 assets/css/site.css        all styling (design tokens at the top)
-assets/js/site.js          nav, reveal-on-scroll, countdown, counters, form validation
-assets/media/              hero-loop.webm / .mp4 (8-second seamless ping-pong loop), hero-poster.jpg
+assets/js/config.js        Supabase URL + anon key (fill these in)
+assets/js/site.js          nav, reveal-on-scroll, countdown, counters, form validation + Supabase submit
+assets/media/              hero-intro.webm / .mp4 (plays once on load), hero-poster.jpg
 assets/img/                logo SVGs
 favicon.*, og-image.png, site.webmanifest, robots.txt, sitemap.xml
 Dockerfile + Caddyfile     how Railway serves it
@@ -24,7 +28,11 @@ The HTML pages are generated from `tools/pages.py` (one Python string per page, 
 ## Things to change before launch
 
 - **Cohort deadline** — `CONFIG.cohortDeadline` at the top of `assets/js/site.js` drives the countdown; the schedule table on the home page and the "closes October 31" lines are plain text in `pages.py`.
-- **Forms** — currently UI-only. On submit they validate, log the data to the console, and show the confirmation state. Wire them up in `site.js` (look for `TODO: wire to backend`) — a Supabase insert or a form endpoint is a ~10-line change.
+- **Forms → Supabase** — three steps:
+  1. In your Supabase project, open **SQL Editor** and run `supabase/schema.sql`. It creates `public.applications` with Row Level Security so the public key can only INSERT (never read).
+  2. Copy **Project Settings → API → Project URL** and **anon public** key into `assets/js/config.js`.
+  3. Push. Until the config is filled in, forms still show the confirmation but log `Supabase not configured` to the console and store nothing.
+  Every submission lands as one row: `type` (founder / mentor / investor / sponsor), `name`, `email`, `payload` (all fields as JSON), `status` (new). Read them in the Supabase Table Editor, or build an admin view later.
 - **Privacy / terms** — placeholders. Replace before processing applications from minors.
 - **Email** — `hello@batchzero.co` is used throughout; set up the mailbox (Namecheap Private Email, Google Workspace, or forwarding).
 
