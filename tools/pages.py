@@ -464,20 +464,88 @@ COMPANIES_REDIRECT = """
 """
 
 PRIVACY = """
-<div class="wrap page-hero"><span class="label">Legal</span><h1>Privacy policy</h1><p class="lede">Draft — to be reviewed before launch.</p></div>
+<div class="wrap page-hero"><span class="label">Legal</span><h1>Privacy policy</h1><p class="lede">Plain-English version first, full version below. Last updated September 9, 2026.</p></div>
 <section style="padding-top:8px"><div class="wrap"><div class="prose">
-<p>Batch Zero ("we") collects the information you submit in application forms so we can review applications, run the program, and contact you about it. We do not sell personal information. Information about students under 18 is handled with parental consent and is never shared with investors or companies without the student's explicit opt-in.</p>
-<p>We use standard analytics and hosting providers to run this site. You can ask us to delete your information at any time by emailing <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a>.</p>
-<p>This page is a placeholder and will be replaced with a full policy reviewed by counsel before applications are processed.</p>
+<div class="card" style="margin-bottom:8px"><div class="idx"><span>tl;dr</span><span>the short version</span></div>
+<p>We collect what you type into our application forms and nothing else. We use it to run Batch Zero. We don't sell it, we don't run ad trackers, and nobody outside the team sees a student's application unless that student opts in. Email <a href="mailto:rayan@batchzero.co" style="color:var(--accent-2)">rayan@batchzero.co</a> to see, fix, or delete your data at any time.</p></div>
+
+<h2>1. Who we are</h2>
+<p>Batch Zero ("Batch Zero", "we", "us") is an early-stage program based in California that is operated by its founder and has not yet formed a company. When a legal entity is formed, it will take over responsibility for this policy and we'll update this page. Questions and requests go to <a href="mailto:rayan@batchzero.co" style="color:var(--accent-2)">rayan@batchzero.co</a>.</p>
+
+<h2>2. What we collect</h2>
+<p><strong>What you give us.</strong> When you submit a form on batchzero.co we store exactly what you enter: for founders, your name, email, school, graduation year, and what you tell us about your startup and team, plus links you share (website, demo, video). For mentors, investors and sponsor companies: name, work email, company, role, links, and your answers. We also record the page the form was sent from and a general browser type, to help debug problems.</p>
+<p><strong>What we don't collect.</strong> We do not use advertising trackers, social-media pixels, or analytics cookies. We don't ask for your address, phone number, date of birth, or any government ID. We don't collect payment information on this site.</p>
+<p><strong>Video links.</strong> If you share a video (for example an unlisted YouTube or Loom link), the video stays on that service under its own privacy terms; we only store the link.</p>
+
+<h2>3. How we use it</h2>
+<p>To review applications, select and run cohorts, match founders with mentors, organise Demo Day, and contact you about any of that. If you're a mentor, investor or sponsor, to vet your application and, if approved, give you access to the program. We may use anonymous, aggregated numbers (for example "we received 120 applications") publicly.</p>
+
+<h2>4. Students and parents</h2>
+<p>Batch Zero is for high-school students. You must be at least 13 to use this site or apply; we do not knowingly collect information from anyone under 13, and we delete it if we find it. If you are under 18 and selected for a cohort, a parent or guardian must sign a consent form before you take part, and they can ask us at any time to see or delete your information. Parents: email <a href="mailto:rayan@batchzero.co" style="color:var(--accent-2)">rayan@batchzero.co</a> and we'll respond within a few days.</p>
+
+<h2>5. Who can see a student's information</h2>
+<p>Only the Batch Zero team and reviewers reviewing applications. Mentors see the applications of the teams they are matched with. Investors and sponsor companies do <strong>not</strong> receive contact details or full applications: they see the profile a founder chooses to make visible, and any introduction is requested through us and accepted by the founder first. We never share a student's information with a third party for that party's own marketing.</p>
+
+<h2>6. Services we rely on</h2>
+<p>Form submissions are stored in a database hosted by Supabase (United States). The website is hosted on GitHub Pages and loads fonts from Google Fonts; these providers may see standard technical data such as your IP address when your browser requests a page. Each provider handles that data under its own privacy policy. We don't use any other third-party services on this site today, and we'll update this list if that changes.</p>
+
+<h2>7. How long we keep it</h2>
+<p>Applications that aren't selected are kept for up to 12 months so you can reapply without starting over, then deleted. Selected teams' information is kept for the length of the program and up to 3 years after, for alumni purposes, unless you ask us to delete it sooner. Mentor, investor and sponsor records are kept while the relationship is active and up to 2 years after.</p>
+
+<h2>8. Your choices and rights</h2>
+<p>You can ask us to show you what we hold, correct it, or delete it, and you can withdraw an application at any time — email us and we'll do it. California residents have additional rights under the CCPA/CPRA, including the right to know, delete, and not be discriminated against for exercising those rights; we don't sell or share personal information as those laws define it. Residents of other places have similar rights under their local law and can use the same email.</p>
+
+<h2>9. Security</h2>
+<p>The site is served over HTTPS. Form data is stored in a database where the public website key can only add records, never read them; reading requires authenticated access held by the team. No system is perfectly secure, so please don't put passwords, financial details, or anything you'd consider highly sensitive into an application.</p>
+
+<h2>10. Changes</h2>
+<p>If we change this policy in a meaningful way we'll post the new version here with a new date, and if you have an active application or are in a cohort we'll email you.</p>
+
+<p class="dim" style="font-size:14px">This policy was drafted in good faith to be clear and protective; it has not yet been reviewed by a lawyer. If anything here is unclear, ask us and we'll explain it.</p>
 </div></div></section>
 """
 
 TERMS = """
-<div class="wrap page-hero"><span class="label">Legal</span><h1>Terms of use</h1><p class="lede">Draft — to be reviewed before launch.</p></div>
+<div class="wrap page-hero"><span class="label">Legal</span><h1>Terms of use</h1><p class="lede">The rules for using batchzero.co and applying to the program. Last updated September 9, 2026.</p></div>
 <section style="padding-top:8px"><div class="wrap"><div class="prose">
-<p>By using batchzero.co you agree to use it lawfully and honestly. Applications must be truthful. Batch Zero provides a program, community, and introductions; it does not provide investment, legal, or financial advice, does not broker investments, and takes no fees or equity from founders.</p>
-<p>Participants under 18 require parental or guardian consent to take part in the program. All interaction between adults and students occurs on the platform under our code of conduct.</p>
-<p>This page is a placeholder and will be replaced with full terms reviewed by counsel before launch.</p>
+<div class="card" style="margin-bottom:8px"><div class="idx"><span>tl;dr</span><span>the short version</span></div>
+<p>Be honest in your application. Your startup stays 100% yours. Getting in isn't guaranteed. We're a program and a community, not investors, lawyers or a bank. Adults and students only interact through us. If you're under 18, a parent signs before you join a cohort.</p></div>
+
+<h2>1. Who's behind this</h2>
+<p>Batch Zero is an early-stage program based in California, operated by its founder; it has not yet formed a company. These terms are between you and Batch Zero. When a legal entity is formed, these terms will apply between you and that entity and we'll update this page. Contact: <a href="mailto:rayan@batchzero.co" style="color:var(--accent-2)">rayan@batchzero.co</a>.</p>
+
+<h2>2. Using the site</h2>
+<p>You may use batchzero.co to learn about the program and apply. You agree not to misuse it: no scraping, no automated submissions, no attempts to access other people's data or interfere with the site. You must be at least 13 to use the site.</p>
+
+<h2>3. Applications</h2>
+<p>Everything you submit must be true and your own. You must have the right to share any links or material you include. Submitting an application doesn't guarantee selection, feedback, or a place in any cohort, and we can close, extend, or cancel an application window at our discretion. We may contact you about your application by email.</p>
+<p>Applying is free. We never charge founders, take equity, or take a percentage of anything you raise.</p>
+
+<h2>4. Joining a cohort</h2>
+<p>If you're selected, taking part is subject to a separate participation agreement that covers the program in detail. If you are under 18, a parent or guardian must sign it before you start. Participation is voluntary and you can leave at any time.</p>
+
+<h2>5. Your startup is yours</h2>
+<p>You keep all rights to your company, product, code, brand, and ideas. We don't take any ownership or licence over them. With your permission, we may use your startup's name, logo and a short description to promote the program (for example on a cohort page or a Demo Day announcement); you can withdraw that permission by emailing us. Demo Day may be recorded; we'll tell you beforehand and ask for consent (from a parent or guardian if you're under 18) before publishing any recording that shows you.</p>
+
+<h2>6. Mentors, investors and sponsors</h2>
+<p>Adults take part in Batch Zero only through the platform and under our code of conduct. Mentors are interviewed and background-checked before being matched. Investors and sponsor companies receive visibility and introductions only; contact with a founder happens only after the founder (and, if under 18, their parent or guardian) opts in. Any offer of investment, internship or work is strictly between you and the other party — Batch Zero is not a party to it, does not broker or facilitate investments, and does not take fees on them.</p>
+
+<h2>7. Not advice</h2>
+<p>Batch Zero is an educational program and a community. Nothing on this site or in the program is legal, financial, tax, or investment advice. Make your own decisions and talk to a qualified adult or professional before signing anything or taking money.</p>
+
+<h2>8. Community standards</h2>
+<p>Everyone in Batch Zero — founders, mentors, investors, sponsors, staff — agrees to treat others with respect, to keep confidential what other teams share inside the program, and to follow the code of conduct we provide. We can remove anyone who breaks these rules, without notice, at our discretion.</p>
+
+<h2>9. Our content</h2>
+<p>The Batch Zero name, logo, site design and program materials belong to us. You may share links to the site freely; please don't copy or reuse our materials commercially without asking.</p>
+
+<h2>10. No warranties, limited liability</h2>
+<p>The site and program are provided "as is". We work hard to do this well but can't promise the site will always be available or error-free, or that the program will produce any particular result for your startup. To the extent the law allows, Batch Zero and the people who run it are not liable for indirect or consequential losses arising from your use of the site or participation in the program. Nothing here limits liability that cannot be limited by law.</p>
+
+<h2>11. Changes and law</h2>
+<p>We may update these terms; the date at the top tells you when. Continuing to use the site after a change means you accept it. These terms are governed by the laws of the State of California, and any dispute will be handled in the courts located there, unless the law where you live gives you protections that can't be waived.</p>
+
+<p class="dim" style="font-size:14px">These terms were drafted in good faith to be fair and readable; they have not yet been reviewed by a lawyer. Questions: <a href="mailto:rayan@batchzero.co" style="color:var(--accent-2)">rayan@batchzero.co</a>.</p>
 </div></div></section>
 """
 
@@ -502,6 +570,6 @@ PAGES = [
     ("partners/index.html", "Business partners — Batch Zero", "Investors, sponsor companies and mentors: pick your door into Batch Zero.", PARTNERS, "/partners/"),
     ("apply/sponsors/index.html", "Sponsor a cohort — Batch Zero", "Fund the Demo Day prize, name a cohort, and meet high-school founders early.", SPONSORS, "/apply/sponsors/"),
     ("apply/companies/index.html", "Moved — Batch Zero", "This page moved to sponsor companies.", COMPANIES_REDIRECT, "/apply/sponsors/"),
-    ("privacy/index.html", "Privacy — Batch Zero", "Batch Zero privacy policy.", PRIVACY, "/privacy/"),
-    ("terms/index.html", "Terms — Batch Zero", "Batch Zero terms of use.", TERMS, "/terms/"),
+    ("privacy/index.html", "Privacy policy — Batch Zero", "What Batch Zero collects, why, who can see it, and how students and parents can ask for it to be deleted.", PRIVACY, "/privacy/"),
+    ("terms/index.html", "Terms of use — Batch Zero", "The rules for using batchzero.co and applying to the program.", TERMS, "/terms/"),
 ]

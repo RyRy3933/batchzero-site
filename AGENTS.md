@@ -67,7 +67,7 @@ The founder application is deliberately short (nine questions, YC-style, for hig
 
 - **Forms submit to Supabase** via plain `fetch` to the REST endpoint (`submitApplication()` in `site.js`), one row per submission in `public.applications` (`type`, `name`, `email`, `payload` jsonb, `status`). If `assets/js/config.js` has an empty URL/key the form shows the confirmation but stores nothing — check the console. Never add a SELECT policy for `anon`; applications from minors must not be publicly readable.
 - **Cohort dates** are placeholders: countdown target `CONFIG.cohortDeadline` in `site.js`; the schedule table and "closes October 31" lines are text in `pages.py`. Keep them consistent when you change one.
-- **Privacy / Terms** are placeholder copy pending legal review.
+- **Privacy / Terms** are real drafts (plain-English, pre-incorporation wording: "operated by its founder, no company yet"). Update section 1 of both when an entity is formed; keep the "last updated" date current; don't remove the not-yet-lawyer-reviewed note until a lawyer has reviewed them.
 - `hello@batchzero.co` is referenced but the mailbox may not exist yet.
 
 ## Don'ts

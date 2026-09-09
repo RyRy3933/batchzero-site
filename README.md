@@ -33,7 +33,7 @@ The HTML pages are generated from `tools/pages.py` (one Python string per page, 
   2. Copy **Project Settings → API → Project URL** and **anon public** key into `assets/js/config.js`.
   3. Push. Until the config is filled in, forms still show the confirmation but log `Supabase not configured` to the console and store nothing.
   Every submission lands as one row: `type` (founder / mentor / investor / sponsor), `name`, `email`, `payload` (all fields as JSON), `status` (new). Read them in the Supabase Table Editor, or build an admin view later.
-- **Privacy / terms** — placeholders. Replace before processing applications from minors.
+- **Privacy / terms** — drafted in plain English for the pre-incorporation stage; have a lawyer review before the first cohort starts, and update the "who we are" sections when the company is formed.
 - **Email** — `hello@batchzero.co` is used throughout; set up the mailbox (Namecheap Private Email, Google Workspace, or forwarding).
 
 ## Running locally
