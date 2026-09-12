@@ -134,6 +134,11 @@
       // collect (checkbox groups → arrays)
       const data = {};
       new FormData(form).forEach((v, k) => { if (k in data) { data[k] = [].concat(data[k], v); } else { data[k] = v; } });
+      // an unticked checkbox is absent from FormData — record it as "no" so the
+      // admin can tell "they said no" apart from "the field never existed"
+      $$('input[type=checkbox][name]', form).forEach(cb => {
+        if (!(cb.name in data)) data[cb.name] = "no";
+      });
       form.classList.add("busy"); form.classList.remove("failed");
       try {
         await submitApplication(formType(), data);

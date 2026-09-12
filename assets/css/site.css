@@ -433,3 +433,15 @@ form.app.sent + .form-done { display: block; }
 form.app.busy button[type=submit] { opacity: .6; pointer-events: none; }
 .form-error { display: none; font-family: var(--mono); font-size: 12.5px; color: #ff8a95; padding: 12px 14px; border: 1px solid rgba(255,90,106,0.4); border-radius: 8px; background: rgba(255,90,106,0.06); }
 form.app.failed .form-error { display: block; }
+
+/* ---------- opt-in checkboxes (mentor extras) ---------- */
+.optin-group { display: grid; gap: 10px; }
+.optin { display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px;
+  border: 1px solid var(--line-strong); border-radius: 10px; background: rgba(255,255,255,.015);
+  cursor: pointer; transition: border-color .2s, background .2s; }
+.optin:hover { border-color: rgba(122,160,255,.45); background: rgba(255,255,255,.03); }
+.optin input { margin-top: 3px; accent-color: var(--accent); flex: none; width: 16px; height: 16px; }
+.optin:has(input:checked) { border-color: var(--accent); background: var(--accent-dim); }
+.optin .ot { display: grid; gap: 5px; }
+.optin .ot b { font-weight: 600; font-size: 15.5px; color: var(--ink); }
+.optin .ot em { font-style: normal; font-size: 13.5px; color: var(--muted); line-height: 1.45; }

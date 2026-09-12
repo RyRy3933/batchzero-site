@@ -370,6 +370,10 @@ def chips(name, label, options):
     c = "".join(f'<label class="chip"><input type="checkbox" name="{name}" value="{o}"><span>{o}</span></label>' for o in options)
     return f'<div class="field"><label>{label}</label><div class="chips">{c}</div></div>'
 
+def optin(name, title, sub):
+    return (f'<label class="optin"><input type="checkbox" name="{name}" value="yes">'
+            f'<span class="ot"><b>{title}</b><em>{sub}</em></span></label>')
+
 def consent(text):
     return f'<label class="check"><input type="checkbox" name="consent" value="yes"><span>{text}</span></label>'
 
@@ -405,6 +409,13 @@ MENTORS_FORM = f"""
 <div class="fieldset"><span class="label plain">03 · Commitment</span>
   {field("hours","Time you can give per week",as_="select",options=["1 hour","2 hours","3+ hours"])}
   {chips("cohorts","Which cohorts could you join?",["Cohort 01 (Nov–Jan)","Cohort 02 (Feb–Apr)","Cohort 03 (May–Jul)","Any"])}
+</div>
+<div class="fieldset"><span class="label plain">04 · Anything else you're open to</span>
+  <p class="dim" style="font-size:13.5px;margin-top:-4px">Both optional. Tick neither and you're still a great mentor.</p>
+  <div class="optin-group">
+    {optin("judge_demo_day","I'm open to judging Demo Day","Score the final pitches on a fixed rubric at the end of a cohort. About two hours, online.")}
+    {optin("open_to_invest","I'm open to investing","Angel or micro-investor. First checks here are usually around $10K. Nothing is committed — we'd only introduce you to a team if the founder opts in.")}
+  </div>
 </div>
 {consent("I understand mentors are interviewed and background-checked before being matched, that sessions happen on the platform, and that I'll follow the mentor code of conduct.")}
 """
