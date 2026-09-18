@@ -57,6 +57,7 @@
   <div class="wrap">
     <div class="form-layout">
       <aside class="form-aside rv">
+        
         <div class="req"><span class="label plain">How it works</span><ul><li>Prize sponsorship from $1k per cohort</li><li>Logo on the cohort page and Demo Day stream</li><li>Opt-in intros to founders and team members</li><li>Internships, part-time, project work — never full-time placement for minors</li></ul></div>
         <p class="dim" style="font-size:14px">Questions before you apply? <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a></p>
       </aside>
@@ -69,7 +70,7 @@
   <div class="f-row"><div class="field"><label for="role">Your role <b>*</b></label><input id="role" name="role" type="text" placeholder="" required><span class="msg">// required — please fill this in</span></div><div class="field"><label for="size">Company size <b>*</b></label><select id="size" name="size" required><option value="">Select…</option><option value="1–10">1–10</option><option value="11–50">11–50</option><option value="51–200">51–200</option><option value="201–1000">201–1000</option><option value="1000+">1000+</option></select><span class="msg">// required — please fill this in</span></div></div>
 </div>
 <div class="fieldset"><span class="label plain">02 · How you want to back a cohort</span>
-  <div class="field"><label>I'm interested in</label><div class="chips"><label class="chip"><input type="checkbox" name="interest" value="Sponsoring the Demo Day prize"><span>Sponsoring the Demo Day prize</span></label><label class="chip"><input type="checkbox" name="interest" value="Naming a cohort"><span>Naming a cohort</span></label><label class="chip"><input type="checkbox" name="interest" value="Meeting founders for internships / projects"><span>Meeting founders for internships / projects</span></label><label class="chip"><input type="checkbox" name="interest" value="Hosting office hours or a workshop"><span>Hosting office hours or a workshop</span></label><label class="chip"><input type="checkbox" name="interest" value="Something else"><span>Something else</span></label></div></div>
+  <div class="field"><label id="interest-label">I'm interested in</label><div class="chips" role="group" aria-labelledby="interest-label"><label class="chip"><input type="checkbox" name="interest" value="Sponsoring the Demo Day prize"><span>Sponsoring the Demo Day prize</span></label><label class="chip"><input type="checkbox" name="interest" value="Naming a cohort"><span>Naming a cohort</span></label><label class="chip"><input type="checkbox" name="interest" value="Meeting founders for internships / projects"><span>Meeting founders for internships / projects</span></label><label class="chip"><input type="checkbox" name="interest" value="Hosting office hours or a workshop"><span>Hosting office hours or a workshop</span></label><label class="chip"><input type="checkbox" name="interest" value="Something else"><span>Something else</span></label></div></div>
   <div class="field"><label for="budget">Rough sponsorship range <b>*</b></label><select id="budget" name="budget" required><option value="">Select…</option><option value="$1k–$5k">$1k–$5k</option><option value="$5k–$15k">$5k–$15k</option><option value="$15k+">$15k+</option><option value="Not sure yet — let's talk">Not sure yet — let's talk</option></select><span class="msg">// required — please fill this in</span></div>
   <div class="field"><label for="pitch">Why should a high-school founder want your company in the room? <b>*</b></label><textarea id="pitch" name="pitch" placeholder="Be specific — they'll read this." required></textarea><span class="msg">// required — please fill this in</span></div>
 </div>
@@ -78,7 +79,7 @@
 </div>
 
           <div class="form-foot">
-            <span class="note">// takes about 10 minutes · you can't save a draft yet</span>
+            <span class="note" data-note>// takes about 10 minutes · you can't save a draft yet</span>
             <button class="btn btn-primary btn-bracket" type="submit">Talk to us <span class="arr">→</span></button>
           </div>
         </form>

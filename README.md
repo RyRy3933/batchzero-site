@@ -7,7 +7,7 @@ index.html                 home (video hero, how it works, four doors, demo day,
 program/                   week-by-week program + selection rubric
 about/
 partners/                  "Which one are you?" chooser: investors / sponsor companies / mentors
-apply/founders|mentors|investors|sponsors/   application forms → Supabase (see below)
+apply/founders|mentors|investors|sponsors/   application forms → Supabase (see below); mentors is a 5-step flow with review + autosaved draft (details in AGENTS.md)
 apply/companies/           redirect to /apply/sponsors/
 supabase/schema.sql        the `applications` table + insert-only RLS policy
 privacy/  terms/           placeholder legal pages

@@ -291,7 +291,7 @@ PARTNERS = """
 <div class="wrap page-hero">
   <span class="label rv">Business partners</span>
   <h1 class="rv rv-d1">Which one are you?</h1>
-  <p class="lede rv rv-d2">Founders never pay for Batch Zero. The people who get value from meeting them early make it possible. Pick your door — each one is a two-minute form.</p>
+  <p class="lede rv rv-d2">Founders never pay for Batch Zero. The people who get value from meeting them early make it possible. Pick your door. Investors and sponsors take about two minutes; mentors, about fifteen.</p>
 </div>
 <section style="padding-top:16px">
   <div class="wrap">
@@ -323,8 +323,22 @@ PARTNERS = """
 </section>
 """
 
-def form_page(label, h1, lede, aside_title, aside_items, form_fields, submit_label, done_title, done_text):
+def form_page(label, h1, lede, aside_title, aside_items, form_fields, submit_label, done_title, done_text,
+              note="// takes about 10 minutes · you can't save a draft yet", steps=False, form_attrs=""):
+    """steps=True turns the form into a step-by-step flow: every `.step-panel` inside form_fields becomes one
+    screen (see step() / review_step()), the aside gets a progress list, and site.js adds Back / Continue,
+    per-step validation, an autosaved draft and a review screen. Without JavaScript all steps show as one page."""
     items = "".join(f"<li>{i}</li>" for i in aside_items)
+    step_nav = '<nav class="step-nav" data-step-nav aria-label="Application steps" hidden></nav>' if steps else ""
+    if steps:
+        buttons = ('<div class="foot-btns">'
+                   '<button class="btn btn-ghost" type="button" data-step-back hidden><span class="arr">←</span> Back</button>'
+                   '<button class="btn btn-primary btn-bracket" type="button" data-step-next hidden>Continue <span class="arr">→</span></button>'
+                   f'<button class="btn btn-primary btn-bracket" type="submit">{submit_label} <span class="arr">→</span></button>'
+                   '</div>')
+    else:
+        buttons = f'<button class="btn btn-primary btn-bracket" type="submit">{submit_label} <span class="arr">→</span></button>'
+    attrs = (' data-steps data-autosave' if steps else "") + form_attrs
     return f"""
 <div class="wrap page-hero">
   <span class="label rv">{label}</span>
@@ -335,15 +349,16 @@ def form_page(label, h1, lede, aside_title, aside_items, form_fields, submit_lab
   <div class="wrap">
     <div class="form-layout">
       <aside class="form-aside rv">
+        {step_nav}
         <div class="req"><span class="label plain">{aside_title}</span><ul>{items}</ul></div>
         <p class="dim" style="font-size:14px">Questions before you apply? <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a></p>
       </aside>
       <div class="rv rv-d1">
-        <form class="app" method="post" action="#">
+        <form class="app" method="post" action="#"{attrs}>
           {form_fields}
           <div class="form-foot">
-            <span class="note">// takes about 10 minutes · you can't save a draft yet</span>
-            <button class="btn btn-primary btn-bracket" type="submit">{submit_label} <span class="arr">→</span></button>
+            <span class="note" data-note>{note}</span>
+            {buttons}
           </div>
         </form>
         <div class="form-done"><div class="ok-mark">[ ✓ ]</div><h3>{done_title}</h3><p class="dim" style="margin-top:8px">{done_text}</p></div>
@@ -353,22 +368,37 @@ def form_page(label, h1, lede, aside_title, aside_items, form_fields, submit_lab
 </section>
 """
 
-def field(name, label, type="text", required=True, placeholder="", hint="", as_="input", options=None):
+def field(name, label, type="text", required=True, placeholder="", hint="", as_="input", options=None, maxlength=None, short=None):
     req = "required" if required else ""
     star = " <b>*</b>" if required else ""
+    ml = f' maxlength="{maxlength}"' if maxlength else ""
     if as_ == "textarea":
-        ctl = f'<textarea id="{name}" name="{name}" placeholder="{placeholder}" {req}></textarea>'
+        ctl = f'<textarea id="{name}" name="{name}" placeholder="{placeholder}"{ml} {req}></textarea>'
     elif as_ == "select":
         opts = "".join(f'<option value="{o}">{o}</option>' for o in options)
         ctl = f'<select id="{name}" name="{name}" {req}><option value="">Select…</option>{opts}</select>'
     else:
-        ctl = f'<input id="{name}" name="{name}" type="{type}" placeholder="{placeholder}" {req}>'
+        ctl = f'<input id="{name}" name="{name}" type="{type}" placeholder="{placeholder}"{ml} {req}>'
     h = f'<span class="hint">{hint}</span>' if hint else ""
-    return f'<div class="field"><label for="{name}">{label}{star}</label>{ctl}{h}<span class="msg">// required — please fill this in</span></div>'
+    sh = f' data-short="{short}"' if short else ""  # shorter label for the review screen
+    return f'<div class="field"><label for="{name}"{sh}>{label}{star}</label>{ctl}{h}<span class="msg">// required — please fill this in</span></div>'
 
-def chips(name, label, options):
+def chips(name, label, options, required=False, max_pick=None, hint="", short=None):
+    """Checkbox pills. required → at least one; max_pick → at most N (site.js enforces both)."""
     c = "".join(f'<label class="chip"><input type="checkbox" name="{name}" value="{o}"><span>{o}</span></label>' for o in options)
-    return f'<div class="field"><label>{label}</label><div class="chips">{c}</div></div>'
+    attrs = (" data-required" if required else "") + (f' data-max="{max_pick}"' if max_pick else "")
+    star = " <b>*</b>" if required else ""
+    h = f'<span class="hint">{hint}</span>' if hint else ""
+    msg = '<span class="msg">// pick at least one</span>' if (required or max_pick) else ""
+    sh = f' data-short="{short}"' if short else ""
+    return f'<div class="field"{attrs}><label id="{name}-label"{sh}>{label}{star}</label>{h}<div class="chips" role="group" aria-labelledby="{name}-label">{c}</div>{msg}</div>'
+
+def choice_cards(name, label, options, hint="", short=None):
+    """Required single choice shown as cards. options: [(value, title, description), ...]"""
+    cards = "".join(f'<label class="optin rcard"><input type="radio" name="{name}" value="{v}"><span class="ot"><b>{t}</b><em>{d}</em></span></label>' for v, t, d in options)
+    h = f'<span class="hint">{hint}</span>' if hint else ""
+    sh = f' data-short="{short}"' if short else ""
+    return f'<div class="field" data-required><label id="{name}-label"{sh}>{label} <b>*</b></label>{h}<div class="optin-group" role="radiogroup" aria-labelledby="{name}-label">{cards}</div><span class="msg">// pick one</span></div>'
 
 def optin(name, title, sub):
     return (f'<label class="optin"><input type="checkbox" name="{name}" value="yes">'
@@ -376,6 +406,18 @@ def optin(name, title, sub):
 
 def consent(text):
     return f'<label class="check"><input type="checkbox" name="consent" value="yes"><span>{text}</span></label>'
+
+def step(n, title, intro, body):
+    """One screen of a step-by-step form (form_page(steps=True))."""
+    return (f'<div class="fieldset step-panel" data-step data-title="{title}">'
+            f'<div class="step-hd"><h2 class="label plain step-title" tabindex="-1"><span class="sn">{n:02d} ·</span> {title}</h2><p class="step-intro">{intro}</p></div>'
+            f'{body}</div>')
+
+def review_step(n, intro, body):
+    """Final screen: site.js fills [data-review-body] with every answer and an Edit link per step."""
+    return (f'<div class="fieldset step-panel" data-step data-title="Review" data-review>'
+            f'<div class="step-hd"><h2 class="label plain step-title" tabindex="-1"><span class="sn">{n:02d} ·</span> Review</h2><p class="step-intro">{intro}</p></div>'
+            f'<div class="review" data-review-body></div>{body}</div>')
 
 FOUNDERS_FORM = f"""
 <div class="fieldset"><span class="label plain">01 · You</span>
@@ -395,29 +437,63 @@ FOUNDERS_FORM = f"""
 {consent("I'm currently a high-school student. If I'm selected and under 18, a parent or guardian will sign a consent form. I agree to the <a href='/terms/' style='color:var(--accent-2)'>terms</a> and <a href='/privacy/' style='color:var(--accent-2)'>privacy policy</a>.")}
 """
 
-MENTORS_FORM = f"""
-<div class="fieldset"><span class="label plain">01 · You</span>
-  <div class="f-row">{field("first_name","First name")}{field("last_name","Last name")}</div>
-  <div class="f-row">{field("email","Email","email")}{field("linkedin","LinkedIn or personal site","url",placeholder="https://")}</div>
-  <div class="f-row">{field("role","Current role &amp; company",placeholder="Head of Product, Acme")}{field("location","City, country")}</div>
-</div>
-<div class="fieldset"><span class="label plain">02 · What you bring</span>
-  {chips("expertise","Where can you actually help?",["Product","Engineering","Design","Growth / marketing","Sales","Fundraising","Finance","Legal","Hardware","Consumer","B2B / SaaS","Community"])}
-  {field("story","What have you built or shipped?",as_="textarea",placeholder="Two or three things you're proud of. Founders, operators, and specialists all welcome.")}
-  {field("why","Why mentor a high-school founder?",as_="textarea",placeholder="Honest answer. Nobody's grading this one.")}
-</div>
-<div class="fieldset"><span class="label plain">03 · Commitment</span>
-  {field("hours","Time you can give per week",as_="select",options=["1 hour","2 hours","3+ hours"])}
-  {chips("cohorts","Which cohorts could you join?",["Cohort 01 (Nov–Jan)","Cohort 02 (Feb–Apr)","Cohort 03 (May–Jul)","Any"])}
-</div>
-<div class="fieldset"><span class="label plain">04 · Anything else you're open to</span>
-  <p class="dim" style="font-size:13.5px;margin-top:-4px">Both optional. Tick neither and you're still a great mentor.</p>
+# Mentor application: five steps + review (form_page(steps=True)). Each step body is its own string.
+_MENTOR_STEP_1 = f"""
+  <div class="f-row">{field("first_name","First name",maxlength=60)}{field("last_name","Last name",maxlength=60)}</div>
+  <div class="f-row">{field("email","Email","email",maxlength=200)}{field("linkedin","LinkedIn","url",placeholder="https://linkedin.com/in/…",maxlength=300)}</div>
+  <div class="f-row">{field("title","Current role",placeholder="Head of Product",maxlength=120)}{field("company","Company",placeholder="Acme — or independent",maxlength=120)}</div>
+  <div class="f-row">{field("location","City, country",placeholder="San Francisco, US",maxlength=120)}{field("timezone","Time zone",as_="select",options=["Pacific (PT)","Mountain (MT)","Central (CT)","Eastern (ET)","UK / Ireland","Europe (CET)","India (IST)","Asia-Pacific","Somewhere else"])}</div>
+  {field("other_links","Other links",required=False,placeholder="GitHub, portfolio, a talk, something you shipped",hint="// optional — paste as many as you like",maxlength=500)}
+"""
+
+_MENTOR_STEP_2 = f"""
+  {field("years_experience","Years of work experience",as_="select",options=["Under 3","3–5","6–10","11–20","20+"],short="Experience")}
+  {field("furthest_stage","Furthest you've helped take a company",as_="select",options=["Idea or prototype","First users or revenue","Raised a seed round","Series A or later","Acquired or public","Not startups — specialist or big-company background"],short="Furthest stage")}
+  {chips("background","Which of these describe you?",["Founder — running a company now","Founder — exited or shut one down","Early employee (first 20)","Operator at a larger company","Engineer","Designer","Investor","Researcher / academic","Teacher / educator"],required=True,hint="// pick all that fit",short="Background")}
+  {field("shipped","What have you built or shipped?",short="Built / shipped",as_="textarea",placeholder="Two or three things you're proud of. Links and numbers beat adjectives.",maxlength=1200)}
+  {field("didnt_work","Tell us about something that didn't work.",short="Didn't work",as_="textarea",placeholder="What happened, and what you'd do differently. The founders you mentor will hit walls — it helps if you've hit a few.",maxlength=1000)}
+"""
+
+_MENTOR_STEP_3 = f"""
+  {choice_cards("mentor_type","What kind of mentor would you be?",[("Domain expert","Domain expert","Deep in one area. The person a team calls about pricing, infrastructure, or selling to schools."),("Generalist","Generalist","You've built something end to end and can help with whatever's on fire this week."),("Either","Either works","Match me wherever I'm most useful.")],hint="// every team gets one of each",short="Mentor type")}
+  {chips("expertise","Where can you actually help?",["Product","Engineering","AI / ML","Design / UX","Growth / marketing","Sales","Fundraising","Finance","Legal","Operations","Hiring / team","Pitching / storytelling","Hardware","Community"],required=True,hint="// pick the ones you'd bet on",short="Can help with")}
+  {field("top_skill","If a team could only ask you about one thing, what should it be?",placeholder="e.g. getting your first 100 users",hint="// one line",maxlength=140,short="Ask me about")}
+  {chips("stages","Which stages are you best at?",["Prototype → first users","First users → first revenue","Revenue → growth","Raising a first round"],required=True,short="Best stages")}
+  {chips("markets","Markets you know well",["Consumer","B2B / SaaS","AI","Edtech","Fintech","Health","Climate","Creator tools","Marketplaces","Gaming","Hardware / robotics","Social impact"],hint="// optional",short="Markets")}
+"""
+
+_MENTOR_STEP_4 = f"""
+  {field("mentored_before","Have you mentored before?",as_="select",options=["No — this would be my first time","Informally — colleagues, friends, juniors","Through a program — accelerator, company, school","A lot — it's a regular part of my work"],short="Mentored before")}
+  {field("mentored_where","Where, if anywhere?",required=False,placeholder="Programs, companies, communities",hint="// optional",maxlength=200,short="Mentored where")}
+  {field("teen_experience","Worked with high-school students before?",as_="select",options=["Not really","Some — tutoring, coaching, volunteering","A lot — teaching, youth programs, clubs"],short="With high schoolers")}
+  {chips("style","How do you like to work with a team?",["Ask the hard questions","Get into the details of the work","Big-picture strategy","Open doors and make intros","Keep them accountable","Teach frameworks","Steady them when it's rough"],required=True,max_pick=3,hint="// pick up to three",short="Style")}
+  {field("scenario",short="Rebrand scenario",label="A 16-year-old founder has 40 weekly users and wants to spend the next month on a rebrand. What do you say in your first session?",as_="textarea",placeholder="Write it the way you'd actually say it. No right answer — we're reading how you think and how you'd land it.",maxlength=1200)}
+  {field("why","Why mentor a high-school founder?",short="Why mentor",as_="textarea",placeholder="Honest answer. Nobody's grading this one.",maxlength=800)}
+"""
+
+_MENTOR_STEP_5 = f"""
+  <div class="f-row">{field("hours","Time you can give per week",as_="select",options=["1 hour","2 hours","3+ hours"],short="Hours / week")}{field("teams","Teams you could take per cohort",as_="select",options=["One team","Two teams"],hint="// most mentors take one",short="Teams")}</div>
+  {chips("cohorts","Which cohorts could you join?",["Cohort 01 (Nov–Jan)","Cohort 02 (Feb–Apr)","Cohort 03 (May–Jul)","Any"],required=True,short="Cohorts")}
+  {chips("session_times","When could you meet?",["Weekday mornings","Weekday afternoons","Weekday evenings","Weekends"],required=True,hint="// founders are in school, so most sessions land on weekday evenings or weekends (Pacific)",short="Can meet")}
+  <div class="sub-hd"><span class="label plain">Anything else you're open to</span><p class="dim">All optional. Tick none and you're still a great mentor.</p></div>
   <div class="optin-group">
     {optin("judge_demo_day","I'm open to judging Demo Day","Score the final pitches on a fixed rubric at the end of a cohort. About two hours, online.")}
     {optin("open_to_invest","I'm open to investing","Angel or micro-investor. First checks here are usually around $10K. Nothing is committed — we'd only introduce you to a team if the founder opts in.")}
+    {optin("guest_session","I'm open to running a guest session","One 45-minute talk or office hour for the whole cohort, on something you know cold.")}
+    {optin("make_intros","I'm open to making intros","To customers, advisors or hires in your network — when a team is ready and asks.")}
   </div>
-</div>
-{consent("I understand mentors are interviewed and background-checked before being matched, that sessions happen on the platform, and that I'll follow the mentor code of conduct.")}
+  {field("heard_from","How did you hear about Batch Zero?",short="Heard via",required=False,as_="select",options=["Rayan reached out","A friend or colleague","LinkedIn","X / Twitter","A founder or student","A school or teacher","Somewhere else"])}
+  {field("anything_else","Anything else we should know?",short="Anything else",required=False,as_="textarea",placeholder="Constraints, a link we missed, a question for us.",maxlength=800)}
+"""
+
+MENTORS_FORM = f"""
+<input type="hidden" name="form_version" value="mentor-v2">
+{step(1, "You", "The basics, so we can reach you and look you up.", _MENTOR_STEP_1)}
+{step(2, "Track record", "What you've actually done. Specifics beat titles.", _MENTOR_STEP_2)}
+{step(3, "Where you help", "This is what we match on. Every team gets one domain expert and one generalist.", _MENTOR_STEP_3)}
+{step(4, "How you mentor", "The part we read most closely.", _MENTOR_STEP_4)}
+{step(5, "Commitment", "When you can show up, and anything extra you're open to.", _MENTOR_STEP_5)}
+{review_step(6, "Check it over. Jump back to any step to change something.", consent("I understand mentors are interviewed and background-checked before being matched, that sessions happen on the platform, and that I'll follow the mentor code of conduct."))}
 """
 
 INVESTORS_FORM = f"""
@@ -457,9 +533,10 @@ FOUNDERS = form_page("Founders · Cohort 01", "Apply to the batch.", "Five spots
     "What you'll need", ["A link to something real", "Numbers, even small ones", "A 60-second video (phone is fine)", "Who's on the team", "Parent/guardian consent if selected and under 18"],
     FOUNDERS_FORM, "Submit application", "Application received.", "We review every application on the same rubric and reply within two weeks of the window closing — with feedback either way.")
 
-MENTORS = form_page("Mentors", "Give a founder two months.", "Two mentors per team, weekly sessions on the platform, eight weeks. We're looking for people who've built things and can say what they actually think.",
+MENTORS = form_page("Mentors", "Give a founder two months.", "Two mentors per team, weekly sessions on the platform, eight weeks. We're looking for people who've built things and can say what they actually think. Five short steps, about fifteen minutes, and it saves as you go.",
     "What we ask", ["1–3 hours a week for 8 weeks", "Sessions on the platform (recorded)", "A short interview and a background check", "Honest feedback, kindly delivered"],
-    MENTORS_FORM, "Apply to mentor", "Thanks — we'll be in touch.", "We interview every mentor before matching. Expect a note from us within a week.")
+    MENTORS_FORM, "Apply to mentor", "Thanks — we'll be in touch.", "We read every mentor application ourselves and interview everyone before matching. Expect a note from us within a week.",
+    note="// about 15 minutes · saves on this device as you go", steps=True)
 
 INVESTORS = form_page("Investors", "See the cohort before anyone else.", "A curated feed of every selected startup, live Demo Day access, and intro requests routed through the platform. Founding-investor tier is free while we run the first two cohorts.",
     "How it works", ["Visibility and intros only — no deal-making on the platform", "Founders opt in before any intro", "No fees or carry, ever", "Founding tier free through Cohort 02"],
@@ -475,7 +552,7 @@ COMPANIES_REDIRECT = """
 """
 
 PRIVACY = """
-<div class="wrap page-hero"><span class="label">Legal</span><h1>Privacy policy</h1><p class="lede">Plain-English version first, full version below. Last updated September 9, 2026.</p></div>
+<div class="wrap page-hero"><span class="label">Legal</span><h1>Privacy policy</h1><p class="lede">Plain-English version first, full version below. Last updated September 16, 2026.</p></div>
 <section style="padding-top:8px"><div class="wrap"><div class="prose">
 <div class="card" style="margin-bottom:8px"><div class="idx"><span>tl;dr</span><span>the short version</span></div>
 <p>We collect what you type into our application forms and nothing else. We use it to run Batch Zero. We don't sell it, we don't run ad trackers, and nobody outside the team sees a student's application unless that student opts in. Email <a href="mailto:rayan@batchzero.co" style="color:var(--accent-2)">rayan@batchzero.co</a> to see, fix, or delete your data at any time.</p></div>
@@ -484,8 +561,9 @@ PRIVACY = """
 <p>Batch Zero ("Batch Zero", "we", "us") is an early-stage program based in California that is operated by its founder and has not yet formed a company. When a legal entity is formed, it will take over responsibility for this policy and we'll update this page. Questions and requests go to <a href="mailto:rayan@batchzero.co" style="color:var(--accent-2)">rayan@batchzero.co</a>.</p>
 
 <h2>2. What we collect</h2>
-<p><strong>What you give us.</strong> When you submit a form on batchzero.co we store exactly what you enter: for founders, your name, email, school, graduation year, and what you tell us about your startup and team, plus links you share (website, demo, video). For mentors, investors and sponsor companies: name, work email, company, role, links, and your answers. We also record the page the form was sent from and a general browser type, to help debug problems.</p>
+<p><strong>What you give us.</strong> When you submit a form on batchzero.co we store exactly what you enter: for founders, your name, email, school, graduation year, and what you tell us about your startup and team, plus links you share (website, demo, video). For mentors: name, email, role and company, city and time zone, LinkedIn and any other links you add, and your answers about your experience, how you mentor and when you're available. For investors and sponsor companies: name, work email, company, role, links, and your answers. We also record the page the form was sent from and a general browser type, to help debug problems.</p>
 <p><strong>What we don't collect.</strong> We do not use advertising trackers, social-media pixels, or analytics cookies. We don't ask for your address, phone number, date of birth, or any government ID. We don't collect payment information on this site.</p>
+<p><strong>Unfinished drafts.</strong> The mentor application saves your answers in your own browser as you type (using your browser's local storage), so you can close the tab and come back. That draft stays on your device and is never sent to us until you press submit. It's deleted from your browser when you submit or click "Start over", and you can also clear it by clearing your browser's site data.</p>
 <p><strong>Video links.</strong> If you share a video (for example an unlisted YouTube or Loom link), the video stays on that service under its own privacy terms; we only store the link.</p>
 
 <h2>3. How we use it</h2>

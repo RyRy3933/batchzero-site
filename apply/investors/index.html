@@ -57,6 +57,7 @@
   <div class="wrap">
     <div class="form-layout">
       <aside class="form-aside rv">
+        
         <div class="req"><span class="label plain">How it works</span><ul><li>Visibility and intros only — no deal-making on the platform</li><li>Founders opt in before any intro</li><li>No fees or carry, ever</li><li>Founding tier free through Cohort 02</li></ul></div>
         <p class="dim" style="font-size:14px">Questions before you apply? <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a></p>
       </aside>
@@ -69,7 +70,7 @@
   <div class="f-row"><div class="field"><label for="linkedin">LinkedIn or site <b>*</b></label><input id="linkedin" name="linkedin" type="url" placeholder="https://" required><span class="msg">// required — please fill this in</span></div><div class="field"><label for="type">Investor type <b>*</b></label><select id="type" name="type" required><option value="">Select…</option><option value="Angel">Angel</option><option value="Scout">Scout</option><option value="Micro-VC">Micro-VC</option><option value="VC">VC</option><option value="Family office">Family office</option><option value="Syndicate lead">Syndicate lead</option><option value="Other">Other</option></select><span class="msg">// required — please fill this in</span></div></div>
 </div>
 <div class="fieldset"><span class="label plain">02 · What you're looking for</span>
-  <div class="field"><label>Sectors</label><div class="chips"><label class="chip"><input type="checkbox" name="sectors" value="Consumer"><span>Consumer</span></label><label class="chip"><input type="checkbox" name="sectors" value="B2B / SaaS"><span>B2B / SaaS</span></label><label class="chip"><input type="checkbox" name="sectors" value="AI"><span>AI</span></label><label class="chip"><input type="checkbox" name="sectors" value="Edtech"><span>Edtech</span></label><label class="chip"><input type="checkbox" name="sectors" value="Fintech"><span>Fintech</span></label><label class="chip"><input type="checkbox" name="sectors" value="Creator tools"><span>Creator tools</span></label><label class="chip"><input type="checkbox" name="sectors" value="Hardware"><span>Hardware</span></label><label class="chip"><input type="checkbox" name="sectors" value="Climate"><span>Climate</span></label><label class="chip"><input type="checkbox" name="sectors" value="Health"><span>Health</span></label><label class="chip"><input type="checkbox" name="sectors" value="Anything great"><span>Anything great</span></label></div></div>
+  <div class="field"><label id="sectors-label">Sectors</label><div class="chips" role="group" aria-labelledby="sectors-label"><label class="chip"><input type="checkbox" name="sectors" value="Consumer"><span>Consumer</span></label><label class="chip"><input type="checkbox" name="sectors" value="B2B / SaaS"><span>B2B / SaaS</span></label><label class="chip"><input type="checkbox" name="sectors" value="AI"><span>AI</span></label><label class="chip"><input type="checkbox" name="sectors" value="Edtech"><span>Edtech</span></label><label class="chip"><input type="checkbox" name="sectors" value="Fintech"><span>Fintech</span></label><label class="chip"><input type="checkbox" name="sectors" value="Creator tools"><span>Creator tools</span></label><label class="chip"><input type="checkbox" name="sectors" value="Hardware"><span>Hardware</span></label><label class="chip"><input type="checkbox" name="sectors" value="Climate"><span>Climate</span></label><label class="chip"><input type="checkbox" name="sectors" value="Health"><span>Health</span></label><label class="chip"><input type="checkbox" name="sectors" value="Anything great"><span>Anything great</span></label></div></div>
   <div class="field"><label for="check">Typical check size <b>*</b></label><select id="check" name="check" required><option value="">Select…</option><option value="Under $25k">Under $25k</option><option value="$25k–$100k">$25k–$100k</option><option value="$100k–$500k">$100k–$500k</option><option value="$500k+">$500k+</option><option value="Not investing yet — want to watch">Not investing yet — want to watch</option></select><span class="msg">// required — please fill this in</span></div>
   <div class="field"><label for="why">Why early-stage teen founders?</label><textarea id="why" name="why" placeholder="What do you hope to find here?" ></textarea><span class="msg">// required — please fill this in</span></div>
 </div>
@@ -79,7 +80,7 @@
 </div>
 
           <div class="form-foot">
-            <span class="note">// takes about 10 minutes · you can't save a draft yet</span>
+            <span class="note" data-note>// takes about 10 minutes · you can't save a draft yet</span>
             <button class="btn btn-primary btn-bracket" type="submit">Request access <span class="arr">→</span></button>
           </div>
         </form>
