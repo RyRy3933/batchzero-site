@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mentor signup — Batch Zero</title>
+<meta name="description" content="You're invited to mentor for Batch Zero. Confirm your details and join the cohort.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://batchzero.co/mentor-invite/">
+<meta name="theme-color" content="#07080a">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon-180.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/site.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  .invite-card{border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;background:rgba(255,255,255,0.012);display:flex;gap:16px;align-items:center;margin-bottom:24px}
+  .invite-avatar{flex:none;width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700}
+  .invite-name{font-weight:700;font-size:1.05rem}
+  .invite-role{color:var(--muted);font-size:14px;margin-top:2px}
+  .invite-link{display:inline-block;margin-top:8px;font-size:13px;color:var(--accent-2)}
+  .state{display:none}
+  .state.active{display:block}
+  .form-foot{margin-top:8px}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div><div class="noise"></div><div class="spot"></div>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Batch Zero home"><img src="/assets/img/b0-mark-paper.svg" alt="[B0]" width="84" height="26"><span>BATCH ZERO</span></a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="/program/">Program</a>
+      <a href="/#how">How it works</a>
+      <a href="/#demo-day">Demo Day</a>
+      <a href="/about/">About</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-ghost btn-sm" href="/partners/">I'm a business partner</a>
+      <a class="btn btn-primary btn-sm btn-bracket" href="/apply/founders/">I'm a founder</a>
+      <button class="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<div class="mobile-menu">
+  <a href="/apply/founders/" style="color:var(--accent-2)">I'm a founder → apply</a><a href="/partners/">I'm a business partner</a>
+  <a href="/program/">Program</a><a href="/#how">How it works</a><a href="/#demo-day">Demo Day</a><a href="/about/">About</a>
+</div>
+
+<section>
+  <div class="wrap" style="max-width:640px">
+
+    <div id="state-loading" class="state active page-hero">
+      <span class="label">Mentor invite</span>
+      <h1>Mentor signup</h1>
+      <p class="lede">Loading your invite…</p>
+    </div>
+
+    <div id="state-invalid" class="state page-hero">
+      <span class="label">Mentor invite</span>
+      <h1>Mentor signup</h1>
+      <p class="lede">We couldn't find an invite for this link. If that seems wrong, email <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a>.</p>
+    </div>
+
+    <div id="state-form" class="state">
+      <div class="page-hero" style="padding-bottom:28px">
+        <span class="label">Mentor invite</span>
+        <h1>Mentor signup</h1>
+        <p class="lede">You're invited to mentor for Batch Zero. Confirm a few details below — anything we already have is filled in.</p>
+      </div>
+
+      <div class="invite-card">
+        <div class="invite-avatar" id="avatar-initials">–</div>
+        <div>
+          <div class="invite-name" id="p-name">—</div>
+          <div class="invite-role" id="p-role">—</div>
+          <a class="invite-link" id="p-linkedin" href="#" target="_blank" rel="noopener">View LinkedIn profile →</a>
+        </div>
+      </div>
+
+      <form id="mentor-form" class="app">
+        <div class="fieldset">
+          <div class="field">
+            <label for="f-email">Email <b>*</b></label>
+            <input type="email" id="f-email" required placeholder="you@example.com">
+            <span class="hint">// used to reach you about mentoring — not shown publicly</span>
+          </div>
+          <div class="field">
+            <label for="f-title">Title</label>
+            <input type="text" id="f-title" placeholder="e.g. VP of Engineering">
+          </div>
+          <div class="field">
+            <label for="f-company">Company</label>
+            <input type="text" id="f-company" placeholder="e.g. Acme Inc.">
+          </div>
+          <div class="field">
+            <label for="f-areas">Areas you can mentor on</label>
+            <input type="text" id="f-areas" placeholder="e.g. fundraising, GTM, ML infra">
+          </div>
+          <div class="field">
+            <label for="f-bio">Short bio</label>
+            <textarea id="f-bio" placeholder="A sentence or two on your background — shown to founders."></textarea>
+            <span class="hint">// optional</span>
+          </div>
+        </div>
+
+        <label class="check" style="margin:22px 0">
+          <input type="checkbox" id="f-agree" required>
+          <span>I agree to the <a href="/mentor-invite/terms/" target="_blank" style="color:var(--accent-2)">Batch Zero Mentor Terms of Service</a>, including the use of my public LinkedIn profile info on the Batch Zero website.</span>
+        </label>
+
+        <div class="form-foot">
+          <span class="note" data-note></span>
+          <div class="foot-btns">
+            <button class="btn btn-primary btn-bracket" type="submit" id="submit-btn">Confirm &amp; join as a mentor <span class="arr">→</span></button>
+          </div>
+        </div>
+        <div id="form-msg" class="form-error" style="display:none"></div>
+      </form>
+    </div>
+
+    <div id="state-done" class="state page-hero">
+      <div class="form-done" style="display:block">
+        <div class="ok-mark">[ ✓ ]</div>
+        <h3>You're in.</h3>
+        <p class="dim" id="done-msg" style="margin-top:8px">You're confirmed as a Batch Zero mentor. We'll follow up by email as the cohort gets closer.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="/"><img src="/assets/img/b0-mark-paper.svg" alt="[B0]" width="84" height="26"><span>BATCH ZERO</span></a>
+        <p style="margin-top:16px;max-width:34ch">The accelerator for founders who haven't graduated yet. Five startups per cohort, eight weeks, one Demo Day.</p>
+      </div>
+      <div><h4>Program</h4><a href="/program/">How it works</a><a href="/program/#timeline">8-week timeline</a><a href="/#demo-day">Demo Day</a><a href="/#faq">FAQ</a></div>
+      <div><h4>Get involved</h4><a href="/apply/founders/">Founders — apply</a><a href="/partners/">Business partners</a><a href="/apply/investors/">Investors</a><a href="/apply/sponsors/">Sponsor companies</a><a href="/apply/mentors/">Mentors</a></div>
+      <div><h4>Company</h4><a href="/about/">About</a><a href="mailto:hello@batchzero.co">hello@batchzero.co</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div>
+    </div>
+    <div class="foot-bottom">
+      <span>© <span data-year></span> Batch Zero. Built by a high-school founder, for high-school founders.</span>
+      <span>batchzero.co · cohort_00</span>
+    </div>
+  </div>
+</footer>
+<script src="/assets/js/config.js"></script>
+<script src="/assets/js/site.js" defer></script>
+<script>
+  const sb = window.supabase.createClient(window.B0_CONFIG.SUPABASE_URL, window.B0_CONFIG.SUPABASE_ANON_KEY);
+
+  function show(id) {
+    document.querySelectorAll('.state').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+  function initials(name) {
+    if (!name) return '–';
+    return name.trim().split(/\s+/).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  let currentMentor = null;
+
+  async function loadInvite() {
+    if (!token) { show('state-invalid'); return; }
+    const { data, error } = await sb.rpc('get_mentor_invite', { p_token: token });
+    if (error || !data || data.length === 0) { show('state-invalid'); return; }
+
+    currentMentor = data[0];
+
+    if (currentMentor.status === 'completed') {
+      document.getElementById('done-msg').textContent =
+        `You already confirmed as a Batch Zero mentor${currentMentor.email ? ' (' + currentMentor.email + ')' : ''}. Thanks — we'll be in touch.`;
+      show('state-done');
+      return;
+    }
+
+    document.getElementById('avatar-initials').textContent = initials(currentMentor.full_name);
+    document.getElementById('p-name').textContent = currentMentor.full_name || '—';
+    const roleParts = [currentMentor.title, currentMentor.company].filter(Boolean);
+    document.getElementById('p-role').textContent = roleParts.length ? roleParts.join(' · ') : '—';
+
+    const linkedinEl = document.getElementById('p-linkedin');
+    if (currentMentor.linkedin_url) { linkedinEl.href = currentMentor.linkedin_url; linkedinEl.style.display = 'inline-block'; }
+    else { linkedinEl.style.display = 'none'; }
+
+    if (currentMentor.email) document.getElementById('f-email').value = currentMentor.email;
+    if (currentMentor.title) document.getElementById('f-title').value = currentMentor.title;
+    if (currentMentor.company) document.getElementById('f-company').value = currentMentor.company;
+    if (currentMentor.areas_of_expertise) document.getElementById('f-areas').value = currentMentor.areas_of_expertise;
+    if (currentMentor.bio) document.getElementById('f-bio').value = currentMentor.bio;
+
+    show('state-form');
+  }
+
+  document.getElementById('mentor-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    const msg = document.getElementById('form-msg');
+    msg.style.display = 'none'; msg.textContent = '';
+
+    if (!document.getElementById('f-agree').checked) {
+      msg.textContent = 'Please check the box to agree to the Mentor Terms of Service.';
+      msg.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true; btn.textContent = 'Confirming…';
+
+    const { error } = await sb.rpc('submit_mentor_signup', {
+      p_token: token,
+      p_email: document.getElementById('f-email').value.trim(),
+      p_title: document.getElementById('f-title').value.trim(),
+      p_company: document.getElementById('f-company').value.trim(),
+      p_bio: document.getElementById('f-bio').value.trim(),
+      p_areas: document.getElementById('f-areas').value.trim(),
+      p_agree: true
+    });
+
+    if (error) {
+      msg.textContent = error.message || 'Something went wrong — try again.';
+      msg.style.display = 'block';
+      btn.disabled = false; btn.innerHTML = 'Confirm &amp; join as a mentor <span class="arr">→</span>';
+      return;
+    }
+
+    document.getElementById('done-msg').textContent =
+      "You're confirmed as a Batch Zero mentor. We'll follow up by email as the cohort gets closer.";
+    show('state-done');
+  });
+
+  loadInvite();
+</script>
+</body>
+</html>
