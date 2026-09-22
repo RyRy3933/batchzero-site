@@ -26,6 +26,13 @@
   .state{display:none}
   .state.active{display:block}
   .form-foot{margin-top:8px}
+  .invite-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+  .li-row{margin-bottom:24px}
+  .li-btn{display:inline-flex;align-items:center;gap:9px;width:100%;justify-content:center}
+  .li-mark{font-family:var(--mono);font-weight:700;font-size:12px;border:1.5px solid currentColor;border-radius:3px;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;line-height:1}
+  .li-or{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;font-family:var(--mono);margin:14px 0}
+  .li-or::before,.li-or::after{content:"";flex:1;height:1px;background:var(--line)}
+  .li-verified{display:flex;align-items:center;gap:8px;font-size:13px;color:#38d996;background:rgba(56,217,150,0.08);border:1px solid rgba(56,217,150,0.3);border-radius:8px;padding:9px 12px;margin-bottom:14px}
 </style>
 </head>
 <body>
@@ -80,6 +87,17 @@
           <div class="invite-role" id="p-role">—</div>
           <a class="invite-link" id="p-linkedin" href="#" target="_blank" rel="noopener">View LinkedIn profile →</a>
         </div>
+      </div>
+
+      <div class="li-row" id="li-row">
+        <button type="button" class="btn btn-ghost li-btn" id="li-btn">
+          <span class="li-mark">in</span> Sign in with LinkedIn to verify it's you
+        </button>
+        <div class="li-or">or fill in manually</div>
+      </div>
+      <div class="li-verified" id="li-verified" style="display:none">
+        <span class="li-mark" style="border-color:#38d996">✓</span>
+        <span id="li-verified-text">Verified via LinkedIn</span>
       </div>
 
       <form id="mentor-form" class="app">
@@ -166,8 +184,44 @@
   }
 
   const params = new URLSearchParams(window.location.search);
-  const token = params.get('token');
+  // Prefer the token in the URL; fall back to the one we stashed before sending
+  // the mentor off to LinkedIn, since the OAuth round trip can strip query params.
+  const token = params.get('token') || sessionStorage.getItem('b0_mentor_token');
+  if (token) sessionStorage.setItem('b0_mentor_token', token);
   let currentMentor = null;
+  let liVerifiedEmail = null;
+
+  document.getElementById('li-btn').addEventListener('click', async () => {
+    if (token) sessionStorage.setItem('b0_mentor_token', token);
+    const redirectTo = window.location.origin + window.location.pathname + (token ? '?token=' + encodeURIComponent(token) : '');
+    await sb.auth.signInWithOAuth({ provider: 'linkedin_oidc', options: { redirectTo } });
+  });
+
+  async function checkLinkedInSession() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session || !session.user) return;
+    const meta = session.user.user_metadata || {};
+    const name = meta.full_name || meta.name || [meta.given_name, meta.family_name].filter(Boolean).join(' ');
+    const email = meta.email || session.user.email;
+    const photo = meta.avatar_url || meta.picture;
+
+    liVerifiedEmail = email || null;
+    document.getElementById('li-row').style.display = 'none';
+    document.getElementById('li-verified').style.display = 'flex';
+    document.getElementById('li-verified-text').textContent =
+      'Verified via LinkedIn' + (name ? ' as ' + name : '') + (email ? ' (' + email + ')' : '');
+
+    if (email) { const f = document.getElementById('f-email'); f.value = email; f.readOnly = true; }
+    if (name) document.getElementById('p-name').textContent = name;
+
+    if (photo) {
+      const av = document.getElementById('avatar-initials');
+      av.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = photo; img.alt = name || 'Profile photo';
+      av.appendChild(img);
+    }
+  }
 
   async function loadInvite() {
     if (!token) { show('state-invalid'); return; }
@@ -237,7 +291,10 @@
     show('state-done');
   });
 
-  loadInvite();
+  (async () => {
+    await loadInvite();
+    await checkLinkedInSession();
+  })();
 </script>
 </body>
 </html>
