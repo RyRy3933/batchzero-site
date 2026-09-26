@@ -27,11 +27,18 @@ index.html                       home
 program/  about/  privacy/  terms/   inner pages (each is <dir>/index.html)
 partners/                        chooser page: investor / sponsor company / mentor
 apply/{founders,mentors,investors,sponsors}/   application forms (companies/ is a redirect to sponsors/)
+mentors/                         public mentor roster, rendered from the database at page load
+mentor-invite/                   invited-mentor signup, /admin/ to create a link, /terms/ (mentor ToS) — noindex
 supabase/schema.sql              applications table + RLS (anon = insert only)
+supabase/mentor-invites.sql      mentor_invites table + the three RPCs — READ ITS HEADER FIRST
+supabase/mentor-roster.sql       adds photo_url/published/listed_at + list_mentors() and save_mentor_photo()
 404.html                         GitHub Pages 404
 assets/css/site.css              all styling; design tokens in :root at the top
 assets/js/config.js              Supabase URL + anon key (public by design; the DB only allows inserts)
-assets/js/site.js                nav, reveal-on-scroll, countdown, counters, form validation, step-by-step forms, drafts, Supabase submit
+assets/js/site.js                nav, reveal-on-scroll, countdown, counters, form validation, step-by-step forms, drafts, LinkedIn sign-in, Supabase submit
+assets/js/mentor-invite.js       /mentor-invite/ page script (loads the invite, submits it)
+assets/js/mentor-invite-admin.js /mentor-invite/admin/ page script (creates an invite link)
+assets/js/mentors.js             /mentors/ page script (renders the roster)
 assets/media/                    hero-loop.webm/.mp4 (seamless loop), hero-poster.jpg
 assets/img/                      logo SVGs (final approved [B0] mark — do not redesign)
 tools/build.py, tools/pages.py   HTML generator (see below)
@@ -92,6 +99,40 @@ Things that will bite whoever touches this next:
 - Turning the flag on without configuring the provider would send mentors to a Supabase error page, so keep it off until setup is done.
 
 Setup, once: create a Batch Zero LinkedIn Page → [linkedin.com/developers](https://www.linkedin.com/developers/) → create an app against that page → Products → request **Sign In with LinkedIn using OpenID Connect** (self-serve, instant) → Auth → add redirect URL `https://lzinyfukedgytwvgszna.supabase.co/auth/v1/callback` → copy Client ID + Secret into Supabase → Authentication → Providers → LinkedIn (OIDC) → in Supabase → Authentication → URL Configuration add `https://batchzero.co/**` to the redirect allow-list → set `LINKEDIN_SIGNIN: true` and push. If you ever want their full work history, that's partner-only on LinkedIn's side — enrich from their profile URL at review time instead.
+
+## The mentor pipeline — two doors, one roster
+
+```
+/apply/mentors/      public application  → public.applications (type 'mentor')   ← anyone can apply
+        ↓ you review in the Supabase table editor
+/mentor-invite/admin/  you create an invite link with their details prefilled    ← admin key
+        ↓ you email them the link
+/mentor-invite/?token=…  they verify with LinkedIn, confirm details, accept the mentor ToS
+        ↓
+public.mentor_invites (status 'completed')  → the roster you match teams from
+        ↓ instantly
+/mentors/  public page: photo, name, role · company, areas
+```
+
+### The public roster
+
+`/mentors/` calls `list_mentors()`, which returns **only** `full_name, title, company, areas_of_expertise, photo_url` for rows that are `status = 'completed' and published`. Email and token are never in that result — keep it that way if you extend it.
+
+- Publishing is immediate and consented: the mentor ticks the mentor ToS, which says their name, photo, title, company and bio may be shown on the site. To take someone down: `update public.mentor_invites set published = false where full_name = '…';` — no code change, the page picks it up on next load.
+- `save_mentor_photo(p_token, p_photo_url)` is called by `/mentor-invite/` right after a mentor confirms, when they signed in with LinkedIn. It only accepts `*.licdn.com` URLs and only touches the row whose token is passed.
+- **Those photo URLs expire.** The card falls back to the mentor's initials when the image 404s, so the page never looks broken — but for anyone you want to keep on the page long-term, download the image, host it yourself and update `photo_url`.
+- The page is client-rendered, so search engines mostly see the empty state. That's fine for a roster; don't build anything SEO-critical this way.
+
+The two are deliberately separate: the application is how strangers reach you, the invite is how someone you've decided on gets onto the roster. An invite link works once and is the only thing protecting that row, so treat it like a password — never post one publicly.
+
+`/mentor-invite/`, `/mentor-invite/admin/` and `/mentor-invite/terms/` are `noindex`, excluded from `sitemap.xml`, and `robots.txt` disallows `/mentor-invite/`. Keep it that way.
+
+### Shared plumbing (learn this before touching a form)
+
+- `window.B0.rpc(name, args)` calls a Postgres function with the anon key. **Page scripts use this instead of pulling supabase-js from a CDN** — the SDK was removed from these pages on purpose. `window.B0.validate(form)` runs the same validation the built-in forms use.
+- **Every `form.app` gets the generic submit handler that inserts into `applications`.** A form that submits itself must carry `data-custom-submit` or it will write a junk row on every submit — that exact bug was live for a day when the invite form was added with `class="app"` and its own handler. It keeps the shared validation, chips, counters and LinkedIn wiring either way.
+- The LinkedIn block (`linkedin_block()` in `pages.py`) works on any form: it fills `first_name`, `last_name` and `email` when those fields exist, and fires a `b0:linkedin` event on the form with `{verified, name, email, photo}` so a page script can react — the invite page uses it to lock the email field and swap in the profile photo.
+- The invite token is kept in `sessionStorage` (`b0-invite-token`), because the LinkedIn round trip comes back without the query string.
 
 To make another form step-by-step or give it drafts: wrap its sections in `step()`, add a `review_step()`, and pass `steps=True` to `form_page` (drafts come with it). Keep the founder form short either way.
 

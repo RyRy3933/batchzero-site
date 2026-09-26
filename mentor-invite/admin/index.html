@@ -4,152 +4,101 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Invite a mentor — Batch Zero</title>
+<meta name="description" content="Internal tool: create a mentor invite link.">
+<link rel="canonical" href="https://batchzero.co/mentor-invite/admin/">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#07080a">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon-180.png">
 <link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Batch Zero">
+<meta property="og:title" content="Invite a mentor — Batch Zero">
+<meta property="og:description" content="Internal tool: create a mentor invite link.">
+<meta property="og:url" content="https://batchzero.co/mentor-invite/admin/">
+<meta property="og:image" content="https://batchzero.co/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/site.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-  .wrap-narrow{width:min(640px, calc(100% - 48px));margin:0 auto;position:relative;z-index:1}
-  .result-box{display:none;border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-top:20px;background:rgba(56,217,150,0.05);border-color:rgba(56,217,150,0.35)}
-  .result-box.active{display:block}
-  .link-box{font-family:var(--mono);font-size:13px;color:var(--accent-2);word-break:break-all;background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:10px 0}
-  .btn-row{display:flex;gap:10px;flex-wrap:wrap}
-</style>
 </head>
 <body>
 <div class="grid-bg"></div><div class="noise"></div><div class="spot"></div>
-
-<section>
-  <div class="wrap-narrow">
-    <div class="page-hero" style="padding-bottom:20px">
-      <span class="label">Admin</span>
-      <h1 style="font-size:clamp(30px,4vw,48px)">Invite a mentor</h1>
-      <p class="lede">Fill in what you already know — anything left blank, they fill in themselves.</p>
-    </div>
-
-    <div class="fieldset" style="margin-bottom:8px">
-      <div class="field">
-        <label for="admin-key">Admin key <b>*</b></label>
-        <input type="password" id="admin-key" placeholder="from supabase-mentor-invites.sql">
-        <span class="hint">// not stored — you re-enter it each time you use this page</span>
-      </div>
-    </div>
-
-    <form id="invite-form">
-      <div class="fieldset">
-        <div class="field">
-          <label for="f-name">Full name <b>*</b></label>
-          <input type="text" id="f-name" required placeholder="e.g. Amin Karbasi">
-        </div>
-        <div class="field">
-          <label for="f-linkedin">LinkedIn URL</label>
-          <input type="text" id="f-linkedin" placeholder="https://linkedin.com/in/...">
-        </div>
-        <div class="field">
-          <label for="f-title">Title</label>
-          <input type="text" id="f-title" placeholder="e.g. VP of Engineering">
-        </div>
-        <div class="field">
-          <label for="f-company">Company</label>
-          <input type="text" id="f-company" placeholder="e.g. Acme Inc.">
-        </div>
-        <div class="field">
-          <label for="f-bio">Bio</label>
-          <textarea id="f-bio" placeholder="Optional — they can edit it themselves too."></textarea>
-        </div>
-        <div class="field">
-          <label for="f-email">Their email</label>
-          <input type="email" id="f-email" placeholder="only used to open a pre-written email to send">
-        </div>
-      </div>
-
-      <div class="form-foot">
-        <span class="note" data-note></span>
-        <div class="foot-btns">
-          <button class="btn btn-primary btn-bracket" type="submit" id="create-btn">Create invite link <span class="arr">→</span></button>
-        </div>
-      </div>
-      <div id="form-msg" class="form-error" style="display:none"></div>
-    </form>
-
-    <div class="result-box" id="result-box">
-      <div class="label plain" style="margin-bottom:6px">Signup link</div>
-      <div class="link-box" id="link-box"></div>
-      <div class="btn-row">
-        <button class="btn btn-ghost btn-sm" type="button" id="copy-btn">Copy link</button>
-        <button class="btn btn-primary btn-sm btn-bracket" type="button" id="mail-btn">Open email to send <span class="arr">→</span></button>
-      </div>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Batch Zero home"><img src="/assets/img/b0-mark-paper.svg" alt="[B0]" width="84" height="26"><span>BATCH ZERO</span></a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="/program/">Program</a>
+      <a href="/#how">How it works</a>
+      <a href="/#demo-day">Demo Day</a>
+      <a href="/about/">About</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-ghost btn-sm" href="/partners/">I'm a business partner</a>
+      <a class="btn btn-primary btn-sm btn-bracket" href="/apply/founders/">I'm a founder</a>
+      <button class="burger" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
   </div>
-</section>
+</header>
+<div class="mobile-menu">
+  <a href="/apply/founders/" style="color:var(--accent-2)">I'm a founder → apply</a><a href="/partners/">I'm a business partner</a>
+  <a href="/program/">Program</a><a href="/#how">How it works</a><a href="/#demo-day">Demo Day</a><a href="/about/">About</a>
+</div>
 
+<div class="wrap invite-wrap">
+  <div class="page-hero" style="padding-bottom:26px">
+    <span class="label">Internal</span>
+    <h1>Invite a mentor.</h1>
+    <p class="lede">Creates a one-off signup link with their details already filled in. Anything you leave blank, they fill in themselves.</p>
+  </div>
+  <form class="app" id="invite-form" method="post" action="#" data-custom-submit>
+    <div class="fieldset">
+      <div class="field"><label for="admin_key">Admin key <b>*</b></label><input id="admin_key" name="admin_key" type="password" placeholder="" required><span class="hint">// checked inside create_mentor_invite() — never stored in this page</span><span class="msg">// required — please fill this in</span></div>
+    </div>
+    <div class="fieldset"><span class="label plain">The mentor</span>
+      <div class="f-row"><div class="field"><label for="full_name">Full name <b>*</b></label><input id="full_name" name="full_name" type="text" placeholder="" maxlength="120" required><span class="msg">// required — please fill this in</span></div><div class="field"><label for="email">Their email</label><input id="email" name="email" type="email" placeholder="" maxlength="200" ><span class="hint">// only used to open a pre-written email</span><span class="msg">// required — please fill this in</span></div></div>
+      <div class="field"><label for="linkedin_url">LinkedIn profile</label><input id="linkedin_url" name="linkedin_url" type="url" placeholder="https://linkedin.com/in/…" maxlength="300" ><span class="msg">// required — please fill this in</span></div>
+      <div class="f-row"><div class="field"><label for="title">Title</label><input id="title" name="title" type="text" placeholder="" maxlength="120" ><span class="msg">// required — please fill this in</span></div><div class="field"><label for="company">Company</label><input id="company" name="company" type="text" placeholder="" maxlength="120" ><span class="msg">// required — please fill this in</span></div></div>
+      <div class="field"><label for="bio">Short bio</label><textarea id="bio" name="bio" placeholder="Optional — they can write their own." maxlength="500" ></textarea><span class="msg">// required — please fill this in</span></div>
+    </div>
+    <div class="form-foot">
+      <span class="note">// the link works once, for this person</span>
+      <div class="foot-btns"><button class="btn btn-primary btn-bracket" type="submit" id="create-btn">Create invite link <span class="arr">→</span></button></div>
+    </div>
+    <div class="form-error" id="form-msg" style="display:none"></div>
+  </form>
+  <div class="invite-result" id="result-box" hidden>
+    <span class="label plain">Their link</span>
+    <code id="link-box"></code>
+    <div class="foot-btns">
+      <button class="btn btn-ghost btn-sm" type="button" id="copy-btn">Copy link</button>
+      <button class="btn btn-primary btn-sm btn-bracket" type="button" id="mail-btn">Open email to send <span class="arr">→</span></button>
+    </div>
+  </div>
+</div>
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="/"><img src="/assets/img/b0-mark-paper.svg" alt="[B0]" width="84" height="26"><span>BATCH ZERO</span></a>
+        <p style="margin-top:16px;max-width:34ch">The accelerator for founders who haven't graduated yet. Five startups per cohort, eight weeks, one Demo Day.</p>
+      </div>
+      <div><h4>Program</h4><a href="/program/">How it works</a><a href="/program/#timeline">8-week timeline</a><a href="/#demo-day">Demo Day</a><a href="/#faq">FAQ</a><a href="/mentors/">Mentor network</a></div>
+      <div><h4>Get involved</h4><a href="/apply/founders/">Founders — apply</a><a href="/partners/">Business partners</a><a href="/apply/investors/">Investors</a><a href="/apply/sponsors/">Sponsor companies</a><a href="/apply/mentors/">Mentors — apply</a><a href="/mentors/">Who's mentoring</a></div>
+      <div><h4>Company</h4><a href="/about/">About</a><a href="mailto:hello@batchzero.co">hello@batchzero.co</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div>
+    </div>
+    <div class="foot-bottom">
+      <span>© <span data-year></span> Batch Zero. Built by a high-school founder, for high-school founders.</span>
+      <span>batchzero.co · cohort_00</span>
+    </div>
+  </div>
+</footer>
 <script src="/assets/js/config.js"></script>
-<script>
-  const sb = window.supabase.createClient(window.B0_CONFIG.SUPABASE_URL, window.B0_CONFIG.SUPABASE_ANON_KEY);
-  const SIGNUP_BASE_URL = "https://batchzero.co/mentor-invite/";
-
-  document.getElementById('invite-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById('create-btn');
-    const msg = document.getElementById('form-msg');
-    msg.style.display = 'none'; msg.textContent = '';
-
-    const adminKey = document.getElementById('admin-key').value.trim();
-    const name = document.getElementById('f-name').value.trim();
-    if (!adminKey) { msg.textContent = 'Enter the admin key first.'; msg.style.display = 'block'; return; }
-    if (!name) { msg.textContent = 'Full name is required.'; msg.style.display = 'block'; return; }
-
-    btn.disabled = true; btn.textContent = 'Creating…';
-
-    const { data, error } = await sb.rpc('create_mentor_invite', {
-      p_admin_key: adminKey,
-      p_full_name: name,
-      p_linkedin_url: document.getElementById('f-linkedin').value.trim() || null,
-      p_title: document.getElementById('f-title').value.trim() || null,
-      p_company: document.getElementById('f-company').value.trim() || null,
-      p_bio: document.getElementById('f-bio').value.trim() || null
-    });
-
-    btn.disabled = false; btn.innerHTML = 'Create invite link <span class="arr">→</span>';
-
-    if (error) {
-      msg.textContent = error.message || 'Something went wrong.';
-      msg.style.display = 'block';
-      return;
-    }
-
-    const link = SIGNUP_BASE_URL + '?token=' + data;
-    document.getElementById('link-box').textContent = link;
-    document.getElementById('result-box').classList.add('active');
-
-    document.getElementById('copy-btn').onclick = () => {
-      navigator.clipboard.writeText(link);
-      msg.textContent = 'Link copied.'; msg.style.display = 'block';
-    };
-
-    document.getElementById('mail-btn').onclick = () => {
-      const email = document.getElementById('f-email').value.trim();
-      const subject = "You're invited to mentor for Batch Zero";
-      const body =
-`Hi ${name.split(' ')[0]},
-
-I'd love to have you as a mentor for Batch Zero's upcoming cohort — about 1–2 hours a week, one session with a founder team plus light prep.
-
-Here's your signup link, with your info already filled in:
-${link}
-
-Let me know if you have any questions!
-
-Rayan`;
-      window.location.href = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    };
-  });
-</script>
+<script src="/assets/js/site.js" defer></script>
+<script src="/assets/js/mentor-invite-admin.js" defer></script>
 </body>
 </html>

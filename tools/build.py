@@ -7,7 +7,8 @@ sys.path.insert(0, HERE)
 
 SITE_URL = "https://batchzero.co"
 
-def head(title, desc, path):
+def head(title, desc, path, noindex=False):
+    robots = '\n<meta name="robots" content="noindex">' if noindex else ""
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -15,7 +16,7 @@ def head(title, desc, path):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <meta name="description" content="{desc}">
-<link rel="canonical" href="{SITE_URL}{path}">
+<link rel="canonical" href="{SITE_URL}{path}">{robots}
 <meta name="theme-color" content="#07080a">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -68,8 +69,8 @@ FOOTER = """<footer>
         <a class="brand" href="/"><img src="/assets/img/b0-mark-paper.svg" alt="[B0]" width="84" height="26"><span>BATCH ZERO</span></a>
         <p style="margin-top:16px;max-width:34ch">The accelerator for founders who haven't graduated yet. Five startups per cohort, eight weeks, one Demo Day.</p>
       </div>
-      <div><h4>Program</h4><a href="/program/">How it works</a><a href="/program/#timeline">8-week timeline</a><a href="/#demo-day">Demo Day</a><a href="/#faq">FAQ</a></div>
-      <div><h4>Get involved</h4><a href="/apply/founders/">Founders — apply</a><a href="/partners/">Business partners</a><a href="/apply/investors/">Investors</a><a href="/apply/sponsors/">Sponsor companies</a><a href="/apply/mentors/">Mentors</a></div>
+      <div><h4>Program</h4><a href="/program/">How it works</a><a href="/program/#timeline">8-week timeline</a><a href="/#demo-day">Demo Day</a><a href="/#faq">FAQ</a><a href="/mentors/">Mentor network</a></div>
+      <div><h4>Get involved</h4><a href="/apply/founders/">Founders — apply</a><a href="/partners/">Business partners</a><a href="/apply/investors/">Investors</a><a href="/apply/sponsors/">Sponsor companies</a><a href="/apply/mentors/">Mentors — apply</a><a href="/mentors/">Who's mentoring</a></div>
       <div><h4>Company</h4><a href="/about/">About</a><a href="mailto:hello@batchzero.co">hello@batchzero.co</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div>
     </div>
     <div class="foot-bottom">
@@ -84,8 +85,10 @@ FOOTER = """<footer>
 </html>
 """
 
-def page(out_path, title, desc, body, canonical):
-    html = head(title, desc, canonical) + NAV + body + FOOTER
+def page(out_path, title, desc, body, canonical, noindex=False, extra_js=()):
+    """extra_js: page-specific scripts, loaded deferred *after* site.js so they can use window.B0."""
+    scripts = "".join(f'<script src="{src}" defer></script>\n' for src in extra_js)
+    html = head(title, desc, canonical, noindex) + NAV + body + FOOTER.replace("</body>", scripts + "</body>")
     full = os.path.join(SITE, out_path.lstrip("/"))
     os.makedirs(os.path.dirname(full), exist_ok=True)
     with open(full, "w") as f:
@@ -108,11 +111,12 @@ if __name__ == "__main__":
   "theme_color": "#07080a", "background_color": "#07080a", "display": "standalone", "start_url": "/"
 }''')
     with open(os.path.join(SITE, "robots.txt"), "w") as f:
-        f.write(f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n")
+        # invite links are private; the admin tool must never be indexed
+        f.write(f"User-agent: *\nAllow: /\nDisallow: /mentor-invite/\nSitemap: {SITE_URL}/sitemap.xml\n")
     with open(os.path.join(SITE, "sitemap.xml"), "w") as f:
         seen = []
         for p in pages.PAGES:
-            if p[0].startswith("404") or p[0].startswith("apply/companies") or p[4] in seen: continue
+            if p[0].startswith(("404", "apply/companies", "mentor-invite")) or p[4] in seen: continue
             seen.append(p[4])
         urls = "".join(f"<url><loc>{SITE_URL}{u}</loc></url>" for u in seen)
         f.write(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>')

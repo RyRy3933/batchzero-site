@@ -121,6 +121,22 @@
     return { ok: true, stored: true };
   }
 
+  /* Postgres functions over REST, with the anon key. Page scripts (the mentor invite flow) use this
+     instead of pulling in supabase-js from a CDN. */
+  async function rpc(name, args) {
+    if (!CFG.SUPABASE_URL || !CFG.SUPABASE_ANON_KEY) throw new Error("Supabase not configured");
+    const res = await fetch(`${CFG.SUPABASE_URL}/rest/v1/rpc/${name}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: CFG.SUPABASE_ANON_KEY, Authorization: `Bearer ${CFG.SUPABASE_ANON_KEY}` },
+      body: JSON.stringify(args || {}),
+    });
+    const text = await res.text();
+    let body = null;
+    try { body = text ? JSON.parse(text) : null; } catch (e) { body = text; }
+    if (!res.ok) throw new Error((body && body.message) || `${name} failed (${res.status})`);
+    return body;
+  }
+
   /* validation — one rule set for every form. A .field holds one text/select control, or a group of
      checkboxes/radios (data-required → at least one, data-max → at most N). Returns "" when fine. */
   const controls = (f) => $$("input:not([type=hidden]), textarea, select", f);
@@ -260,6 +276,13 @@
       startBox.hidden = on; doneBox.hidden = !on;
       if (orLine) orLine.hidden = on;
       $$(".field.verified", form).forEach(f => f.classList.remove("verified"));
+      // once LinkedIn vouches for them, stop demanding what we can read off their profile ourselves
+      $$(".field[data-soft]", form).forEach(f => {
+        f.classList.toggle("soft", on);
+        const c = controls(f)[0];
+        if (c) c.required = !on;
+        if (on) f.classList.remove("err");
+      });
       if (!on) { img.removeAttribute("src"); return; }
       $("[data-linkedin-who]", block).textContent = [val("linkedin_name"), val("linkedin_email")].filter(Boolean).join(" · ");
       const photo = val("photo_url");
@@ -270,7 +293,7 @@
         if (el && el.value.trim()) el.closest(".field").classList.add("verified");
       });
     }
-    function clear() { LI_HIDDEN.forEach(n => { if (hid(n)) hid(n).value = ""; }); setNote(""); refresh(); onChange(); }
+    function clear() { LI_HIDDEN.forEach(n => { if (hid(n)) hid(n).value = ""; }); setNote(""); refresh(); announce(); onChange(); }
     function fillIfEmpty(name, value) {
       const el = $(`[name="${name}"]`, form);
       if (el && value && !el.value.trim()) { el.value = value; el.dispatchEvent(new Event("input", { bubbles: true })); }
@@ -303,7 +326,7 @@
         if (hid("linkedin_email")) hid("linkedin_email").value = email;
         if (hid("photo_url")) hid("photo_url").value = m.picture || m.avatar_url || "";
         fillIfEmpty("first_name", first); fillIfEmpty("last_name", lastName); fillIfEmpty("email", email);
-        refresh(); onChange();
+        refresh(); announce(); onChange();
       } catch (e) {
         console.error("[B0] LinkedIn sign-in failed", e);
         setNote("// couldn't read your LinkedIn profile — fill this in yourself and we'll manage.");
@@ -312,7 +335,12 @@
         try { fetch(`${CFG.SUPABASE_URL}/auth/v1/logout?scope=global`, { method: "POST", keepalive: true, headers: { apikey: CFG.SUPABASE_ANON_KEY, Authorization: `Bearer ${token}` } }).catch(() => {}); } catch (e) {}
       }
     }
-    return { refresh, signed, fromRedirect };
+    function announce() {
+      form.dispatchEvent(new CustomEvent("b0:linkedin", { detail: {
+        verified: signed(), name: val("linkedin_name"), email: val("linkedin_email"), photo: val("photo_url"),
+      } }));
+    }
+    return { refresh: () => { refresh(); announce(); }, signed, fromRedirect };
   }
 
   /* step-by-step forms (form[data-steps]): each [data-step] panel is one screen */
@@ -474,6 +502,9 @@
 
   $$("form.app").forEach(form => {
     form.setAttribute("novalidate", "");
+    // a form with data-custom-submit keeps the shared validation, chips and LinkedIn wiring,
+    // but posts itself (the mentor invite form calls a Postgres function instead)
+    const customSubmit = form.hasAttribute("data-custom-submit");
     let errBox = $(".form-error", form);
     if (!errBox) { errBox = make("div", "form-error"); form.appendChild(errBox); }
     const ERR_DEFAULT = "// couldn't send — check your connection and try again, or email hello@batchzero.co";
@@ -565,6 +596,7 @@
     if (store) { form.addEventListener("input", saveDraft); form.addEventListener("change", saveDraft); }
     if (stepper) { let navT = null; form.addEventListener("input", () => { clearTimeout(navT); navT = setTimeout(stepper.refreshNav, 250); }); }
 
+    if (customSubmit) return;
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (form.classList.contains("busy")) return;
@@ -595,6 +627,13 @@
       } finally { form.classList.remove("busy"); }
     });
   });
+
+  /* ---- public bits for page scripts ---- */
+  window.B0 = {
+    rpc,
+    validate(form) { const bad = validateScope(form); if (bad) focusField(bad); return !bad; },
+    escapeText: (s) => String(s == null ? "" : s),
+  };
 
   /* ---- footer year ---- */
   $$("[data-year]").forEach(el => el.textContent = new Date().getFullYear());

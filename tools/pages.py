@@ -318,7 +318,8 @@ PARTNERS = """
         <span class="go">Apply to mentor <span class="arr">→</span></span>
       </a>
     </div>
-    <p class="dim" style="margin-top:28px;font-size:14px">Not sure, or something else (press, schools, partnerships)? <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a></p>
+    <p class="dim" style="margin-top:28px;font-size:14px">Curious who's already in? <a href="/mentors/" style="color:var(--accent-2)">See the mentor network &rarr;</a></p>
+    <p class="dim" style="margin-top:10px;font-size:14px">Not sure, or something else (press, schools, partnerships)? <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a></p>
   </div>
 </section>
 """
@@ -368,7 +369,7 @@ def form_page(label, h1, lede, aside_title, aside_items, form_fields, submit_lab
 </section>
 """
 
-def field(name, label, type="text", required=True, placeholder="", hint="", as_="input", options=None, maxlength=None, short=None):
+def field(name, label, type="text", required=True, placeholder="", hint="", as_="input", options=None, maxlength=None, short=None, soft=False):
     req = "required" if required else ""
     star = " <b>*</b>" if required else ""
     ml = f' maxlength="{maxlength}"' if maxlength else ""
@@ -381,7 +382,8 @@ def field(name, label, type="text", required=True, placeholder="", hint="", as_=
         ctl = f'<input id="{name}" name="{name}" type="{type}" placeholder="{placeholder}"{ml} {req}>'
     h = f'<span class="hint">{hint}</span>' if hint else ""
     sh = f' data-short="{short}"' if short else ""  # shorter label for the review screen
-    return f'<div class="field"><label for="{name}"{sh}>{label}{star}</label>{ctl}{h}<span class="msg">// required — please fill this in</span></div>'
+    # data-soft: required normally, optional once LinkedIn has verified them (site.js flips it)
+    return f'<div class="field"{" data-soft" if soft else ""}><label for="{name}"{sh}>{label}{star}</label>{ctl}{h}<span class="msg">// required — please fill this in</span></div>'
 
 def chips(name, label, options, required=False, max_pick=None, hint="", short=None):
     """Checkbox pills. required → at least one; max_pick → at most N (site.js enforces both)."""
@@ -400,7 +402,11 @@ def choice_cards(name, label, options, hint="", short=None):
     sh = f' data-short="{short}"' if short else ""
     return f'<div class="field" data-required><label id="{name}-label"{sh}>{label} <b>*</b></label>{h}<div class="optin-group" role="radiogroup" aria-labelledby="{name}-label">{cards}</div><span class="msg">// pick one</span></div>'
 
-def linkedin_block():
+def linkedin_block(title="Start with LinkedIn",
+                   sub="Fills in your name, email and photo, and marks them verified. We can't post anything, and we never see your password.",
+                   cta="Continue with LinkedIn",
+                   done="Verified through LinkedIn · we filled in what we could below",
+                   or_line="or fill it in yourself"):
     """Optional 'Continue with LinkedIn' block. site.js shows it only when B0_CONFIG.LINKEDIN_SIGNIN
     is on and Supabase is configured; the hidden inputs below are what the sign-in fills in."""
     hidden = "".join(f'<input type="hidden" name="{n}" value="" data-draft>' for n in
@@ -408,20 +414,20 @@ def linkedin_block():
     return f"""<div class="li-block" data-linkedin hidden>
   <div class="li-start">
     <div>
-      <b>Start with LinkedIn</b>
-      <em>Fills in your name, email and photo, and marks them verified. We can't post anything, and we never see your password.</em>
+      <b>{title}</b>
+      <em>{sub}</em>
     </div>
-    <button class="btn btn-ghost btn-bracket" type="button" data-linkedin-start>Continue with LinkedIn <span class="arr">→</span></button>
+    <button class="btn btn-ghost btn-bracket" type="button" data-linkedin-start>{cta} <span class="arr">→</span></button>
   </div>
   <div class="li-done" hidden>
     <img alt="" data-linkedin-photo referrerpolicy="no-referrer" width="44" height="44">
-    <div><b data-linkedin-who></b><em>Verified through LinkedIn · we filled in what we could below</em></div>
+    <div><b data-linkedin-who></b><em>{done}</em></div>
     <button class="btn-plain" type="button" data-linkedin-clear>Not you?</button>
   </div>
   <p class="li-note" data-linkedin-note hidden></p>
   {hidden}
 </div>
-<p class="or-line" data-linkedin-or hidden><span>or fill it in yourself</span></p>"""
+<p class="or-line" data-linkedin-or hidden><span>{or_line}</span></p>"""
 
 def optin(name, title, sub):
     return (f'<label class="optin"><input type="checkbox" name="{name}" value="yes">'
@@ -464,9 +470,9 @@ FOUNDERS_FORM = f"""
 _MENTOR_STEP_1 = f"""
   {linkedin_block()}
   <div class="f-row">{field("first_name","First name",maxlength=60)}{field("last_name","Last name",maxlength=60)}</div>
-  <div class="f-row">{field("email","Email","email",maxlength=200)}{field("linkedin","LinkedIn","url",placeholder="https://linkedin.com/in/…",maxlength=300)}</div>
-  <div class="f-row">{field("title","Current role",placeholder="Head of Product",maxlength=120)}{field("company","Company",placeholder="Acme — or independent",maxlength=120)}</div>
-  <div class="f-row">{field("location","City, country",placeholder="San Francisco, US",maxlength=120)}{field("timezone","Time zone",as_="select",options=["Pacific (PT)","Mountain (MT)","Central (CT)","Eastern (ET)","UK / Ireland","Europe (CET)","India (IST)","Asia-Pacific","Somewhere else"])}</div>
+  <div class="f-row">{field("email","Email","email",maxlength=200)}{field("linkedin","LinkedIn","url",placeholder="https://linkedin.com/in/…",hint="// the one thing the LinkedIn button can't hand us",maxlength=300)}</div>
+  <div class="f-row">{field("title","Current role",placeholder="Head of Product",maxlength=120,soft=True)}{field("company","Company",placeholder="Acme — or independent",maxlength=120,soft=True)}</div>
+  <div class="f-row">{field("location","City, country",placeholder="San Francisco, US",maxlength=120,soft=True)}{field("timezone","Time zone",as_="select",options=["Pacific (PT)","Mountain (MT)","Central (CT)","Eastern (ET)","UK / Ireland","Europe (CET)","India (IST)","Asia-Pacific","Somewhere else"])}</div>
   {field("other_links","Other links",required=False,placeholder="GitHub, portfolio, a talk, something you shipped",hint="// optional — paste as many as you like",maxlength=500)}
 """
 
@@ -557,7 +563,7 @@ FOUNDERS = form_page("Founders · Cohort 01", "Apply to the batch.", "Five spots
     "What you'll need", ["A link to something real", "Numbers, even small ones", "A 60-second video (phone is fine)", "Who's on the team", "Parent/guardian consent if selected and under 18"],
     FOUNDERS_FORM, "Submit application", "Application received.", "We review every application on the same rubric and reply within two weeks of the window closing — with feedback either way.")
 
-MENTORS = form_page("Mentors", "Give a founder two months.", "Two mentors per team, weekly sessions on the platform, eight weeks. We're looking for people who've built things and can say what they actually think. Five short steps, about fifteen minutes, and it saves as you go.",
+MENTORS = form_page("Mentors", "Give a founder two months.", "Two mentors per team, weekly sessions on the platform, eight weeks. We're looking for people who've built things and can say what they actually think. Five short steps, about fifteen minutes, and it saves as you go. <a href='/mentors/' style='color:var(--accent-2)'>See who's already mentoring &rarr;</a>",
     "What we ask", ["1–3 hours a week for 8 weeks", "Sessions on the platform (recorded)", "A short interview and a background check", "Honest feedback, kindly delivered"],
     MENTORS_FORM, "Apply to mentor", "Thanks — we'll be in touch.", "We read every mentor application ourselves and interview everyone before matching. Expect a note from us within a week.",
     note="// about 15 minutes · saves on this device as you go", steps=True)
@@ -570,13 +576,162 @@ SPONSORS = form_page("Sponsor companies", "Back a cohort. Meet the builders earl
     "How it works", ["Prize sponsorship from $1k per cohort", "Logo on the cohort page and Demo Day stream", "Opt-in intros to founders and team members", "Internships, part-time, project work — never full-time placement for minors"],
     SPONSORS_FORM, "Talk to us", "Got it.", "We'll reach out within a few days to talk through the cohort and what sponsorship looks like.")
 
+MENTOR_INVITE_FORM = f"""
+  {linkedin_block(title="Confirm it's really you", sub="One click signs you in with LinkedIn and fills in your email and photo. We can't post anything, and we never see your password.", cta="Verify with LinkedIn", done="Verified through LinkedIn", or_line="or just fill this in")}
+  <div class="fieldset">
+    {field("email","Email","email",maxlength=200,hint="// how we reach you about the cohort — never shown publicly")}
+    <div class="f-row">{field("title","Title",required=False,placeholder="VP of Engineering",maxlength=120)}{field("company","Company",required=False,placeholder="Acme",maxlength=120)}</div>
+    {field("areas","What you can mentor on",required=False,placeholder="fundraising, GTM, ML infra",maxlength=200)}
+    {field("bio","Short bio",required=False,as_="textarea",placeholder="A sentence or two on your background — founders see this.",maxlength=500)}
+  </div>
+  <label class="check"><input type="checkbox" name="agree" value="yes"><span>I agree to the <a href="/mentor-invite/terms/" style="color:var(--accent-2)">Mentor Terms of Service</a>, including showing my name, photo, title, company and bio on the Batch Zero website.</span></label>
+"""
+
+MENTOR_INVITE = f"""
+<div class="wrap invite-wrap">
+  <div class="state active" id="state-loading">
+    <div class="page-hero"><span class="label rv in">Mentor invite</span><h1>Mentor signup</h1><p class="lede">Loading your invite…</p></div>
+  </div>
+
+  <div class="state" id="state-invalid">
+    <div class="page-hero"><span class="label">Mentor invite</span><h1>This link didn't work.</h1><p class="lede">We couldn't find an invite for it — it may have already been used, or the link got cut off in an email. Send us a note at <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a> and we'll sort it out.</p></div>
+  </div>
+
+  <div class="state" id="state-form">
+    <div class="page-hero" style="padding-bottom:26px">
+      <span class="label">Mentor invite</span>
+      <h1>You're invited to mentor.</h1>
+      <p class="lede">Confirm a few details and you're on the roster for the next cohort. Anything we already have is filled in. Takes a minute.</p>
+    </div>
+    <div class="invite-card">
+      <div class="invite-avatar" id="avatar">–</div>
+      <div class="invite-who">
+        <div class="invite-name" id="p-name">—</div>
+        <div class="invite-role" id="p-role">—</div>
+        <a class="invite-link" id="p-linkedin" href="#" target="_blank" rel="noopener" hidden>View LinkedIn profile →</a>
+      </div>
+    </div>
+    <form class="app" id="mentor-form" method="post" action="#" data-custom-submit>
+      {MENTOR_INVITE_FORM}
+      <div class="form-foot">
+        <span class="note">// about a minute · you can change any of this later by emailing us</span>
+        <div class="foot-btns"><button class="btn btn-primary btn-bracket" type="submit" id="submit-btn">Confirm &amp; join as a mentor <span class="arr">→</span></button></div>
+      </div>
+      <div class="form-error" id="form-msg" style="display:none"></div>
+    </form>
+  </div>
+
+  <div class="state" id="state-done">
+    <div class="page-hero" style="padding-bottom:12px"><span class="label">Mentor invite</span><h1>You're in.</h1></div>
+    <div class="form-done" style="display:block">
+      <div class="ok-mark">[ ✓ ]</div>
+      <h3>Thanks — you're on the mentor roster.</h3>
+      <p class="dim" id="done-msg" style="margin-top:8px">We'll follow up by email as the cohort gets closer, with your team and the session schedule.</p>
+      <p style="margin-top:16px"><a href="/mentors/" style="color:var(--accent-2)">You're on the mentor page &rarr;</a></p>
+    </div>
+  </div>
+</div>
+"""
+
+MENTOR_INVITE_ADMIN = f"""
+<div class="wrap invite-wrap">
+  <div class="page-hero" style="padding-bottom:26px">
+    <span class="label">Internal</span>
+    <h1>Invite a mentor.</h1>
+    <p class="lede">Creates a one-off signup link with their details already filled in. Anything you leave blank, they fill in themselves.</p>
+  </div>
+  <form class="app" id="invite-form" method="post" action="#" data-custom-submit>
+    <div class="fieldset">
+      {field("admin_key","Admin key","password",hint="// checked inside create_mentor_invite() — never stored in this page")}
+    </div>
+    <div class="fieldset"><span class="label plain">The mentor</span>
+      <div class="f-row">{field("full_name","Full name",maxlength=120)}{field("email","Their email",required=False,type="email",hint="// only used to open a pre-written email",maxlength=200)}</div>
+      {field("linkedin_url","LinkedIn profile",required=False,type="url",placeholder="https://linkedin.com/in/…",maxlength=300)}
+      <div class="f-row">{field("title","Title",required=False,maxlength=120)}{field("company","Company",required=False,maxlength=120)}</div>
+      {field("bio","Short bio",required=False,as_="textarea",placeholder="Optional — they can write their own.",maxlength=500)}
+    </div>
+    <div class="form-foot">
+      <span class="note">// the link works once, for this person</span>
+      <div class="foot-btns"><button class="btn btn-primary btn-bracket" type="submit" id="create-btn">Create invite link <span class="arr">→</span></button></div>
+    </div>
+    <div class="form-error" id="form-msg" style="display:none"></div>
+  </form>
+  <div class="invite-result" id="result-box" hidden>
+    <span class="label plain">Their link</span>
+    <code id="link-box"></code>
+    <div class="foot-btns">
+      <button class="btn btn-ghost btn-sm" type="button" id="copy-btn">Copy link</button>
+      <button class="btn btn-primary btn-sm btn-bracket" type="button" id="mail-btn">Open email to send <span class="arr">→</span></button>
+    </div>
+  </div>
+</div>
+"""
+
+MENTOR_TERMS = """
+<div class="wrap page-hero"><span class="label">Legal</span><h1 style="font-size:clamp(32px,4vw,52px)">Mentor Terms of Service</h1><p class="lede">The deal between you and Batch Zero when you mentor a team. Last updated September 25, 2026.</p></div>
+<section style="padding-top:8px"><div class="wrap"><div class="prose">
+<p class="notice">A plain-English draft written at the pre-incorporation stage — not legal advice, and worth a lawyer's pass once Batch Zero has paid mentors or larger cohorts.</p>
+<h2>1. Your role</h2>
+<p>As a Batch Zero mentor you agree to advise founders in your assigned cohort as a volunteer — usually about 1&ndash;2 hours a week: one session with a team, plus light prep. Unless we agree otherwise in writing, mentoring is unpaid.</p>
+<h2>2. Use of your profile</h2>
+<p>You agree that Batch Zero may show your name, photo, title, company and short bio on the Batch Zero website and in related material — the mentor roster, cohort announcements, social posts — to introduce you to founders and the community. Ask us to change or remove any of it at any time at <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a>.</p>
+<h2>3. Confidentiality</h2>
+<p>Founders share early, non-public details of their startups with you. Keep that to yourself, and don't use it outside advising them.</p>
+<h2>4. No ownership of founder work</h2>
+<p>Advice, feedback or introductions you give don't give you ownership, equity or intellectual property in a founder's company or work, unless a separate written agreement says so.</p>
+<h2>5. Working with students</h2>
+<p>Founders in the program are high-school students, most of them under 18. Sessions happen on the platform or on recorded calls, never in private one-to-one channels, and you agree to follow the mentor code of conduct we send before matching. Mentors are interviewed and background-checked.</p>
+<h2>6. Conduct</h2>
+<p>Engage with founders professionally and respectfully, and represent Batch Zero fairly when you're acting as a mentor.</p>
+<h2>7. No liability</h2>
+<p>You're advising in good faith as a volunteer. Neither you nor Batch Zero is liable for what founders do with that advice, and the program is provided as is, without warranties.</p>
+<h2>8. Ending it</h2>
+<p>You or Batch Zero can end your involvement at any time, for any reason, by telling the other.</p>
+<h2>9. Governing law</h2>
+<p>These terms are governed by the laws of the State of California.</p>
+<p style="margin-top:28px"><a href="/mentor-invite/" style="color:var(--accent-2)">&larr; Back to mentor signup</a></p>
+</div></div></section>
+"""
+
+MENTORS_ROSTER = """
+<div class="wrap page-hero">
+  <span class="label rv">Mentor network</span>
+  <h1 class="rv rv-d1">The people in the room.</h1>
+  <p class="lede rv rv-d2">Every team gets two mentors for eight weeks — one who knows your domain, one who has built a company end to end. Here's who has signed up so far.</p>
+  <p class="mono dim" style="font-size:13px" data-mentor-count hidden></p>
+</div>
+<section style="padding-top:8px">
+  <div class="wrap">
+    <div class="mentor-state" data-mentor-loading>// loading the roster…</div>
+    <div class="mentor-state" data-mentor-empty hidden>// the first mentors are being confirmed right now — check back in a few days.</div>
+    <div class="mentor-state err" data-mentor-error hidden>// couldn't load the roster just now. Refresh, or email <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a>.</div>
+    <div class="mentor-grid" data-mentor-grid hidden></div>
+  </div>
+</section>
+<section>
+  <div class="wrap">
+    <div class="cta-band">
+      <div>
+        <span class="label">Mentor a team</span>
+        <h2>You've built something. Give two months of it away.</h2>
+        <p class="lede" style="margin-top:14px">1&ndash;3 hours a week for eight weeks, sessions on the platform, one team that will remember it for a long time.</p>
+        <div class="hero-actions" style="margin-top:20px">
+          <a class="btn btn-primary btn-bracket" href="/apply/mentors/">Apply to mentor <span class="arr">&rarr;</span></a>
+          <a class="btn btn-ghost" href="/program/">See the program</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+"""
+
 COMPANIES_REDIRECT = """
 <div class="wrap page-hero"><span class="label">Moved</span><h1>This page moved.</h1><p class="lede">Companies now come in through the sponsor door. Redirecting…</p><div class="hero-actions"><a class="btn btn-primary" href="/apply/sponsors/">Go to sponsor companies →</a></div></div>
 <meta http-equiv="refresh" content="2;url=/apply/sponsors/">
 """
 
 PRIVACY = """
-<div class="wrap page-hero"><span class="label">Legal</span><h1>Privacy policy</h1><p class="lede">Plain-English version first, full version below. Last updated September 18, 2026.</p></div>
+<div class="wrap page-hero"><span class="label">Legal</span><h1>Privacy policy</h1><p class="lede">Plain-English version first, full version below. Last updated September 26, 2026.</p></div>
 <section style="padding-top:8px"><div class="wrap"><div class="prose">
 <div class="card" style="margin-bottom:8px"><div class="idx"><span>tl;dr</span><span>the short version</span></div>
 <p>We collect what you type into our application forms and nothing else. We use it to run Batch Zero. We don't sell it, we don't run ad trackers, and nobody outside the team sees a student's application unless that student opts in. Email <a href="mailto:rayan@batchzero.co" style="color:var(--accent-2)">rayan@batchzero.co</a> to see, fix, or delete your data at any time.</p></div>
@@ -598,6 +753,7 @@ PRIVACY = """
 <p>Batch Zero is for high-school students. You must be at least 13 to use this site or apply; we do not knowingly collect information from anyone under 13, and we delete it if we find it. If you are under 18 and selected for a cohort, a parent or guardian must sign a consent form before you take part, and they can ask us at any time to see or delete your information. Parents: email <a href="mailto:rayan@batchzero.co" style="color:var(--accent-2)">rayan@batchzero.co</a> and we'll respond within a few days.</p>
 
 <h2>5. Who can see a student's information</h2>
+<p><strong>The mentor page.</strong> Mentors who accept an invite and agree to the mentor terms appear on our public <a href="/mentors/" style="color:var(--accent-2)">mentor page</a> — name, photo, role, company and the areas they mentor on. Never their email. Ask us and we'll take it down the same day.</p>
 <p>Only the Batch Zero team and reviewers reviewing applications. Mentors see the applications of the teams they are matched with. Investors and sponsor companies do <strong>not</strong> receive contact details or full applications: they see the profile a founder chooses to make visible, and any introduction is requested through us and accepted by the founder first. We never share a student's information with a third party for that party's own marketing.</p>
 
 <h2>6. Services we rely on</h2>
@@ -684,6 +840,10 @@ PAGES = [
     ("partners/index.html", "Business partners — Batch Zero", "Investors, sponsor companies and mentors: pick your door into Batch Zero.", PARTNERS, "/partners/"),
     ("apply/sponsors/index.html", "Sponsor a cohort — Batch Zero", "Fund the Demo Day prize, name a cohort, and meet high-school founders early.", SPONSORS, "/apply/sponsors/"),
     ("apply/companies/index.html", "Moved — Batch Zero", "This page moved to sponsor companies.", COMPANIES_REDIRECT, "/apply/sponsors/"),
+    ("mentors/index.html", "Mentors — Batch Zero", "The operators, founders and engineers mentoring Batch Zero teams.", MENTORS_ROSTER, "/mentors/", False, ("/assets/js/mentors.js",)),
+    ("mentor-invite/index.html", "Mentor signup — Batch Zero", "Confirm your details and join the Batch Zero mentor roster.", MENTOR_INVITE, "/mentor-invite/", True, ("/assets/js/mentor-invite.js",)),
+    ("mentor-invite/admin/index.html", "Invite a mentor — Batch Zero", "Internal tool: create a mentor invite link.", MENTOR_INVITE_ADMIN, "/mentor-invite/admin/", True, ("/assets/js/mentor-invite-admin.js",)),
+    ("mentor-invite/terms/index.html", "Mentor Terms of Service — Batch Zero", "The terms you agree to when you mentor for Batch Zero.", MENTOR_TERMS, "/mentor-invite/terms/", True),
     ("privacy/index.html", "Privacy policy — Batch Zero", "What Batch Zero collects, why, who can see it, and how students and parents can ask for it to be deleted.", PRIVACY, "/privacy/"),
     ("terms/index.html", "Terms of use — Batch Zero", "The rules for using batchzero.co and applying to the program.", TERMS, "/terms/"),
 ]

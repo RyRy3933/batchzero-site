@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Not found — Batch Zero</title>
-<meta name="description" content="Page not found.">
-<link rel="canonical" href="https://batchzero.co/404.html">
+<title>Mentors — Batch Zero</title>
+<meta name="description" content="The operators, founders and engineers mentoring Batch Zero teams.">
+<link rel="canonical" href="https://batchzero.co/mentors/">
 <meta name="theme-color" content="#07080a">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -13,9 +13,9 @@
 <link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Batch Zero">
-<meta property="og:title" content="Not found — Batch Zero">
-<meta property="og:description" content="Page not found.">
-<meta property="og:url" content="https://batchzero.co/404.html">
+<meta property="og:title" content="Mentors — Batch Zero">
+<meta property="og:description" content="The operators, founders and engineers mentoring Batch Zero teams.">
+<meta property="og:url" content="https://batchzero.co/mentors/">
 <meta property="og:image" content="https://batchzero.co/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -48,12 +48,35 @@
   <a href="/program/">Program</a><a href="/#how">How it works</a><a href="/#demo-day">Demo Day</a><a href="/about/">About</a>
 </div>
 
-<div class="wrap page-hero" style="min-height:70vh;align-content:center;text-align:center;justify-items:center">
-  <span class="label">404</span>
-  <h1>Nothing here yet.</h1>
-  <p class="lede" style="text-align:center">That page doesn't exist — or it's part of the app we haven't shipped.</p>
-  <div class="hero-actions" style="justify-content:center"><a class="btn btn-primary btn-bracket" href="/">Back to home</a><a class="btn btn-ghost" href="/apply/founders/">Apply as a founder</a></div>
+<div class="wrap page-hero">
+  <span class="label rv">Mentor network</span>
+  <h1 class="rv rv-d1">The people in the room.</h1>
+  <p class="lede rv rv-d2">Every team gets two mentors for eight weeks — one who knows your domain, one who has built a company end to end. Here's who has signed up so far.</p>
+  <p class="mono dim" style="font-size:13px" data-mentor-count hidden></p>
 </div>
+<section style="padding-top:8px">
+  <div class="wrap">
+    <div class="mentor-state" data-mentor-loading>// loading the roster…</div>
+    <div class="mentor-state" data-mentor-empty hidden>// the first mentors are being confirmed right now — check back in a few days.</div>
+    <div class="mentor-state err" data-mentor-error hidden>// couldn't load the roster just now. Refresh, or email <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a>.</div>
+    <div class="mentor-grid" data-mentor-grid hidden></div>
+  </div>
+</section>
+<section>
+  <div class="wrap">
+    <div class="cta-band">
+      <div>
+        <span class="label">Mentor a team</span>
+        <h2>You've built something. Give two months of it away.</h2>
+        <p class="lede" style="margin-top:14px">1&ndash;3 hours a week for eight weeks, sessions on the platform, one team that will remember it for a long time.</p>
+        <div class="hero-actions" style="margin-top:20px">
+          <a class="btn btn-primary btn-bracket" href="/apply/mentors/">Apply to mentor <span class="arr">&rarr;</span></a>
+          <a class="btn btn-ghost" href="/program/">See the program</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 <footer>
   <div class="wrap">
     <div class="foot">
@@ -73,5 +96,6 @@
 </footer>
 <script src="/assets/js/config.js"></script>
 <script src="/assets/js/site.js" defer></script>
+<script src="/assets/js/mentors.js" defer></script>
 </body>
 </html>

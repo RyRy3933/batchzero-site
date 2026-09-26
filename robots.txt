@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
+Disallow: /mentor-invite/
 Sitemap: https://batchzero.co/sitemap.xml
