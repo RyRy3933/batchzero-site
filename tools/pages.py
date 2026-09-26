@@ -400,6 +400,29 @@ def choice_cards(name, label, options, hint="", short=None):
     sh = f' data-short="{short}"' if short else ""
     return f'<div class="field" data-required><label id="{name}-label"{sh}>{label} <b>*</b></label>{h}<div class="optin-group" role="radiogroup" aria-labelledby="{name}-label">{cards}</div><span class="msg">// pick one</span></div>'
 
+def linkedin_block():
+    """Optional 'Continue with LinkedIn' block. site.js shows it only when B0_CONFIG.LINKEDIN_SIGNIN
+    is on and Supabase is configured; the hidden inputs below are what the sign-in fills in."""
+    hidden = "".join(f'<input type="hidden" name="{n}" value="" data-draft>' for n in
+                     ("linkedin_verified", "linkedin_id", "linkedin_name", "linkedin_email", "photo_url"))
+    return f"""<div class="li-block" data-linkedin hidden>
+  <div class="li-start">
+    <div>
+      <b>Start with LinkedIn</b>
+      <em>Fills in your name, email and photo, and marks them verified. We can't post anything, and we never see your password.</em>
+    </div>
+    <button class="btn btn-ghost btn-bracket" type="button" data-linkedin-start>Continue with LinkedIn <span class="arr">→</span></button>
+  </div>
+  <div class="li-done" hidden>
+    <img alt="" data-linkedin-photo referrerpolicy="no-referrer" width="44" height="44">
+    <div><b data-linkedin-who></b><em>Verified through LinkedIn · we filled in what we could below</em></div>
+    <button class="btn-plain" type="button" data-linkedin-clear>Not you?</button>
+  </div>
+  <p class="li-note" data-linkedin-note hidden></p>
+  {hidden}
+</div>
+<p class="or-line" data-linkedin-or hidden><span>or fill it in yourself</span></p>"""
+
 def optin(name, title, sub):
     return (f'<label class="optin"><input type="checkbox" name="{name}" value="yes">'
             f'<span class="ot"><b>{title}</b><em>{sub}</em></span></label>')
@@ -439,6 +462,7 @@ FOUNDERS_FORM = f"""
 
 # Mentor application: five steps + review (form_page(steps=True)). Each step body is its own string.
 _MENTOR_STEP_1 = f"""
+  {linkedin_block()}
   <div class="f-row">{field("first_name","First name",maxlength=60)}{field("last_name","Last name",maxlength=60)}</div>
   <div class="f-row">{field("email","Email","email",maxlength=200)}{field("linkedin","LinkedIn","url",placeholder="https://linkedin.com/in/…",maxlength=300)}</div>
   <div class="f-row">{field("title","Current role",placeholder="Head of Product",maxlength=120)}{field("company","Company",placeholder="Acme — or independent",maxlength=120)}</div>
@@ -552,7 +576,7 @@ COMPANIES_REDIRECT = """
 """
 
 PRIVACY = """
-<div class="wrap page-hero"><span class="label">Legal</span><h1>Privacy policy</h1><p class="lede">Plain-English version first, full version below. Last updated September 16, 2026.</p></div>
+<div class="wrap page-hero"><span class="label">Legal</span><h1>Privacy policy</h1><p class="lede">Plain-English version first, full version below. Last updated September 18, 2026.</p></div>
 <section style="padding-top:8px"><div class="wrap"><div class="prose">
 <div class="card" style="margin-bottom:8px"><div class="idx"><span>tl;dr</span><span>the short version</span></div>
 <p>We collect what you type into our application forms and nothing else. We use it to run Batch Zero. We don't sell it, we don't run ad trackers, and nobody outside the team sees a student's application unless that student opts in. Email <a href="mailto:rayan@batchzero.co" style="color:var(--accent-2)">rayan@batchzero.co</a> to see, fix, or delete your data at any time.</p></div>
@@ -563,6 +587,7 @@ PRIVACY = """
 <h2>2. What we collect</h2>
 <p><strong>What you give us.</strong> When you submit a form on batchzero.co we store exactly what you enter: for founders, your name, email, school, graduation year, and what you tell us about your startup and team, plus links you share (website, demo, video). For mentors: name, email, role and company, city and time zone, LinkedIn and any other links you add, and your answers about your experience, how you mentor and when you're available. For investors and sponsor companies: name, work email, company, role, links, and your answers. We also record the page the form was sent from and a general browser type, to help debug problems.</p>
 <p><strong>What we don't collect.</strong> We do not use advertising trackers, social-media pixels, or analytics cookies. We don't ask for your address, phone number, date of birth, or any government ID. We don't collect payment information on this site.</p>
+<p><strong>Signing in with LinkedIn (optional).</strong> The mentor application offers a "Continue with LinkedIn" button. If you use it, LinkedIn asks your permission and then gives us your name, email address and profile photo — nothing else, and never your password. We use it to fill in the form and to confirm you are who you say you are. We can't see your connections or your messages, and we can't post anything as you. You can skip it and type everything in instead, or click "Not you?" to remove what it filled in. We end the LinkedIn session as soon as we've read those three things.</p>
 <p><strong>Unfinished drafts.</strong> The mentor application saves your answers in your own browser as you type (using your browser's local storage), so you can close the tab and come back. That draft stays on your device and is never sent to us until you press submit. It's deleted from your browser when you submit or click "Start over", and you can also clear it by clearing your browser's site data.</p>
 <p><strong>Video links.</strong> If you share a video (for example an unlisted YouTube or Loom link), the video stays on that service under its own privacy terms; we only store the link.</p>
 

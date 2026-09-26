@@ -66,6 +66,23 @@
           
 <input type="hidden" name="form_version" value="mentor-v2">
 <div class="fieldset step-panel" data-step data-title="You"><div class="step-hd"><h2 class="label plain step-title" tabindex="-1"><span class="sn">01 ·</span> You</h2><p class="step-intro">The basics, so we can reach you and look you up.</p></div>
+  <div class="li-block" data-linkedin hidden>
+  <div class="li-start">
+    <div>
+      <b>Start with LinkedIn</b>
+      <em>Fills in your name, email and photo, and marks them verified. We can't post anything, and we never see your password.</em>
+    </div>
+    <button class="btn btn-ghost btn-bracket" type="button" data-linkedin-start>Continue with LinkedIn <span class="arr">→</span></button>
+  </div>
+  <div class="li-done" hidden>
+    <img alt="" data-linkedin-photo referrerpolicy="no-referrer" width="44" height="44">
+    <div><b data-linkedin-who></b><em>Verified through LinkedIn · we filled in what we could below</em></div>
+    <button class="btn-plain" type="button" data-linkedin-clear>Not you?</button>
+  </div>
+  <p class="li-note" data-linkedin-note hidden></p>
+  <input type="hidden" name="linkedin_verified" value="" data-draft><input type="hidden" name="linkedin_id" value="" data-draft><input type="hidden" name="linkedin_name" value="" data-draft><input type="hidden" name="linkedin_email" value="" data-draft><input type="hidden" name="photo_url" value="" data-draft>
+</div>
+<p class="or-line" data-linkedin-or hidden><span>or fill it in yourself</span></p>
   <div class="f-row"><div class="field"><label for="first_name">First name <b>*</b></label><input id="first_name" name="first_name" type="text" placeholder="" maxlength="60" required><span class="msg">// required — please fill this in</span></div><div class="field"><label for="last_name">Last name <b>*</b></label><input id="last_name" name="last_name" type="text" placeholder="" maxlength="60" required><span class="msg">// required — please fill this in</span></div></div>
   <div class="f-row"><div class="field"><label for="email">Email <b>*</b></label><input id="email" name="email" type="email" placeholder="" maxlength="200" required><span class="msg">// required — please fill this in</span></div><div class="field"><label for="linkedin">LinkedIn <b>*</b></label><input id="linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/…" maxlength="300" required><span class="msg">// required — please fill this in</span></div></div>
   <div class="f-row"><div class="field"><label for="title">Current role <b>*</b></label><input id="title" name="title" type="text" placeholder="Head of Product" maxlength="120" required><span class="msg">// required — please fill this in</span></div><div class="field"><label for="company">Company <b>*</b></label><input id="company" name="company" type="text" placeholder="Acme — or independent" maxlength="120" required><span class="msg">// required — please fill this in</span></div></div>

@@ -173,6 +173,10 @@
     $$("input[type=checkbox][name]", form).forEach(cb => {
       if (!(cb.name in data)) data[cb.name] = groups.has(cb.name) ? [] : "no";
     });
+    // hidden fields we only fill sometimes (the LinkedIn identity) — leave them out when empty
+    $$("input[type=hidden][data-draft]", form).forEach(h => { if (!data[h.name]) delete data[h.name]; });
+    // only record a "no" when the sign-in was actually on offer
+    if ($("[data-linkedin]:not([hidden])", form) && !data.linkedin_verified) data.linkedin_verified = "no";
     return data;
   }
 
@@ -188,7 +192,7 @@
   function snapshot(form) {
     const groups = groupNames(form), values = {};
     $$("input[name], textarea[name], select[name]", form).forEach(el => {
-      if (el.type === "hidden" || el.name === "consent") return;
+      if ((el.type === "hidden" && !el.hasAttribute("data-draft")) || el.name === "consent") return;
       if (el.type === "checkbox") {
         if (groups.has(el.name)) { values[el.name] = values[el.name] || []; if (el.checked) values[el.name].push(el.value); }
         else values[el.name] = el.checked;
@@ -200,7 +204,7 @@
   }
   function restore(form, values) {
     $$("input[name], textarea[name], select[name]", form).forEach(el => {
-      if (el.type === "hidden" || el.name === "consent" || !(el.name in values)) return;
+      if ((el.type === "hidden" && !el.hasAttribute("data-draft")) || el.name === "consent" || !(el.name in values)) return;
       const v = values[el.name];
       if (el.type === "checkbox") el.checked = Array.isArray(v) ? v.includes(el.value) : v === true;
       else if (el.type === "radio") el.checked = v === el.value;
@@ -233,6 +237,82 @@
     if (/^Asia\/(Kolkata|Calcutta)$/.test(z)) return "India (IST)";
     if (/^(Asia|Australia)\//.test(z) || z === "Pacific/Auckland") return "Asia-Pacific";
     return "";
+  }
+
+  /* Optional "Continue with LinkedIn" — Supabase's linkedin_oidc provider, no SDK.
+     LinkedIn's sign-in returns name, email and photo only (no headline, no profile URL), so it
+     fills those three and the rest is still typed. The access token is used once, never stored,
+     and the session is closed straight after. Applications are still inserted with the anon key. */
+  const LI_HIDDEN = ["linkedin_verified", "linkedin_id", "linkedin_name", "linkedin_email", "photo_url"];
+  function setupLinkedIn(form, block, onChange) {
+    const enabled = !!(CFG.LINKEDIN_SIGNIN && CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY);
+    if (!enabled) { block.hidden = true; return null; }
+    const startBox = $(".li-start", block), doneBox = $(".li-done", block), note = $("[data-linkedin-note]", block);
+    const orLine = $("[data-linkedin-or]", form), img = $("[data-linkedin-photo]", block);
+    const hid = (n) => $(`input[name="${n}"]`, block);
+    const val = (n) => (hid(n) ? hid(n).value : "");
+    const setNote = (t) => { note.textContent = t || ""; note.hidden = !t; };
+    const signed = () => val("linkedin_verified") === "yes";
+    block.hidden = false;
+
+    function refresh() {
+      const on = signed();
+      startBox.hidden = on; doneBox.hidden = !on;
+      if (orLine) orLine.hidden = on;
+      $$(".field.verified", form).forEach(f => f.classList.remove("verified"));
+      if (!on) { img.removeAttribute("src"); return; }
+      $("[data-linkedin-who]", block).textContent = [val("linkedin_name"), val("linkedin_email")].filter(Boolean).join(" · ");
+      const photo = val("photo_url");
+      img.hidden = !photo;
+      if (photo) { img.src = photo; img.alt = val("linkedin_name") ? `${val("linkedin_name")} on LinkedIn` : ""; }
+      ["first_name", "last_name", "email"].forEach(n => {
+        const el = $(`[name="${n}"]`, form);
+        if (el && el.value.trim()) el.closest(".field").classList.add("verified");
+      });
+    }
+    function clear() { LI_HIDDEN.forEach(n => { if (hid(n)) hid(n).value = ""; }); setNote(""); refresh(); onChange(); }
+    function fillIfEmpty(name, value) {
+      const el = $(`[name="${name}"]`, form);
+      if (el && value && !el.value.trim()) { el.value = value; el.dispatchEvent(new Event("input", { bubbles: true })); }
+    }
+    $("[data-linkedin-start]", block).addEventListener("click", () => {
+      onChange();  // keep whatever they already typed before we leave the page
+      const back = location.origin + location.pathname;
+      location.href = `${CFG.SUPABASE_URL}/auth/v1/authorize?provider=linkedin_oidc&redirect_to=${encodeURIComponent(back)}`;
+    });
+    $("[data-linkedin-clear]", block).addEventListener("click", clear);
+
+    async function fromRedirect() {
+      const h = new URLSearchParams(location.hash.replace(/^#/, ""));
+      const token = h.get("access_token"), err = h.get("error_description") || h.get("error");
+      if (!token && !err) return;
+      try { history.replaceState(history.state, "", location.pathname + location.search); } catch (e) {}
+      if (!token) { setNote("// LinkedIn sign-in didn't finish — no problem, fill this in yourself."); return; }
+      try {
+        const res = await fetch(`${CFG.SUPABASE_URL}/auth/v1/user`, {
+          headers: { apikey: CFG.SUPABASE_ANON_KEY, Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error(`auth ${res.status}`);
+        const user = await res.json(), m = user.user_metadata || {};
+        const full = m.name || "", first = m.given_name || full.split(" ")[0] || "";
+        const lastName = m.family_name || full.split(" ").slice(1).join(" ");
+        const email = user.email || m.email || "";
+        if (hid("linkedin_verified")) hid("linkedin_verified").value = "yes";
+        if (hid("linkedin_id")) hid("linkedin_id").value = user.id || m.sub || "";
+        if (hid("linkedin_name")) hid("linkedin_name").value = full || [first, lastName].filter(Boolean).join(" ");
+        if (hid("linkedin_email")) hid("linkedin_email").value = email;
+        if (hid("photo_url")) hid("photo_url").value = m.picture || m.avatar_url || "";
+        fillIfEmpty("first_name", first); fillIfEmpty("last_name", lastName); fillIfEmpty("email", email);
+        refresh(); onChange();
+      } catch (e) {
+        console.error("[B0] LinkedIn sign-in failed", e);
+        setNote("// couldn't read your LinkedIn profile — fill this in yourself and we'll manage.");
+      } finally {
+        // we only needed the profile once; don't leave a session behind
+        try { fetch(`${CFG.SUPABASE_URL}/auth/v1/logout?scope=global`, { method: "POST", keepalive: true, headers: { apikey: CFG.SUPABASE_ANON_KEY, Authorization: `Bearer ${token}` } }).catch(() => {}); } catch (e) {}
+      }
+    }
+    return { refresh, signed, fromRedirect };
   }
 
   /* step-by-step forms (form[data-steps]): each [data-step] panel is one screen */
@@ -350,6 +430,15 @@
           row.append(make("dt", "", label.dataset.short || name.textContent.trim()), make("dd", "", problem && !value ? "// missing" : (problem ? `${value}  ${problem}` : value)));
           dl.appendChild(row);
         });
+        const liB = $("[data-linkedin]", p);
+        if (liB && $('input[name="linkedin_verified"]', liB) && $('input[name="linkedin_verified"]', liB).value === "yes") {
+          const row = make("div", "rev-row"), dd = make("dd");
+          const photo = $('input[name="photo_url"]', liB).value;
+          if (photo) { const t = make("img", "rev-photo"); t.src = photo; t.alt = ""; t.referrerPolicy = "no-referrer"; dd.appendChild(t); }
+          dd.appendChild(make("span", "", `Verified · ${$('input[name="linkedin_name"]', liB).value}`));
+          row.append(make("dt", "", "LinkedIn"), dd);
+          dl.insertBefore(row, dl.firstChild);
+        }
         if (missing) { block.classList.add("has-missing"); hd.insertBefore(make("span", "rev-flag", "needs a look"), edit); }
         block.append(hd, dl);
         body.appendChild(block);
@@ -457,6 +546,7 @@
         refreshAll();
         if (note) note.textContent = noteDefault;
         const tzSel = $("select[name=timezone]", form); if (tzSel && !tzSel.value) tzSel.value = auto.timezone = guessZone();
+        if (li) li.refresh();
         if (stepper) stepper.reset();
       });
       bn.append(txt, clr);
@@ -464,6 +554,10 @@
       if (bar) bar.insertAdjacentElement("afterend", bn); else form.insertBefore(bn, form.firstChild);
       if (note) note.textContent = `// draft saved on this device · ${when(draft.savedAt)}`;
     }
+    const liBlock = $("[data-linkedin]", form);
+    const li = liBlock ? setupLinkedIn(form, liBlock, saveDraft) : null;
+    if (li) { li.refresh(); li.fromRedirect(); }
+
     const tz = $("select[name=timezone]", form);
     if (tz && !tz.value) tz.value = auto.timezone = guessZone();
     refreshAll();

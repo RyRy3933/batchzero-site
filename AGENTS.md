@@ -63,7 +63,7 @@ The founder application is deliberately short (nine questions, YC-style, for hig
 
 | Step | What it asks (payload keys) |
 |---|---|
-| 01 You | `first_name` `last_name` `email` `linkedin` `title` `company` `location` `timezone` `other_links`* |
+| 01 You | `first_name` `last_name` `email` `linkedin` `title` `company` `location` `timezone` `other_links`* + LinkedIn sign-in (below) |
 | 02 Track record | `years_experience` `furthest_stage` `background`[] `shipped` `didnt_work` |
 | 03 Where you help | `mentor_type` (Domain expert / Generalist / Either — the program pairs one of each per team) `expertise`[] `top_skill` `stages`[] `markets`[]* |
 | 04 How you mentor | `mentored_before` `mentored_where`* `teen_experience` `style`[] (max 3) `scenario` `why` |
@@ -75,6 +75,23 @@ The founder application is deliberately short (nine questions, YC-style, for hig
 How the flow works (all in `site.js`, no dependencies): a `form.app[data-steps]` shows one `[data-step]` panel at a time with Back / Continue, validates each step before moving on (required text, email/URL format, `data-required` chip and radio groups, `data-max` chip limits), keeps browser Back/Forward in step with `#step-N`, and builds the review screen from the live form. `data-autosave` saves an unfinished draft to `localStorage` (`b0-draft:/apply/mentors/`; never the consent box) and offers "Start over" — it's disclosed in the privacy policy, section 2. Without JavaScript every step renders as one long page.
 
 Limits: the database rejects payloads over 20 KB (`supabase/schema.sql`). Long answers have `maxlength` (the whole form at max length is ~7.4 KB) and `site.js` refuses to send anything over 18 KB with a friendly message, so nobody hits a silent RLS error.
+
+### "Continue with LinkedIn" (optional, off by default)
+
+`LINKEDIN_SIGNIN` in `assets/js/config.js` turns it on. It uses Supabase's own `linkedin_oidc` provider with plain `fetch` — no SDK, no server, no secret in the repo:
+
+1. The button sends the mentor to `<SUPABASE_URL>/auth/v1/authorize?provider=linkedin_oidc&redirect_to=<this page>`.
+2. They come back with a token in the URL fragment. `site.js` reads `/auth/v1/user` once, fills `first_name`, `last_name` and `email` **only where they're still empty**, shows the photo, then calls `/auth/v1/logout`. The token is never stored and the fragment is wiped from the URL.
+3. The identity rides along in hidden `data-draft` inputs, so it survives the draft and lands in the payload: `linkedin_verified` (`yes`/`no`), `linkedin_id`, `linkedin_name`, `linkedin_email`, `photo_url`. When the button isn't shown, none of these are sent.
+
+Things that will bite whoever touches this next:
+
+- **LinkedIn's sign-in only returns name, email, photo and locale** — no headline, no work history, no profile URL. That's why role, company and the LinkedIn link are still typed, and why the `linkedin` field stays required.
+- **`photo_url` is a LinkedIn CDN link and expires.** Download the image when you approve a mentor; don't hotlink it from a public page months later.
+- **Applications are still inserted with the anon key**, never the signed-in user's token — the RLS policy only grants `insert` to `anon`, so sending the user token instead would fail.
+- Turning the flag on without configuring the provider would send mentors to a Supabase error page, so keep it off until setup is done.
+
+Setup, once: create a Batch Zero LinkedIn Page → [linkedin.com/developers](https://www.linkedin.com/developers/) → create an app against that page → Products → request **Sign In with LinkedIn using OpenID Connect** (self-serve, instant) → Auth → add redirect URL `https://lzinyfukedgytwvgszna.supabase.co/auth/v1/callback` → copy Client ID + Secret into Supabase → Authentication → Providers → LinkedIn (OIDC) → in Supabase → Authentication → URL Configuration add `https://batchzero.co/**` to the redirect allow-list → set `LINKEDIN_SIGNIN: true` and push. If you ever want their full work history, that's partner-only on LinkedIn's side — enrich from their profile URL at review time instead.
 
 To make another form step-by-step or give it drafts: wrap its sections in `step()`, add a `review_step()`, and pass `steps=True` to `form_page` (drafts come with it). Keep the founder form short either way.
 
