@@ -399,9 +399,9 @@ MENTOR_AREAS = ["Product", "Engineering", "AI / ML", "Design / UX", "Growth / ma
                 "Fundraising", "Finance", "Legal", "Operations", "Hiring / team", "Pitching / storytelling",
                 "Hardware", "Community", "Consumer", "B2B / SaaS"]
 
-def chips_other(name, label, options, required=False, hint="", other_label="Something else"):
+def chips_other(name, label, options, required=False, max_pick=None, hint="", other_label="Something else"):
     """Chips plus an 'Other' pill that reveals a free-text box (site.js handles the reveal)."""
-    group = chips(name, label, list(options) + ["Other"], required=required, hint=hint)
+    group = chips(name, label, list(options) + ["Other"], required=required, max_pick=max_pick, hint=hint)
     free = field(f"{name}_other", other_label, required=False, placeholder="Tell us in your own words", maxlength=160)
     return f'<div class="chips-other" data-other-group="{name}">{group}<div class="other-box" data-other-box hidden>{free}</div></div>'
 
@@ -591,7 +591,7 @@ MENTOR_INVITE_FORM = f"""
   <div class="fieldset">
     {field("email","Email","email",maxlength=200,hint="// how we reach you about the cohort — never shown publicly")}
     <div class="f-row">{field("title","Title",required=False,placeholder="VP of Engineering",maxlength=120)}{field("company","Company",required=False,placeholder="Acme",maxlength=120)}</div>
-    {chips_other("areas","What can you mentor on?",MENTOR_AREAS,required=True,hint="// pick as many as fit — founders see these on your card")}
+    {chips_other("areas","What can you mentor on?",MENTOR_AREAS,required=True,max_pick=3,hint="// your top three — this is what we match teams on, and what founders see on your card")}
     {field("bio","Short bio",required=False,as_="textarea",placeholder="A sentence or two on your background — founders see this.",maxlength=500)}
   </div>
   <label class="check"><input type="checkbox" name="agree" value="yes"><span>I agree to the <a href="/mentor-invite/terms/" style="color:var(--accent-2)">Mentor Terms of Service</a>, including showing my name, photo, title, company and bio on the Batch Zero website.</span></label>
