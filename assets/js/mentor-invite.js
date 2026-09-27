@@ -19,6 +19,21 @@
   } catch (e) {}
 
   const msg = $("#form-msg");
+  const stepVerify = $("#step-verify"), stepDetails = $("#step-details");
+  const liBlock = $("[data-linkedin]", form), liSlot = $("[data-linkedin-slot]");
+  const orLine = $("[data-linkedin-or]", form);
+
+  // step 1 asks one thing. everything else waits until they've verified (or opted out of verifying)
+  function showDetails() {
+    if (!stepDetails.hidden) return;
+    if (liBlock && liSlot) { liSlot.appendChild(liBlock); if (orLine) liSlot.appendChild(orLine); }
+    stepVerify.hidden = true;
+    stepDetails.hidden = false;
+    const y = form.getBoundingClientRect().top + window.scrollY - 92;
+    window.scrollTo({ top: y < 0 ? 0 : y, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }
+  const skip = $("[data-skip-verify]");
+  if (skip) skip.addEventListener("click", showDetails);
   // the LinkedIn round trip and the invite lookup race each other; whoever wins, the
   // verified identity is the one that should end up on the card
   let verified = false;
@@ -29,6 +44,7 @@
   form.addEventListener("b0:linkedin", (e) => {
     const d = e.detail, email = $("[name=email]", form);
     verified = !!d.verified;
+    if (d.verified) showDetails();          // verifying is the only thing step 1 waits for
     photoUrl = d.verified ? (d.photo || "") : "";
     if (d.verified) {
       if (d.email && email) { email.value = d.email; email.readOnly = true; }
@@ -93,6 +109,7 @@
       setText("#avatar", initials(invite.full_name));
       setText("#p-name", invite.full_name || "—");
     }
+    setText("#hi-name", (invite.full_name || "there").trim().split(/\s+/)[0]);
     const role = [invite.title, invite.company].filter(Boolean).join(" · ");
     const roleEl = $("#p-role");
     roleEl.textContent = role;

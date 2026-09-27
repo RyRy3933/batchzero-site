@@ -579,3 +579,10 @@ form:not(.stepper) [data-review] .step-hd, form:not(.stepper) [data-review-body]
 .m-tag { padding: 4px 9px; border: 1px solid var(--line-strong); border-radius: 999px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
 .chips-other { display: grid; gap: 12px; }
 .chips-other .other-box { margin-top: -2px; }
+/* the mentor invite is two screens: verify, then the questions */
+.invite-step { display: grid; gap: 0; }
+.invite-step .page-hero { padding-top: calc(var(--nav-h) + 40px); }
+.invite-skip { margin-top: 4px; font-size: 14px; }
+form.app-plain { border: 0; background: none; padding: 0; gap: 18px; }
+form.app-plain .fieldset, form.app-plain .form-foot, form.app-plain label.check, form.app-plain [data-linkedin-slot] { max-width: 100%; }
+#step-details .li-block { margin-bottom: 4px; }

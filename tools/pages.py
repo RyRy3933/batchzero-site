@@ -587,7 +587,6 @@ SPONSORS = form_page("Sponsor companies", "Back a cohort. Meet the builders earl
     SPONSORS_FORM, "Talk to us", "Got it.", "We'll reach out within a few days to talk through the cohort and what sponsorship looks like.")
 
 MENTOR_INVITE_FORM = f"""
-  {linkedin_block(title="Confirm it's really you", sub="One click signs you in with LinkedIn and fills in your email and photo. We can't post anything, and we never see your password.", cta="Verify with LinkedIn", done="Verified through LinkedIn", or_line="or just fill this in")}
   <div class="fieldset">
     {field("email","Email","email",maxlength=200,hint="// how we reach you about the cohort — never shown publicly")}
     <div class="f-row">{field("title","Title",required=False,placeholder="VP of Engineering",maxlength=120)}{field("company","Company",required=False,placeholder="Acme",maxlength=120)}</div>
@@ -608,26 +607,40 @@ MENTOR_INVITE = f"""
   </div>
 
   <div class="state" id="state-form">
-    <div class="page-hero" style="padding-bottom:26px">
-      <span class="label">Mentor invite</span>
-      <h1>You're invited to mentor.</h1>
-      <p class="lede">Confirm a few details and you're on the roster for the next cohort. Anything we already have is filled in. Takes a minute.</p>
-    </div>
-    <div class="invite-card">
-      <div class="invite-avatar" id="avatar">–</div>
-      <div class="invite-who">
-        <div class="invite-name" id="p-name">—</div>
-        <div class="invite-role" id="p-role">—</div>
-        <a class="invite-link" id="p-linkedin" href="#" target="_blank" rel="noopener" hidden>View LinkedIn profile →</a>
-      </div>
-    </div>
-    <form class="app" id="mentor-form" method="post" action="#" data-custom-submit>
+    <form class="app app-plain" id="mentor-form" method="post" action="#" data-custom-submit>
+
+      <section class="invite-step" id="step-verify">
+        <div class="page-hero" style="padding-bottom:26px">
+          <span class="label">Mentor invite</span>
+          <h1>Hi <span id="hi-name">there</span> — you're invited to mentor.</h1>
+          <p class="lede">One click with LinkedIn confirms it's you and fills in your details. Then a couple of questions, and you're on the roster.</p>
+        </div>
+        <div class="invite-card">
+          <div class="invite-avatar" id="avatar">–</div>
+          <div class="invite-who">
+            <div class="invite-name" id="p-name">—</div>
+            <div class="invite-role" id="p-role" hidden></div>
+            <a class="invite-link" id="p-linkedin" href="#" target="_blank" rel="noopener" hidden>View LinkedIn profile →</a>
+          </div>
+        </div>
+        {linkedin_block(title="Verify it's really you", sub="One click signs you in with LinkedIn and fills in your email and photo. We can't post anything, and we never see your password.", cta="Verify with LinkedIn", done="Verified through LinkedIn", or_line="or")}
+        <p class="dim invite-skip"><button class="btn-plain" type="button" data-skip-verify>I'd rather fill it in myself &rarr;</button></p>
+      </section>
+
+      <section class="invite-step" id="step-details" hidden>
+        <div class="page-hero" style="padding-bottom:22px">
+          <span class="label">Mentor invite · step 2</span>
+          <h1>Confirm your details.</h1>
+          <p class="lede">Anything we already have is filled in — change whatever's wrong. Two minutes, tops.</p>
+        </div>
+        <div data-linkedin-slot></div>
       {MENTOR_INVITE_FORM}
       <div class="form-foot">
         <span class="note">// about a minute · you can change any of this later by emailing us</span>
         <div class="foot-btns"><button class="btn btn-primary btn-bracket" type="submit" id="submit-btn">Confirm &amp; join as a mentor <span class="arr">→</span></button></div>
       </div>
       <div class="form-error" id="form-msg" style="display:none"></div>
+      </section>
     </form>
   </div>
 

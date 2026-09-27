@@ -60,25 +60,26 @@
   </div>
 
   <div class="state" id="state-form">
-    <div class="page-hero" style="padding-bottom:26px">
-      <span class="label">Mentor invite</span>
-      <h1>You're invited to mentor.</h1>
-      <p class="lede">Confirm a few details and you're on the roster for the next cohort. Anything we already have is filled in. Takes a minute.</p>
-    </div>
-    <div class="invite-card">
-      <div class="invite-avatar" id="avatar">–</div>
-      <div class="invite-who">
-        <div class="invite-name" id="p-name">—</div>
-        <div class="invite-role" id="p-role">—</div>
-        <a class="invite-link" id="p-linkedin" href="#" target="_blank" rel="noopener" hidden>View LinkedIn profile →</a>
-      </div>
-    </div>
-    <form class="app" id="mentor-form" method="post" action="#" data-custom-submit>
-      
-  <div class="li-block" data-linkedin hidden>
+    <form class="app app-plain" id="mentor-form" method="post" action="#" data-custom-submit>
+
+      <section class="invite-step" id="step-verify">
+        <div class="page-hero" style="padding-bottom:26px">
+          <span class="label">Mentor invite</span>
+          <h1>Hi <span id="hi-name">there</span> — you're invited to mentor.</h1>
+          <p class="lede">One click with LinkedIn confirms it's you and fills in your details. Then a couple of questions, and you're on the roster.</p>
+        </div>
+        <div class="invite-card">
+          <div class="invite-avatar" id="avatar">–</div>
+          <div class="invite-who">
+            <div class="invite-name" id="p-name">—</div>
+            <div class="invite-role" id="p-role" hidden></div>
+            <a class="invite-link" id="p-linkedin" href="#" target="_blank" rel="noopener" hidden>View LinkedIn profile →</a>
+          </div>
+        </div>
+        <div class="li-block" data-linkedin hidden>
   <div class="li-start">
     <div>
-      <b>Confirm it's really you</b>
+      <b>Verify it's really you</b>
       <em>One click signs you in with LinkedIn and fills in your email and photo. We can't post anything, and we never see your password.</em>
     </div>
     <button class="btn btn-ghost btn-bracket" type="button" data-linkedin-start>Verify with LinkedIn <span class="arr">→</span></button>
@@ -91,7 +92,18 @@
   <p class="li-note" data-linkedin-note hidden></p>
   <input type="hidden" name="linkedin_verified" value="" data-draft><input type="hidden" name="linkedin_id" value="" data-draft><input type="hidden" name="linkedin_name" value="" data-draft><input type="hidden" name="linkedin_email" value="" data-draft><input type="hidden" name="photo_url" value="" data-draft>
 </div>
-<p class="or-line" data-linkedin-or hidden><span>or just fill this in</span></p>
+<p class="or-line" data-linkedin-or hidden><span>or</span></p>
+        <p class="dim invite-skip"><button class="btn-plain" type="button" data-skip-verify>I'd rather fill it in myself &rarr;</button></p>
+      </section>
+
+      <section class="invite-step" id="step-details" hidden>
+        <div class="page-hero" style="padding-bottom:22px">
+          <span class="label">Mentor invite · step 2</span>
+          <h1>Confirm your details.</h1>
+          <p class="lede">Anything we already have is filled in — change whatever's wrong. Two minutes, tops.</p>
+        </div>
+        <div data-linkedin-slot></div>
+      
   <div class="fieldset">
     <div class="field"><label for="email">Email <b>*</b></label><input id="email" name="email" type="email" placeholder="" maxlength="200" required><span class="hint">// how we reach you about the cohort — never shown publicly</span><span class="msg">// required — please fill this in</span></div>
     <div class="f-row"><div class="field"><label for="title">Title</label><input id="title" name="title" type="text" placeholder="VP of Engineering" maxlength="120" ><span class="msg">// required — please fill this in</span></div><div class="field"><label for="company">Company</label><input id="company" name="company" type="text" placeholder="Acme" maxlength="120" ><span class="msg">// required — please fill this in</span></div></div>
@@ -105,6 +117,7 @@
         <div class="foot-btns"><button class="btn btn-primary btn-bracket" type="submit" id="submit-btn">Confirm &amp; join as a mentor <span class="arr">→</span></button></div>
       </div>
       <div class="form-error" id="form-msg" style="display:none"></div>
+      </section>
     </form>
   </div>
 
