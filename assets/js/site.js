@@ -531,6 +531,20 @@
       }));
       refreshers.push(sync); sync();
     });
+    // an "Other" chip reveals a free-text box, and requires it once ticked
+    $$("[data-other-group]", form).forEach(group => {
+      const name = group.dataset.otherGroup, box = $("[data-other-box]", group);
+      const other = $(`input[type=checkbox][name="${name}"][value="Other"]`, group);
+      const text = $(`[name="${name}_other"]`, group);
+      if (!other || !box || !text) return;
+      const sync = () => {
+        box.hidden = !other.checked;
+        text.required = other.checked;
+        if (!other.checked) { text.value = ""; box.querySelector(".field").classList.remove("err"); }
+      };
+      other.addEventListener("change", () => { sync(); if (other.checked) text.focus(); });
+      refreshers.push(sync); sync();
+    });
     // "linkedin.com/in/you" → "https://linkedin.com/in/you"
     $$("input[type=url]", form).forEach(i => i.addEventListener("blur", () => {
       const v = i.value.trim();

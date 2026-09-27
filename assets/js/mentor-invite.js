@@ -45,6 +45,31 @@
     }
   });
 
+  // areas are stored as one comma-separated string; the form shows them as chips + "Other"
+  function setAreas(value) {
+    const wanted = String(value || "").split(/[,;]/).map(a => a.trim()).filter(Boolean);
+    if (!wanted.length) return;
+    const boxes = Array.from(form.querySelectorAll('input[type=checkbox][name="areas"]'));
+    const known = new Set(boxes.map(b => b.value.toLowerCase()));
+    const leftovers = [];
+    wanted.forEach(a => {
+      const hit = boxes.find(b => b.value.toLowerCase() === a.toLowerCase());
+      if (hit) { hit.checked = true; hit.dispatchEvent(new Event("change", { bubbles: true })); }
+      else leftovers.push(a);
+    });
+    if (leftovers.length) {
+      const other = boxes.find(b => b.value === "Other");
+      if (other) { other.checked = true; other.dispatchEvent(new Event("change", { bubbles: true })); }
+      const text = $('[name="areas_other"]', form);
+      if (text) text.value = leftovers.join(", ");
+    }
+  }
+  function getAreas() {
+    const picked = Array.from(form.querySelectorAll('input[type=checkbox][name="areas"]:checked')).map(b => b.value);
+    const extra = ($('[name="areas_other"]', form) || {}).value || "";
+    return picked.filter(v => v !== "Other").concat(extra.split(/[,;]/).map(a => a.trim()).filter(Boolean)).join(", ");
+  }
+
   async function load() {
     if (!token) { show("state-invalid"); return; }
     let rows;
@@ -68,11 +93,15 @@
       setText("#avatar", initials(invite.full_name));
       setText("#p-name", invite.full_name || "—");
     }
-    setText("#p-role", [invite.title, invite.company].filter(Boolean).join(" · ") || "—");
+    const role = [invite.title, invite.company].filter(Boolean).join(" · ");
+    const roleEl = $("#p-role");
+    roleEl.textContent = role;
+    roleEl.hidden = !role;
     const link = $("#p-linkedin");
     if (invite.linkedin_url) { link.href = invite.linkedin_url; link.hidden = false; } else { link.hidden = true; }
 
-    const prefill = { email: invite.email, title: invite.title, company: invite.company, areas: invite.areas_of_expertise, bio: invite.bio };
+    setAreas(invite.areas_of_expertise);
+    const prefill = { email: invite.email, title: invite.title, company: invite.company, bio: invite.bio };
     Object.keys(prefill).forEach(name => {
       const el = $(`[name="${name}"]`, form);
       if (!el || !prefill[name]) return;
@@ -97,7 +126,7 @@
     try {
       await window.B0.rpc("submit_mentor_signup", {
         p_token: token, p_email: v("email"), p_title: v("title"),
-        p_company: v("company"), p_bio: v("bio"), p_areas: v("areas"), p_agree: true,
+        p_company: v("company"), p_bio: v("bio"), p_areas: getAreas(), p_agree: true,
       });
       // put their face on /mentors/ — best effort, never blocks the confirmation
       if (photoUrl) {

@@ -395,6 +395,16 @@ def chips(name, label, options, required=False, max_pick=None, hint="", short=No
     sh = f' data-short="{short}"' if short else ""
     return f'<div class="field"{attrs}><label id="{name}-label"{sh}>{label}{star}</label>{h}<div class="chips" role="group" aria-labelledby="{name}-label">{c}</div>{msg}</div>'
 
+MENTOR_AREAS = ["Product", "Engineering", "AI / ML", "Design / UX", "Growth / marketing", "Sales",
+                "Fundraising", "Finance", "Legal", "Operations", "Hiring / team", "Pitching / storytelling",
+                "Hardware", "Community", "Consumer", "B2B / SaaS"]
+
+def chips_other(name, label, options, required=False, hint="", other_label="Something else"):
+    """Chips plus an 'Other' pill that reveals a free-text box (site.js handles the reveal)."""
+    group = chips(name, label, list(options) + ["Other"], required=required, hint=hint)
+    free = field(f"{name}_other", other_label, required=False, placeholder="Tell us in your own words", maxlength=160)
+    return f'<div class="chips-other" data-other-group="{name}">{group}<div class="other-box" data-other-box hidden>{free}</div></div>'
+
 def choice_cards(name, label, options, hint="", short=None):
     """Required single choice shown as cards. options: [(value, title, description), ...]"""
     cards = "".join(f'<label class="optin rcard"><input type="radio" name="{name}" value="{v}"><span class="ot"><b>{t}</b><em>{d}</em></span></label>' for v, t, d in options)
@@ -581,7 +591,7 @@ MENTOR_INVITE_FORM = f"""
   <div class="fieldset">
     {field("email","Email","email",maxlength=200,hint="// how we reach you about the cohort — never shown publicly")}
     <div class="f-row">{field("title","Title",required=False,placeholder="VP of Engineering",maxlength=120)}{field("company","Company",required=False,placeholder="Acme",maxlength=120)}</div>
-    {field("areas","What you can mentor on",required=False,placeholder="fundraising, GTM, ML infra",maxlength=200)}
+    {chips_other("areas","What can you mentor on?",MENTOR_AREAS,required=True,hint="// pick as many as fit — founders see these on your card")}
     {field("bio","Short bio",required=False,as_="textarea",placeholder="A sentence or two on your background — founders see this.",maxlength=500)}
   </div>
   <label class="check"><input type="checkbox" name="agree" value="yes"><span>I agree to the <a href="/mentor-invite/terms/" style="color:var(--accent-2)">Mentor Terms of Service</a>, including showing my name, photo, title, company and bio on the Batch Zero website.</span></label>
@@ -648,7 +658,7 @@ MENTOR_INVITE_ADMIN = f"""
       <div class="f-row">{field("full_name","Full name",maxlength=120)}{field("email","Their email",required=False,type="email",hint="// only used to open a pre-written email",maxlength=200)}</div>
       {field("linkedin_url","LinkedIn profile",required=False,type="url",placeholder="https://linkedin.com/in/…",maxlength=300)}
       <div class="f-row">{field("title","Title",required=False,maxlength=120)}{field("company","Company",required=False,maxlength=120)}</div>
-      {field("bio","Short bio",required=False,as_="textarea",placeholder="Optional — they can write their own.",maxlength=500)}
+      {field("bio","Short bio",required=False,as_="textarea",placeholder="Optional — they can write their own. Paste from their LinkedIn if you have it.",maxlength=500)}
     </div>
     <div class="form-foot">
       <span class="note">// the link works once, for this person</span>
