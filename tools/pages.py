@@ -533,7 +533,7 @@ MENTORS_FORM = f"""
 {step(3, "Where you help", "This is what we match on. Every team gets one domain expert and one generalist.", _MENTOR_STEP_3)}
 {step(4, "How you mentor", "The part we read most closely.", _MENTOR_STEP_4)}
 {step(5, "Commitment", "When you can show up, and anything extra you're open to.", _MENTOR_STEP_5)}
-{review_step(6, "Check it over. Jump back to any step to change something.", consent("I understand mentors are interviewed and background-checked before being matched, that sessions happen on the platform, and that I'll follow the mentor code of conduct."))}
+{review_step(6, "Check it over. Jump back to any step to change something.", consent("I understand mentors are interviewed and background-checked before being matched, that sessions happen on the platform and are recorded, and that I'll follow the <a href='/conduct/' style='color:var(--accent-2)'>mentor code of conduct</a>."))}
 """
 
 INVESTORS_FORM = f"""
@@ -574,7 +574,7 @@ FOUNDERS = form_page("Founders · Cohort 01", "Apply to the batch.", "Five spots
     FOUNDERS_FORM, "Submit application", "Application received.", "We review every application on the same rubric and reply within two weeks of the window closing — with feedback either way.")
 
 MENTORS = form_page("Mentors", "Give a founder two months.", "Two mentors per team, weekly sessions on the platform, eight weeks. We're looking for people who've built things and can say what they actually think. Five short steps, about fifteen minutes, and it saves as you go. <a href='/network/#mentors' style='color:var(--accent-2)'>See who's already mentoring &rarr;</a>",
-    "What we ask", ["1–3 hours a week for 8 weeks", "Sessions on the platform (recorded)", "A short interview and a background check", "Honest feedback, kindly delivered"],
+    "What we ask", ["1–3 hours a week for 8 weeks", "Sessions on the platform (recorded)", "A short interview and a background check", "The <a href='/conduct/' style='color:var(--accent-2)'>code of conduct</a>, agreed before matching", "Honest feedback, kindly delivered"],
     MENTORS_FORM, "Apply to mentor", "Thanks — we'll be in touch.", "We read every mentor application ourselves and interview everyone before matching. Expect a note from us within a week.",
     note="// about 15 minutes · saves on this device as you go", steps=True)
 
@@ -594,7 +594,7 @@ MENTOR_INVITE_FORM = f"""
     {chips_other("areas","What can you mentor on?",MENTOR_AREAS,required=True,max_pick=3,hint="// your top three — this is what we match teams on, and what founders see on your card")}
     {field("bio","Short bio",required=False,as_="textarea",placeholder="A sentence or two on your background — founders see this.",maxlength=500)}
   </div>
-  <label class="check"><input type="checkbox" name="agree" value="yes"><span>I agree to the <a href="/mentor-invite/terms/" style="color:var(--accent-2)">Mentor Terms of Service</a>, including showing my name, photo, title, company and bio on the Batch Zero website.</span></label>
+  <label class="check"><input type="checkbox" name="agree" value="yes"><span>I agree to the <a href="/mentor-invite/terms/" style="color:var(--accent-2)">Mentor Terms of Service</a> and the <a href="/conduct/" style="color:var(--accent-2)">Code of Conduct</a>, including showing my name, photo, title, company and bio on the Batch Zero website.</span></label>
 """
 
 MENTOR_INVITE = f"""
@@ -690,9 +690,9 @@ MENTOR_TERMS = """
 <h2>4. No ownership of founder work</h2>
 <p>Advice, feedback or introductions you give don't give you ownership, equity or intellectual property in a founder's company or work, unless a separate written agreement says so.</p>
 <h2>5. Working with students</h2>
-<p>Founders in the program are high-school students, most of them under 18. Sessions happen on the platform or on recorded calls, never in private one-to-one channels, and you agree to follow the mentor code of conduct we send before matching. Mentors are interviewed and background-checked.</p>
+<p>Founders in the program are high-school students, most of them under 18. Sessions happen on the platform or on recorded calls, never in private one-to-one channels, and you agree to follow the <a href="/conduct/" style="color:var(--accent-2)">mentor code of conduct</a>, which forms part of these terms. Mentors are interviewed and background-checked before being matched.</p>
 <h2>6. Conduct</h2>
-<p>Engage with founders professionally and respectfully, and represent Batch Zero fairly when you're acting as a mentor.</p>
+<p>Engage with founders professionally and respectfully, and represent Batch Zero fairly when you're acting as a mentor. Breaching the <a href="/conduct/" style="color:var(--accent-2)">code of conduct</a> ends your involvement immediately.</p>
 <h2>7. No liability</h2>
 <p>You're advising in good faith as a volunteer. Neither you nor Batch Zero is liable for what founders do with that advice, and the program is provided as is, without warranties.</p>
 <h2>8. Ending it</h2>
@@ -773,6 +773,70 @@ AMBASSADORS = form_page("Student ambassadors", "Run Batch Zero at your school.",
     "What we ask", ["A couple of hours a week", "You're a current high-school student", "You'll actually talk to people, not just post", "Parent/guardian consent if you're under 18"],
     AMBASSADORS_FORM, "Apply to be an ambassador", "Application received.", "We read every one. Expect a reply within a week — and if you're a fit, a short call with Rayan.",
     note="// about 5 minutes")
+
+CONDUCT = """
+<div class="wrap page-hero">
+  <span class="label">For mentors</span>
+  <h1 style="font-size:clamp(32px,4vw,52px)">Mentor code of conduct</h1>
+  <p class="lede">The rules for adults working with students in Batch Zero. Every mentor agrees to these before being matched with a team. Version 1.0 &middot; September 27, 2026.</p>
+</div>
+<section style="padding-top:8px"><div class="wrap"><div class="prose">
+
+<p class="notice">Founders in Batch Zero are high-school students, most of them under 18. Mentors are interviewed and background-checked before matching. This page is public on purpose: students, parents and schools should be able to read exactly what we hold mentors to.</p>
+
+<h2>The short version</h2>
+<ul>
+  <li>Talk to founders on the platform, not in private channels.</li>
+  <li>Never one-to-one in person, and never without another adult.</li>
+  <li>No money, no equity, no job offers through mentoring.</li>
+  <li>What they tell you stays with you.</li>
+  <li>If something feels off, tell us the same day.</li>
+</ul>
+
+<h2>1. Where conversations happen</h2>
+<p>Mentoring happens on the Batch Zero platform or on recorded video calls we schedule. Don't move it to personal texts, DMs, Snapchat, Discord, or a private call. If a founder reaches out to you privately, answer once to point them back to the platform, and tell us.</p>
+<p>You'll have their first name and their project. You won't be given a student's phone number or home address, and you shouldn't ask for either.</p>
+
+<h2>2. Meeting in person</h2>
+<p>Only at an announced Batch Zero event, and only with another adult present. Never one-to-one. Don't drive a student anywhere, don't meet at your home or theirs, and don't invite a founder to your office unless their parent or guardian has agreed in writing first.</p>
+
+<h2>3. Sessions are recorded</h2>
+<p>Mentor sessions are recorded and stored by Batch Zero. Only the Batch Zero team and the team you're matched with can see them. Don't make your own recordings, screenshots or clips, and don't post any part of a session anywhere.</p>
+
+<h2>4. Money, equity and jobs</h2>
+<p>Mentoring is volunteer work, and it isn't a route to a deal. While you're mentoring a team, don't offer or ask for investment, equity, advisory shares, consulting fees, a job, or unpaid work of any kind.</p>
+<p>If you want to invest in a team after the cohort, it goes through us first, and the founder's parent or guardian is part of that conversation. Same for hiring or interning a founder. Batch Zero isn't a party to any deal, takes no fee, and won't pass on your interest unless the founder opts in.</p>
+
+<h2>5. What they tell you stays with you</h2>
+<p>Founders will share numbers, code, customers and ideas that aren't public. Don't repeat them, don't forward their materials, and don't use them in your own work or pass them to a company you're involved with. This holds after the cohort ends.</p>
+
+<h2>6. How you talk to them</h2>
+<p>Be direct about the work and decent about the person. Honest, specific feedback is the whole point &mdash; that's different from being cutting. Keep it about what they're building.</p>
+<p>Not acceptable, ever: comments on a student's appearance or personal life, romantic or sexual content of any kind, alcohol or drugs in a session, slurs or demeaning language, pushing your politics or religion, or private gifts and favours.</p>
+
+<h2>7. Photos, posts and their names</h2>
+<p>Don't post photos of students, tag them, or share their work publicly. Announcements about a cohort come from Batch Zero, with the founder's permission. You're welcome to say you mentor for Batch Zero.</p>
+
+<h2>8. If something feels wrong</h2>
+<p>Tell Rayan the same day at <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a> &mdash; whether it's something you saw, something a founder told you, or something you did that you're second-guessing. Early and awkward beats late.</p>
+<p>If you believe a student is in immediate danger, call 911 first, then tell us. Where a student's safety is at stake we will contact their parent or guardian, and the authorities if we need to. Nobody is penalised for raising a concern in good faith.</p>
+
+<h2>9. What ends your involvement immediately</h2>
+<ul>
+  <li>Contacting a student privately after being asked not to.</li>
+  <li>Meeting a student one-to-one in person.</li>
+  <li>Asking a founder for equity, fees or free work.</li>
+  <li>Sharing confidential founder information.</li>
+  <li>Any conduct that makes a student uncomfortable, whether or not it was meant that way.</li>
+</ul>
+<p>We remove mentors first and discuss afterwards. That's deliberate &mdash; the students come first.</p>
+
+<h2>10. Agreeing to this</h2>
+<p>Ticking the box on the mentor signup means you accept this code and the <a href="/mentor-invite/terms/" style="color:var(--accent-2)">mentor terms of service</a>. We'll tell you if either changes. Questions about any of it: <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a>.</p>
+
+<p style="margin-top:28px"><a href="/mentor-invite/terms/" style="color:var(--accent-2)">Read the mentor terms &rarr;</a></p>
+</div></div></section>
+"""
 
 COMPANIES_REDIRECT = """
 <div class="wrap page-hero"><span class="label">Moved</span><h1>This page moved.</h1><p class="lede">Companies now come in through the sponsor door. Redirecting…</p><div class="hero-actions"><a class="btn btn-primary" href="/apply/sponsors/">Go to sponsor companies →</a></div></div>
@@ -894,6 +958,7 @@ PAGES = [
     ("apply/ambassadors/index.html", "Become an ambassador — Batch Zero", "Run Batch Zero at your high school: find the builders, bring them in, get the credit.", AMBASSADORS, "/apply/ambassadors/"),
     ("mentor-invite/index.html", "Mentor signup — Batch Zero", "Confirm your details and join the Batch Zero mentor roster.", MENTOR_INVITE, "/mentor-invite/", True, ("/assets/js/mentor-invite.js",)),
     ("mentor-invite/admin/index.html", "Invite a mentor — Batch Zero", "Internal tool: create a mentor invite link.", MENTOR_INVITE_ADMIN, "/mentor-invite/admin/", True, ("/assets/js/mentor-invite-admin.js",)),
+    ("conduct/index.html", "Mentor code of conduct — Batch Zero", "The rules every Batch Zero mentor agrees to before working with student founders.", CONDUCT, "/conduct/"),
     ("mentor-invite/terms/index.html", "Mentor Terms of Service — Batch Zero", "The terms you agree to when you mentor for Batch Zero.", MENTOR_TERMS, "/mentor-invite/terms/", True),
     ("privacy/index.html", "Privacy policy — Batch Zero", "What Batch Zero collects, why, who can see it, and how students and parents can ask for it to be deleted.", PRIVACY, "/privacy/"),
     ("terms/index.html", "Terms of use — Batch Zero", "The rules for using batchzero.co and applying to the program.", TERMS, "/terms/"),
