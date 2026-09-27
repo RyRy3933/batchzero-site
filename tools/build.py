@@ -47,6 +47,7 @@ NAV = """<header class="nav">
       <a href="/program/">Program</a>
       <a href="/#how">How it works</a>
       <a href="/#demo-day">Demo Day</a>
+      <a href="/network/">Network</a>
       <a href="/about/">About</a>
     </nav>
     <div class="nav-cta">
@@ -58,7 +59,7 @@ NAV = """<header class="nav">
 </header>
 <div class="mobile-menu">
   <a href="/apply/founders/" style="color:var(--accent-2)">I'm a founder → apply</a><a href="/partners/">I'm a business partner</a>
-  <a href="/program/">Program</a><a href="/#how">How it works</a><a href="/#demo-day">Demo Day</a><a href="/about/">About</a>
+  <a href="/program/">Program</a><a href="/#how">How it works</a><a href="/#demo-day">Demo Day</a><a href="/network/">Network</a><a href="/about/">About</a>
 </div>
 """
 
@@ -69,8 +70,8 @@ FOOTER = """<footer>
         <a class="brand" href="/"><img src="/assets/img/b0-mark-paper.svg" alt="[B0]" width="84" height="26"><span>BATCH ZERO</span></a>
         <p style="margin-top:16px;max-width:34ch">The accelerator for founders who haven't graduated yet. Five startups per cohort, eight weeks, one Demo Day.</p>
       </div>
-      <div><h4>Program</h4><a href="/program/">How it works</a><a href="/program/#timeline">8-week timeline</a><a href="/#demo-day">Demo Day</a><a href="/#faq">FAQ</a><a href="/mentors/">Mentor network</a></div>
-      <div><h4>Get involved</h4><a href="/apply/founders/">Founders — apply</a><a href="/partners/">Business partners</a><a href="/apply/investors/">Investors</a><a href="/apply/sponsors/">Sponsor companies</a><a href="/apply/mentors/">Mentors — apply</a><a href="/mentors/">Who's mentoring</a></div>
+      <div><h4>Program</h4><a href="/program/">How it works</a><a href="/program/#timeline">8-week timeline</a><a href="/#demo-day">Demo Day</a><a href="/#faq">FAQ</a><a href="/network/">The network</a></div>
+      <div><h4>Get involved</h4><a href="/apply/founders/">Founders — apply</a><a href="/partners/">Business partners</a><a href="/apply/investors/">Investors</a><a href="/apply/sponsors/">Sponsor companies</a><a href="/apply/mentors/">Mentors — apply</a><a href="/apply/ambassadors/">Student ambassadors</a><a href="/network/">Who's already in</a></div>
       <div><h4>Company</h4><a href="/about/">About</a><a href="mailto:hello@batchzero.co">hello@batchzero.co</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div>
     </div>
     <div class="foot-bottom">
@@ -116,7 +117,7 @@ if __name__ == "__main__":
     with open(os.path.join(SITE, "sitemap.xml"), "w") as f:
         seen = []
         for p in pages.PAGES:
-            if p[0].startswith(("404", "apply/companies", "mentor-invite")) or p[4] in seen: continue
+            if p[0].startswith(("404", "apply/companies", "mentor-invite", "mentors/")) or p[4] in seen: continue
             seen.append(p[4])
         urls = "".join(f"<url><loc>{SITE_URL}{u}</loc></url>" for u in seen)
         f.write(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>')

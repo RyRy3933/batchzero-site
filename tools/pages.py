@@ -318,7 +318,7 @@ PARTNERS = """
         <span class="go">Apply to mentor <span class="arr">→</span></span>
       </a>
     </div>
-    <p class="dim" style="margin-top:28px;font-size:14px">Curious who's already in? <a href="/mentors/" style="color:var(--accent-2)">See the mentor network &rarr;</a></p>
+    <p class="dim" style="margin-top:28px;font-size:14px">Curious who's already in? <a href="/network/" style="color:var(--accent-2)">See the network &rarr;</a></p>
     <p class="dim" style="margin-top:10px;font-size:14px">Not sure, or something else (press, schools, partnerships)? <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a></p>
   </div>
 </section>
@@ -563,7 +563,7 @@ FOUNDERS = form_page("Founders · Cohort 01", "Apply to the batch.", "Five spots
     "What you'll need", ["A link to something real", "Numbers, even small ones", "A 60-second video (phone is fine)", "Who's on the team", "Parent/guardian consent if selected and under 18"],
     FOUNDERS_FORM, "Submit application", "Application received.", "We review every application on the same rubric and reply within two weeks of the window closing — with feedback either way.")
 
-MENTORS = form_page("Mentors", "Give a founder two months.", "Two mentors per team, weekly sessions on the platform, eight weeks. We're looking for people who've built things and can say what they actually think. Five short steps, about fifteen minutes, and it saves as you go. <a href='/mentors/' style='color:var(--accent-2)'>See who's already mentoring &rarr;</a>",
+MENTORS = form_page("Mentors", "Give a founder two months.", "Two mentors per team, weekly sessions on the platform, eight weeks. We're looking for people who've built things and can say what they actually think. Five short steps, about fifteen minutes, and it saves as you go. <a href='/network/#mentors' style='color:var(--accent-2)'>See who's already mentoring &rarr;</a>",
     "What we ask", ["1–3 hours a week for 8 weeks", "Sessions on the platform (recorded)", "A short interview and a background check", "Honest feedback, kindly delivered"],
     MENTORS_FORM, "Apply to mentor", "Thanks — we'll be in touch.", "We read every mentor application ourselves and interview everyone before matching. Expect a note from us within a week.",
     note="// about 15 minutes · saves on this device as you go", steps=True)
@@ -627,7 +627,7 @@ MENTOR_INVITE = f"""
       <div class="ok-mark">[ ✓ ]</div>
       <h3>Thanks — you're on the mentor roster.</h3>
       <p class="dim" id="done-msg" style="margin-top:8px">We'll follow up by email as the cohort gets closer, with your team and the session schedule.</p>
-      <p style="margin-top:16px"><a href="/mentors/" style="color:var(--accent-2)">You're on the mentor page &rarr;</a></p>
+      <p style="margin-top:16px"><a href="/network/#mentors" style="color:var(--accent-2)">You're on the network page &rarr;</a></p>
     </div>
   </div>
 </div>
@@ -693,37 +693,76 @@ MENTOR_TERMS = """
 </div></div></section>
 """
 
-MENTORS_ROSTER = """
+NETWORK = """
 <div class="wrap page-hero">
-  <span class="label rv">Mentor network</span>
-  <h1 class="rv rv-d1">The people in the room.</h1>
-  <p class="lede rv rv-d2">Every team gets two mentors for eight weeks — one who knows your domain, one who has built a company end to end. Here's who has signed up so far.</p>
-  <p class="mono dim" style="font-size:13px" data-mentor-count hidden></p>
+  <span class="label rv">The network</span>
+  <h1 class="rv rv-d1">Who's in the room with you.</h1>
+  <p class="lede rv rv-d2">Two groups make Batch Zero work: mentors who have built things and give a team eight weeks, and student ambassadors who find the founders worth backing at their own schools.</p>
 </div>
-<section style="padding-top:8px">
+
+<section id="mentors" style="padding-top:8px">
   <div class="wrap">
+    <div class="section-head">
+      <span class="label rv">Mentors</span>
+      <h2 class="rv rv-d1">Two per team, eight weeks.</h2>
+      <p class="lede rv rv-d2">One who knows your domain, one who has built a company end to end. Every mentor is interviewed and background-checked before being matched.</p>
+      <p class="mono dim" style="font-size:13px" data-mentor-count hidden></p>
+    </div>
     <div class="mentor-state" data-mentor-loading>// loading the roster…</div>
     <div class="mentor-state" data-mentor-empty hidden>// the first mentors are being confirmed right now — check back in a few days.</div>
     <div class="mentor-state err" data-mentor-error hidden>// couldn't load the roster just now. Refresh, or email <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a>.</div>
     <div class="mentor-grid" data-mentor-grid hidden></div>
+    <p class="dim" style="margin-top:26px;font-size:15px">Built something worth passing on? <a href="/apply/mentors/" style="color:var(--accent-2)">Apply to mentor &rarr;</a></p>
   </div>
 </section>
-<section>
+
+<section id="ambassadors">
   <div class="wrap">
-    <div class="cta-band">
-      <div>
-        <span class="label">Mentor a team</span>
-        <h2>You've built something. Give two months of it away.</h2>
-        <p class="lede" style="margin-top:14px">1&ndash;3 hours a week for eight weeks, sessions on the platform, one team that will remember it for a long time.</p>
-        <div class="hero-actions" style="margin-top:20px">
-          <a class="btn btn-primary btn-bracket" href="/apply/mentors/">Apply to mentor <span class="arr">&rarr;</span></a>
-          <a class="btn btn-ghost" href="/program/">See the program</a>
-        </div>
-      </div>
+    <div class="section-head">
+      <span class="label rv">Student ambassadors</span>
+      <h2 class="rv rv-d1">The people who find the founders.</h2>
+      <p class="lede rv rv-d2">Ambassadors run Batch Zero at their own school: they find students already building something, get them to apply, and bring their school into the first cohorts. It's the fastest way onto the founding team of something new.</p>
+    </div>
+    <div class="grid cols-3">
+      <div class="card rv"><div class="idx"><span>01</span><span>what you do</span></div><h3>Find the builders</h3><p>Every school has three or four students already shipping something. You know who they are, or you can find out in a week.</p></div>
+      <div class="card rv rv-d1"><div class="idx"><span>02</span><span>what you get</span></div><h3>A real title and a cut</h3><p>Ambassador on the founding team, commission on what you bring in, and a reference from a program you helped build.</p></div>
+      <div class="card rv rv-d2"><div class="idx"><span>03</span><span>what it takes</span></div><h3>A couple of hours a week</h3><p>Posters, a class announcement, a few conversations, one group chat. No experience needed — just knowing your school.</p></div>
+    </div>
+    <div class="mentor-state" style="padding-top:26px">// the first ambassadors are being brought on now — applications are open.</div>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-bracket" href="/apply/ambassadors/">Become an ambassador <span class="arr">&rarr;</span></a>
+      <a class="btn btn-ghost" href="/apply/founders/">I'd rather apply as a founder</a>
     </div>
   </div>
 </section>
 """
+
+MENTORS_REDIRECT = """
+<div class="wrap page-hero"><span class="label">Moved</span><h1>The roster moved.</h1><p class="lede">Mentors now live on the network page, alongside the student ambassadors. Redirecting…</p><div class="hero-actions"><a class="btn btn-primary" href="/network/#mentors">Go to the network &rarr;</a></div></div>
+<meta http-equiv="refresh" content="2;url=/network/#mentors">
+"""
+
+AMBASSADORS_FORM = f"""
+<div class="fieldset"><span class="label plain">01 · You</span>
+  <div class="f-row">{field("name","Your name",placeholder="First and last",maxlength=120)}{field("email","Email","email",placeholder="you@school.edu",maxlength=200)}</div>
+  <div class="f-row">{field("school","School + city",placeholder="Monte Vista High, Danville CA",maxlength=160)}{field("grad_year","Graduation year",as_="select",options=["2027","2028","2029","2030"])}</div>
+</div>
+<div class="fieldset"><span class="label plain">02 · Your reach</span>
+  {chips("channels","Where could you get the word out?",["Class announcements","Clubs you're in","Instagram / TikTok","Group chats","Teachers or counsellors","School paper or radio","Local events"],required=True,hint="// pick the ones you'd actually use")}
+  <div class="f-row">{field("reach","Students you could reach in a month",as_="select",options=["Under 50","50–200","200–500","500+"])}{field("platform","Clubs, teams or accounts you run",required=False,placeholder="Robotics club, 2k followers on TikTok",maxlength=160)}</div>
+</div>
+<div class="fieldset"><span class="label plain">03 · Why you</span>
+  {field("builders","Name two or three students at your school who are already building something.",as_="textarea",placeholder="First names are fine. What are they making? This is the job — if you can name them, you can do it.",maxlength=800)}
+  {field("why","Why do you want to run this at your school?",as_="textarea",placeholder="Honest answer, two or three lines.",maxlength=800)}
+  {field("organised","Anything you've organised before?",required=False,as_="textarea",placeholder="A club, an event, a team, a group project that shipped. Optional.",maxlength=600)}
+</div>
+{consent("I'm currently a high-school student. If I'm selected and under 18, a parent or guardian will sign a consent form before I start. I agree to the <a href='/terms/' style='color:var(--accent-2)'>terms</a> and <a href='/privacy/' style='color:var(--accent-2)'>privacy policy</a>.")}
+"""
+
+AMBASSADORS = form_page("Student ambassadors", "Run Batch Zero at your school.", "Find the students already building something, get them to apply, and get the credit for it. A couple of hours a week, a real title, and commission on what you bring in. About five minutes to apply.",
+    "What we ask", ["A couple of hours a week", "You're a current high-school student", "You'll actually talk to people, not just post", "Parent/guardian consent if you're under 18"],
+    AMBASSADORS_FORM, "Apply to be an ambassador", "Application received.", "We read every one. Expect a reply within a week — and if you're a fit, a short call with Rayan.",
+    note="// about 5 minutes")
 
 COMPANIES_REDIRECT = """
 <div class="wrap page-hero"><span class="label">Moved</span><h1>This page moved.</h1><p class="lede">Companies now come in through the sponsor door. Redirecting…</p><div class="hero-actions"><a class="btn btn-primary" href="/apply/sponsors/">Go to sponsor companies →</a></div></div>
@@ -740,7 +779,7 @@ PRIVACY = """
 <p>Batch Zero ("Batch Zero", "we", "us") is an early-stage program based in California that is operated by its founder and has not yet formed a company. When a legal entity is formed, it will take over responsibility for this policy and we'll update this page. Questions and requests go to <a href="mailto:rayan@batchzero.co" style="color:var(--accent-2)">rayan@batchzero.co</a>.</p>
 
 <h2>2. What we collect</h2>
-<p><strong>What you give us.</strong> When you submit a form on batchzero.co we store exactly what you enter: for founders, your name, email, school, graduation year, and what you tell us about your startup and team, plus links you share (website, demo, video). For mentors: name, email, role and company, city and time zone, LinkedIn and any other links you add, and your answers about your experience, how you mentor and when you're available. For investors and sponsor companies: name, work email, company, role, links, and your answers. We also record the page the form was sent from and a general browser type, to help debug problems.</p>
+<p><strong>What you give us.</strong> When you submit a form on batchzero.co we store exactly what you enter: for founders, your name, email, school, graduation year, and what you tell us about your startup and team, plus links you share (website, demo, video). For student ambassadors: your name, email, school, graduation year, and your answers about how you'd bring Batch Zero to your school. For mentors: name, email, role and company, city and time zone, LinkedIn and any other links you add, and your answers about your experience, how you mentor and when you're available. For investors and sponsor companies: name, work email, company, role, links, and your answers. We also record the page the form was sent from and a general browser type, to help debug problems.</p>
 <p><strong>What we don't collect.</strong> We do not use advertising trackers, social-media pixels, or analytics cookies. We don't ask for your address, phone number, date of birth, or any government ID. We don't collect payment information on this site.</p>
 <p><strong>Signing in with LinkedIn (optional).</strong> The mentor application offers a "Continue with LinkedIn" button. If you use it, LinkedIn asks your permission and then gives us your name, email address and profile photo — nothing else, and never your password. We use it to fill in the form and to confirm you are who you say you are. We can't see your connections or your messages, and we can't post anything as you. You can skip it and type everything in instead, or click "Not you?" to remove what it filled in. We end the LinkedIn session as soon as we've read those three things.</p>
 <p><strong>Unfinished drafts.</strong> The mentor application saves your answers in your own browser as you type (using your browser's local storage), so you can close the tab and come back. That draft stays on your device and is never sent to us until you press submit. It's deleted from your browser when you submit or click "Start over", and you can also clear it by clearing your browser's site data.</p>
@@ -753,7 +792,7 @@ PRIVACY = """
 <p>Batch Zero is for high-school students. You must be at least 13 to use this site or apply; we do not knowingly collect information from anyone under 13, and we delete it if we find it. If you are under 18 and selected for a cohort, a parent or guardian must sign a consent form before you take part, and they can ask us at any time to see or delete your information. Parents: email <a href="mailto:rayan@batchzero.co" style="color:var(--accent-2)">rayan@batchzero.co</a> and we'll respond within a few days.</p>
 
 <h2>5. Who can see a student's information</h2>
-<p><strong>The mentor page.</strong> Mentors who accept an invite and agree to the mentor terms appear on our public <a href="/mentors/" style="color:var(--accent-2)">mentor page</a> — name, photo, role, company and the areas they mentor on. Never their email. Ask us and we'll take it down the same day.</p>
+<p><strong>The mentor page.</strong> Mentors who accept an invite and agree to the mentor terms appear on our public <a href="/network/#mentors" style="color:var(--accent-2)">network page</a> — name, photo, role, company and the areas they mentor on. Never their email. Ask us and we'll take it down the same day.</p>
 <p>Only the Batch Zero team and reviewers reviewing applications. Mentors see the applications of the teams they are matched with. Investors and sponsor companies do <strong>not</strong> receive contact details or full applications: they see the profile a founder chooses to make visible, and any introduction is requested through us and accepted by the founder first. We never share a student's information with a third party for that party's own marketing.</p>
 
 <h2>6. Services we rely on</h2>
@@ -840,7 +879,9 @@ PAGES = [
     ("partners/index.html", "Business partners — Batch Zero", "Investors, sponsor companies and mentors: pick your door into Batch Zero.", PARTNERS, "/partners/"),
     ("apply/sponsors/index.html", "Sponsor a cohort — Batch Zero", "Fund the Demo Day prize, name a cohort, and meet high-school founders early.", SPONSORS, "/apply/sponsors/"),
     ("apply/companies/index.html", "Moved — Batch Zero", "This page moved to sponsor companies.", COMPANIES_REDIRECT, "/apply/sponsors/"),
-    ("mentors/index.html", "Mentors — Batch Zero", "The operators, founders and engineers mentoring Batch Zero teams.", MENTORS_ROSTER, "/mentors/", False, ("/assets/js/mentors.js",)),
+    ("network/index.html", "The network — Batch Zero", "The mentors and student ambassadors behind Batch Zero.", NETWORK, "/network/", False, ("/assets/js/mentors.js",)),
+    ("mentors/index.html", "Mentors — Batch Zero", "The mentors behind Batch Zero.", MENTORS_REDIRECT, "/network/"),
+    ("apply/ambassadors/index.html", "Become an ambassador — Batch Zero", "Run Batch Zero at your high school: find the builders, bring them in, get the credit.", AMBASSADORS, "/apply/ambassadors/"),
     ("mentor-invite/index.html", "Mentor signup — Batch Zero", "Confirm your details and join the Batch Zero mentor roster.", MENTOR_INVITE, "/mentor-invite/", True, ("/assets/js/mentor-invite.js",)),
     ("mentor-invite/admin/index.html", "Invite a mentor — Batch Zero", "Internal tool: create a mentor invite link.", MENTOR_INVITE_ADMIN, "/mentor-invite/admin/", True, ("/assets/js/mentor-invite-admin.js",)),
     ("mentor-invite/terms/index.html", "Mentor Terms of Service — Batch Zero", "The terms you agree to when you mentor for Batch Zero.", MENTOR_TERMS, "/mentor-invite/terms/", True),

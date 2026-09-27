@@ -26,12 +26,14 @@ The public marketing site for **Batch Zero**, an online accelerator for high-sch
 index.html                       home
 program/  about/  privacy/  terms/   inner pages (each is <dir>/index.html)
 partners/                        chooser page: investor / sponsor company / mentor
-apply/{founders,mentors,investors,sponsors}/   application forms (companies/ is a redirect to sponsors/)
-mentors/                         public mentor roster, rendered from the database at page load
+apply/{founders,mentors,investors,sponsors,ambassadors}/   application forms (companies/ is a redirect to sponsors/)
+network/                         public hub: the mentor roster (rendered from the database) + what ambassadors do
+mentors/                         redirect to /network/#mentors (the roster used to live here)
 mentor-invite/                   invited-mentor signup, /admin/ to create a link, /terms/ (mentor ToS) — noindex
 supabase/schema.sql              applications table + RLS (anon = insert only)
 supabase/mentor-invites.sql      mentor_invites table + the three RPCs — READ ITS HEADER FIRST
 supabase/mentor-roster.sql       adds photo_url/published/listed_at + list_mentors() and save_mentor_photo()
+supabase/ambassadors.sql         lets applications accept type 'ambassador' (constraint + insert policy)
 404.html                         GitHub Pages 404
 assets/css/site.css              all styling; design tokens in :root at the top
 assets/js/config.js              Supabase URL + anon key (public by design; the DB only allows inserts)
@@ -114,14 +116,20 @@ public.mentor_invites (status 'completed')  → the roster you match teams from
 /mentors/  public page: photo, name, role · company, areas
 ```
 
+### Student ambassadors
+
+`/apply/ambassadors/` is a normal one-page application that writes into `public.applications` with `type = 'ambassador'` — high-school students who run Batch Zero at their own school. **Two places list the allowed types** (the column CHECK and the insert policy), so adding a type means running `supabase/ambassadors.sql` once; without it every ambassador application is rejected by the database with an RLS error. `formType()` in `site.js` maps the URL to the type — add both, or applications land as `'unknown'`.
+
+There's no ambassador roster yet: `/network/#ambassadors` explains the role and points at the form. When you build one, do it the way `/mentors/` works — a `security definer` function returning only the public fields, never a table the anon key can read.
+
 ### The public roster
 
-`/mentors/` calls `list_mentors()`, which returns **only** `full_name, title, company, areas_of_expertise, photo_url` for rows that are `status = 'completed' and published`. Email and token are never in that result — keep it that way if you extend it.
+`/network/#mentors` calls `list_mentors()`, which returns **only** `full_name, title, company, areas_of_expertise, photo_url` for rows that are `status = 'completed' and published`. Email and token are never in that result — keep it that way if you extend it.
 
 - Publishing is immediate and consented: the mentor ticks the mentor ToS, which says their name, photo, title, company and bio may be shown on the site. To take someone down: `update public.mentor_invites set published = false where full_name = '…';` — no code change, the page picks it up on next load.
 - `save_mentor_photo(p_token, p_photo_url)` is called by `/mentor-invite/` right after a mentor confirms, when they signed in with LinkedIn. It only accepts `*.licdn.com` URLs and only touches the row whose token is passed.
 - **Those photo URLs expire.** The card falls back to the mentor's initials when the image 404s, so the page never looks broken — but for anyone you want to keep on the page long-term, download the image, host it yourself and update `photo_url`.
-- The page is client-rendered, so search engines mostly see the empty state. That's fine for a roster; don't build anything SEO-critical this way.
+- The roster lives on `/network/`; `/mentors/` is a redirect kept for old links. The page is client-rendered, so search engines mostly see the empty state. That's fine for a roster; don't build anything SEO-critical this way.
 
 The two are deliberately separate: the application is how strangers reach you, the invite is how someone you've decided on gets onto the roster. An invite link works once and is the only thing protecting that row, so treat it like a password — never post one publicly.
 

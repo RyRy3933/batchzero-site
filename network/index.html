@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mentors — Batch Zero</title>
-<meta name="description" content="The mentors behind Batch Zero.">
+<title>The network — Batch Zero</title>
+<meta name="description" content="The mentors and student ambassadors behind Batch Zero.">
 <link rel="canonical" href="https://batchzero.co/network/">
 <meta name="theme-color" content="#07080a">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
@@ -13,8 +13,8 @@
 <link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Batch Zero">
-<meta property="og:title" content="Mentors — Batch Zero">
-<meta property="og:description" content="The mentors behind Batch Zero.">
+<meta property="og:title" content="The network — Batch Zero">
+<meta property="og:description" content="The mentors and student ambassadors behind Batch Zero.">
 <meta property="og:url" content="https://batchzero.co/network/">
 <meta property="og:image" content="https://batchzero.co/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -49,8 +49,47 @@
   <a href="/program/">Program</a><a href="/#how">How it works</a><a href="/#demo-day">Demo Day</a><a href="/network/">Network</a><a href="/about/">About</a>
 </div>
 
-<div class="wrap page-hero"><span class="label">Moved</span><h1>The roster moved.</h1><p class="lede">Mentors now live on the network page, alongside the student ambassadors. Redirecting…</p><div class="hero-actions"><a class="btn btn-primary" href="/network/#mentors">Go to the network &rarr;</a></div></div>
-<meta http-equiv="refresh" content="2;url=/network/#mentors">
+<div class="wrap page-hero">
+  <span class="label rv">The network</span>
+  <h1 class="rv rv-d1">Who's in the room with you.</h1>
+  <p class="lede rv rv-d2">Two groups make Batch Zero work: mentors who have built things and give a team eight weeks, and student ambassadors who find the founders worth backing at their own schools.</p>
+</div>
+
+<section id="mentors" style="padding-top:8px">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="label rv">Mentors</span>
+      <h2 class="rv rv-d1">Two per team, eight weeks.</h2>
+      <p class="lede rv rv-d2">One who knows your domain, one who has built a company end to end. Every mentor is interviewed and background-checked before being matched.</p>
+      <p class="mono dim" style="font-size:13px" data-mentor-count hidden></p>
+    </div>
+    <div class="mentor-state" data-mentor-loading>// loading the roster…</div>
+    <div class="mentor-state" data-mentor-empty hidden>// the first mentors are being confirmed right now — check back in a few days.</div>
+    <div class="mentor-state err" data-mentor-error hidden>// couldn't load the roster just now. Refresh, or email <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a>.</div>
+    <div class="mentor-grid" data-mentor-grid hidden></div>
+    <p class="dim" style="margin-top:26px;font-size:15px">Built something worth passing on? <a href="/apply/mentors/" style="color:var(--accent-2)">Apply to mentor &rarr;</a></p>
+  </div>
+</section>
+
+<section id="ambassadors">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="label rv">Student ambassadors</span>
+      <h2 class="rv rv-d1">The people who find the founders.</h2>
+      <p class="lede rv rv-d2">Ambassadors run Batch Zero at their own school: they find students already building something, get them to apply, and bring their school into the first cohorts. It's the fastest way onto the founding team of something new.</p>
+    </div>
+    <div class="grid cols-3">
+      <div class="card rv"><div class="idx"><span>01</span><span>what you do</span></div><h3>Find the builders</h3><p>Every school has three or four students already shipping something. You know who they are, or you can find out in a week.</p></div>
+      <div class="card rv rv-d1"><div class="idx"><span>02</span><span>what you get</span></div><h3>A real title and a cut</h3><p>Ambassador on the founding team, commission on what you bring in, and a reference from a program you helped build.</p></div>
+      <div class="card rv rv-d2"><div class="idx"><span>03</span><span>what it takes</span></div><h3>A couple of hours a week</h3><p>Posters, a class announcement, a few conversations, one group chat. No experience needed — just knowing your school.</p></div>
+    </div>
+    <div class="mentor-state" style="padding-top:26px">// the first ambassadors are being brought on now — applications are open.</div>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-bracket" href="/apply/ambassadors/">Become an ambassador <span class="arr">&rarr;</span></a>
+      <a class="btn btn-ghost" href="/apply/founders/">I'd rather apply as a founder</a>
+    </div>
+  </div>
+</section>
 <footer>
   <div class="wrap">
     <div class="foot">
@@ -70,5 +109,6 @@
 </footer>
 <script src="/assets/js/config.js"></script>
 <script src="/assets/js/site.js" defer></script>
+<script src="/assets/js/mentors.js" defer></script>
 </body>
 </html>

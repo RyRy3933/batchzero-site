@@ -96,8 +96,8 @@
   const make = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 
   const formType = () => {
-    const m = location.pathname.match(/\/apply\/(founders|mentors|investors|sponsors|companies)\//);
-    return m ? { founders: "founder", mentors: "mentor", investors: "investor", sponsors: "sponsor", companies: "sponsor" }[m[1]] : "unknown";
+    const m = location.pathname.match(/\/apply\/(founders|mentors|investors|sponsors|companies|ambassadors)\//);
+    return m ? { founders: "founder", mentors: "mentor", investors: "investor", sponsors: "sponsor", companies: "sponsor", ambassadors: "ambassador" }[m[1]] : "unknown";
   };
   async function submitApplication(type, data) {
     if (!CFG.SUPABASE_URL || !CFG.SUPABASE_ANON_KEY) {
