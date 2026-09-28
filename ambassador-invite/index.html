@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ambassador signup — Batch Zero</title>
+<meta name="description" content="Confirm your details and join the Batch Zero student ambassador team.">
+<link rel="canonical" href="https://batchzero.co/ambassador-invite/">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#07080a">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon-180.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Batch Zero">
+<meta property="og:title" content="Ambassador signup — Batch Zero">
+<meta property="og:description" content="Confirm your details and join the Batch Zero student ambassador team.">
+<meta property="og:url" content="https://batchzero.co/ambassador-invite/">
+<meta property="og:image" content="https://batchzero.co/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+<div class="grid-bg"></div><div class="noise"></div><div class="spot"></div>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Batch Zero home"><img src="/assets/img/b0-mark-paper.svg" alt="[B0]" width="84" height="26"><span>BATCH ZERO</span></a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="/program/">Program</a>
+      <a href="/#how">How it works</a>
+      <a href="/#demo-day">Demo Day</a>
+      <a href="/network/">Network</a>
+      <a href="/about/">About</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-ghost btn-sm" href="/partners/">I'm a business partner</a>
+      <a class="btn btn-primary btn-sm btn-bracket" href="/apply/founders/">I'm a founder</a>
+      <button class="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<div class="mobile-menu">
+  <a href="/apply/founders/" style="color:var(--accent-2)">I'm a founder → apply</a><a href="/partners/">I'm a business partner</a>
+  <a href="/program/">Program</a><a href="/#how">How it works</a><a href="/#demo-day">Demo Day</a><a href="/network/">Network</a><a href="/about/">About</a>
+</div>
+
+<div class="wrap invite-wrap">
+  <div class="state active" id="state-loading">
+    <div class="page-hero"><span class="label rv in">Ambassador signup</span><h1>Ambassador signup</h1><p class="lede">Loading your invite…</p></div>
+  </div>
+
+  <div class="state" id="state-invalid">
+    <div class="page-hero"><span class="label">Ambassador signup</span><h1>This link didn't work.</h1><p class="lede">We couldn't find an invite for it — it may have already been used, or the link got cut off in an email. Send us a note at <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a> and we'll sort it out.</p></div>
+  </div>
+
+  <div class="state" id="state-form">
+    <form class="app app-plain" id="amb-form" method="post" action="#" data-custom-submit>
+      <div class="page-hero" style="padding-bottom:26px">
+        <span class="label">Ambassador signup</span>
+        <h1>Hi <span id="hi-name">there</span> — you're in.</h1>
+        <p class="lede">You're running Batch Zero at your school. Two minutes here and you're on the team, with your card on the network page.</p>
+      </div>
+      <div class="invite-card">
+        <div class="invite-avatar" id="avatar">–</div>
+        <div class="invite-who">
+          <div class="invite-name" id="p-name">—</div>
+          <div class="invite-role" id="p-role" hidden></div>
+        </div>
+      </div>
+      
+  <div class="fieldset"><span class="label plain">01 · You</span>
+    <div class="field"><label for="email">Your email <b>*</b></label><input id="email" name="email" type="email" placeholder="" maxlength="200" required><span class="hint">// how we reach you — never shown on the site</span><span class="msg">// required — please fill this in</span></div>
+    <div class="f-row"><div class="field"><label for="school">School <b>*</b></label><input id="school" name="school" type="text" placeholder="Monte Vista High" maxlength="160" required><span class="msg">// required — please fill this in</span></div><div class="field"><label for="city">City</label><input id="city" name="city" type="text" placeholder="Danville CA" maxlength="120" ><span class="msg">// required — please fill this in</span></div></div>
+    <div class="field"><label for="grad_year">Graduation year <b>*</b></label><select id="grad_year" name="grad_year" required><option value="">Select…</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option></select><span class="msg">// required — please fill this in</span></div>
+  </div>
+  <div class="fieldset"><span class="label plain">02 · Your card</span>
+    <div class="field"><label for="display_name">Name to show on the site <b>*</b></label><input id="display_name" name="display_name" type="text" placeholder="" maxlength="80" required><span class="hint">// we suggest first name + last initial — change it to whatever you're happy having public</span><span class="msg">// required — please fill this in</span></div>
+    <div class="chips-other" data-other-group="focus"><div class="field" data-required data-max="3"><label id="focus-label">How you'll reach people at your school <b>*</b></label><span class="hint">// pick up to three — these show as tags on your card</span><div class="chips" role="group" aria-labelledby="focus-label"><label class="chip"><input type="checkbox" name="focus" value="Clubs I'm in"><span>Clubs I'm in</span></label><label class="chip"><input type="checkbox" name="focus" value="Class announcements"><span>Class announcements</span></label><label class="chip"><input type="checkbox" name="focus" value="Instagram / TikTok"><span>Instagram / TikTok</span></label><label class="chip"><input type="checkbox" name="focus" value="Group chats"><span>Group chats</span></label><label class="chip"><input type="checkbox" name="focus" value="Teachers & counsellors"><span>Teachers & counsellors</span></label><label class="chip"><input type="checkbox" name="focus" value="School paper or radio"><span>School paper or radio</span></label><label class="chip"><input type="checkbox" name="focus" value="Robotics / CS"><span>Robotics / CS</span></label><label class="chip"><input type="checkbox" name="focus" value="Local events"><span>Local events</span></label><label class="chip"><input type="checkbox" name="focus" value="Other"><span>Other</span></label></div><span class="msg">// pick at least one</span></div><div class="other-box" data-other-box hidden><div class="field"><label for="focus_other">Something else</label><input id="focus_other" name="focus_other" type="text" placeholder="Tell us in your own words" maxlength="160" ><span class="msg">// required — please fill this in</span></div></div></div>
+  </div>
+  <div class="fieldset"><span class="label plain">03 · Consent</span>
+    <div class="field" data-required><label id="age_band-label">How old are you? <b>*</b></label><div class="optin-group" role="radiogroup" aria-labelledby="age_band-label"><label class="optin rcard"><input type="radio" name="age_band" value="under18"><span class="ot"><b>I'm under 18</b><em>We'll need a parent or guardian's name and email before anything goes public.</em></span></label><label class="optin rcard"><input type="radio" name="age_band" value="18plus"><span class="ot"><b>I'm 18 or older</b><em>Nothing else needed.</em></span></label></div><span class="msg">// pick one</span></div>
+    <div id="guardian-box">
+      <div class="f-row"><div class="field"><label for="guardian_name">Parent or guardian name</label><input id="guardian_name" name="guardian_name" type="text" placeholder="" maxlength="120" ><span class="msg">// required — please fill this in</span></div><div class="field"><label for="guardian_email">Parent or guardian email</label><input id="guardian_email" name="guardian_email" type="email" placeholder="" maxlength="200" ><span class="msg">// required — please fill this in</span></div></div>
+      <p class="dim" style="font-size:14px;margin-top:4px">We email them a short note explaining what Batch Zero is and what you'll be doing. Either of you can ask us to take your card down at any time.</p>
+    </div>
+    <label class="optin"><input type="checkbox" name="show_publicly" value="yes"><span class="ot"><b>Show me on the Batch Zero network page</b><em>Your chosen name, school, city and class year — and the tags above. No photo, no email, no contact details. Leave this off and you're still an ambassador; you just won't be listed.</em></span></label>
+  </div>
+  <label class="check"><input type="checkbox" name="agree" value="yes"><span>I want to be a Batch Zero student ambassador, and I agree to the <a href="/terms/" style="color:var(--accent-2)">terms</a> and <a href="/privacy/" style="color:var(--accent-2)">privacy policy</a>.</span></label>
+
+      <div class="form-foot">
+        <span class="note">// about two minutes · email us any time to change or remove any of this</span>
+        <div class="foot-btns"><button class="btn btn-primary btn-bracket" type="submit" id="submit-btn">Join as an ambassador <span class="arr">→</span></button></div>
+      </div>
+      <div class="form-error" id="form-msg" style="display:none"></div>
+    </form>
+  </div>
+
+  <div class="state" id="state-done">
+    <div class="page-hero" style="padding-bottom:12px"><span class="label">Ambassador signup</span><h1>You're on the team.</h1></div>
+    <div class="form-done" style="display:block">
+      <div class="ok-mark">[ ✓ ]</div>
+      <h3>Thanks — you're a Batch Zero ambassador.</h3>
+      <p class="dim" id="done-msg" style="margin-top:8px">We'll be in touch with the posters, the links and everything else you need to run this at your school.</p>
+      <p style="margin-top:16px"><a href="/network/#ambassadors" style="color:var(--accent-2)">See the network page &rarr;</a></p>
+    </div>
+  </div>
+</div>
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="/"><img src="/assets/img/b0-mark-paper.svg" alt="[B0]" width="84" height="26"><span>BATCH ZERO</span></a>
+        <p style="margin-top:16px;max-width:34ch">The accelerator for founders who haven't graduated yet. Five startups per cohort, eight weeks, one Demo Day.</p>
+      </div>
+      <div><h4>Program</h4><a href="/program/">How it works</a><a href="/program/#timeline">8-week timeline</a><a href="/#demo-day">Demo Day</a><a href="/#faq">FAQ</a><a href="/network/">The network</a></div>
+      <div><h4>Get involved</h4><a href="/apply/founders/">Founders — apply</a><a href="/partners/">Business partners</a><a href="/apply/investors/">Investors</a><a href="/apply/sponsors/">Sponsor companies</a><a href="/apply/mentors/">Mentors — apply</a><a href="/apply/ambassadors/">Student ambassadors</a><a href="/network/">Who's already in</a></div>
+      <div><h4>Company</h4><a href="/about/">About</a><a href="mailto:hello@batchzero.co">hello@batchzero.co</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/conduct/">Mentor conduct</a></div>
+    </div>
+    <div class="foot-bottom">
+      <span>© <span data-year></span> Batch Zero. Built by a high-school founder, for high-school founders.</span>
+      <span>batchzero.co · cohort_00</span>
+    </div>
+  </div>
+</footer>
+<script src="/assets/js/config.js"></script>
+<script src="/assets/js/site.js" defer></script>
+<script src="/assets/js/ambassador-invite.js" defer></script>
+</body>
+</html>

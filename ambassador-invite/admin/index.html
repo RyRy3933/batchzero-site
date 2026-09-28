@@ -1,22 +1,12 @@
-#!/usr/bin/env python3
-"""Assemble the Batch Zero static site from partials + page bodies. Run: python3 build.py"""
-import os, sys, importlib
-HERE = os.path.dirname(os.path.abspath(__file__))
-SITE = os.path.abspath(os.path.join(HERE, ".."))
-sys.path.insert(0, HERE)
-
-SITE_URL = "https://batchzero.co"
-
-def head(title, desc, path, noindex=False):
-    robots = '\n<meta name="robots" content="noindex">' if noindex else ""
-    return f"""<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{title}</title>
-<meta name="description" content="{desc}">
-<link rel="canonical" href="{SITE_URL}{path}">{robots}
+<title>Invite an ambassador — Batch Zero</title>
+<meta name="description" content="Internal tool: create an ambassador signup link.">
+<link rel="canonical" href="https://batchzero.co/ambassador-invite/admin/">
+<meta name="robots" content="noindex">
 <meta name="theme-color" content="#07080a">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -24,10 +14,10 @@ def head(title, desc, path, noindex=False):
 <link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Batch Zero">
-<meta property="og:title" content="{title}">
-<meta property="og:description" content="{desc}">
-<meta property="og:url" content="{SITE_URL}{path}">
-<meta property="og:image" content="{SITE_URL}/og-image.png">
+<meta property="og:title" content="Invite an ambassador — Batch Zero">
+<meta property="og:description" content="Internal tool: create an ambassador signup link.">
+<meta property="og:url" content="https://batchzero.co/ambassador-invite/admin/">
+<meta property="og:image" content="https://batchzero.co/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
@@ -38,9 +28,7 @@ def head(title, desc, path, noindex=False):
 </head>
 <body>
 <div class="grid-bg"></div><div class="noise"></div><div class="spot"></div>
-"""
-
-NAV = """<header class="nav">
+<header class="nav">
   <div class="wrap">
     <a class="brand" href="/" aria-label="Batch Zero home"><img src="/assets/img/b0-mark-paper.svg" alt="[B0]" width="84" height="26"><span>BATCH ZERO</span></a>
     <nav class="nav-links" aria-label="Primary">
@@ -61,9 +49,38 @@ NAV = """<header class="nav">
   <a href="/apply/founders/" style="color:var(--accent-2)">I'm a founder → apply</a><a href="/partners/">I'm a business partner</a>
   <a href="/program/">Program</a><a href="/#how">How it works</a><a href="/#demo-day">Demo Day</a><a href="/network/">Network</a><a href="/about/">About</a>
 </div>
-"""
 
-FOOTER = """<footer>
+<div class="wrap invite-wrap">
+  <div class="page-hero" style="padding-bottom:26px">
+    <span class="label">Internal</span>
+    <h1>Bring on an ambassador.</h1>
+    <p class="lede">Creates a one-off signup link with their details already filled in. Anything you leave blank, they fill in themselves.</p>
+  </div>
+  <form class="app" id="invite-form" method="post" action="#" data-custom-submit>
+    <div class="fieldset">
+      <div class="field"><label for="admin_key">Admin key <b>*</b></label><input id="admin_key" name="admin_key" type="password" placeholder="" required><span class="hint">// checked inside create_ambassador_invite() — never stored in this page</span><span class="msg">// required — please fill this in</span></div>
+    </div>
+    <div class="fieldset"><span class="label plain">The ambassador</span>
+      <div class="f-row"><div class="field"><label for="full_name">Full name <b>*</b></label><input id="full_name" name="full_name" type="text" placeholder="" maxlength="120" required><span class="msg">// required — please fill this in</span></div><div class="field"><label for="email">Their email</label><input id="email" name="email" type="email" placeholder="" maxlength="200" ><span class="hint">// only used to open a pre-written email</span><span class="msg">// required — please fill this in</span></div></div>
+      <div class="f-row"><div class="field"><label for="school">School</label><input id="school" name="school" type="text" placeholder="" maxlength="160" ><span class="msg">// required — please fill this in</span></div><div class="field"><label for="city">City</label><input id="city" name="city" type="text" placeholder="" maxlength="120" ><span class="msg">// required — please fill this in</span></div></div>
+      <div class="field"><label for="grad_year">Graduation year</label><select id="grad_year" name="grad_year" ><option value="">Select…</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option></select><span class="msg">// required — please fill this in</span></div>
+    </div>
+    <div class="form-foot">
+      <span class="note">// the link works once, for this person</span>
+      <div class="foot-btns"><button class="btn btn-primary btn-bracket" type="submit" id="create-btn">Create signup link <span class="arr">→</span></button></div>
+    </div>
+    <div class="form-error" id="form-msg" style="display:none"></div>
+  </form>
+  <div class="invite-result" id="result-box" hidden>
+    <span class="label plain">Their link</span>
+    <code id="link-box"></code>
+    <div class="foot-btns">
+      <button class="btn btn-ghost btn-sm" type="button" id="copy-btn">Copy link</button>
+      <button class="btn btn-primary btn-sm btn-bracket" type="button" id="mail-btn">Open email to send <span class="arr">→</span></button>
+    </div>
+  </div>
+</div>
+<footer>
   <div class="wrap">
     <div class="foot">
       <div>
@@ -82,46 +99,6 @@ FOOTER = """<footer>
 </footer>
 <script src="/assets/js/config.js"></script>
 <script src="/assets/js/site.js" defer></script>
+<script src="/assets/js/ambassador-invite-admin.js" defer></script>
 </body>
 </html>
-"""
-
-def page(out_path, title, desc, body, canonical, noindex=False, extra_js=()):
-    """extra_js: page-specific scripts, loaded deferred *after* site.js so they can use window.B0."""
-    scripts = "".join(f'<script src="{src}" defer></script>\n' for src in extra_js)
-    html = head(title, desc, canonical, noindex) + NAV + body + FOOTER.replace("</body>", scripts + "</body>")
-    full = os.path.join(SITE, out_path.lstrip("/"))
-    os.makedirs(os.path.dirname(full), exist_ok=True)
-    with open(full, "w") as f:
-        f.write(html)
-    print("wrote", out_path)
-
-if __name__ == "__main__":
-    import pages
-    for p in pages.PAGES:
-        page(*p)
-    # manifest
-    with open(os.path.join(SITE, "site.webmanifest"), "w") as f:
-        f.write('''{
-  "name": "Batch Zero", "short_name": "Batch Zero",
-  "icons": [
-    { "src": "/android-chrome-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/android-chrome-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
-  ],
-  "theme_color": "#07080a", "background_color": "#07080a", "display": "standalone", "start_url": "/"
-}''')
-    # Anything flagged noindex in PAGES is private: it stays out of robots.txt and the sitemap
-    # automatically, so a new invite or admin page can never be indexed by being forgotten here.
-    private = sorted({p[4] for p in pages.PAGES if len(p) > 5 and p[5]})
-    roots = [u for u in private if not any(o != u and u.startswith(o) for o in private)]
-    with open(os.path.join(SITE, "robots.txt"), "w") as f:
-        disallow = "".join(f"Disallow: {u}\n" for u in roots)
-        f.write(f"User-agent: *\nAllow: /\n{disallow}Sitemap: {SITE_URL}/sitemap.xml\n")
-    with open(os.path.join(SITE, "sitemap.xml"), "w") as f:
-        seen = []
-        for p in pages.PAGES:
-            if p[0].startswith("404") or (len(p) > 5 and p[5]) or p[4] in seen: continue
-            seen.append(p[4])
-        urls = "".join(f"<url><loc>{SITE_URL}{u}</loc></url>" for u in seen)
-        f.write(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>')

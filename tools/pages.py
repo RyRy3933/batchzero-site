@@ -751,8 +751,14 @@ NETWORK = """
       <div class="card rv rv-d1"><div class="idx"><span>02</span><span>what you get</span></div><h3>A real title and a cut</h3><p>Ambassador on the founding team, commission on what you bring in, and a reference from a program you helped build.</p></div>
       <div class="card rv rv-d2"><div class="idx"><span>03</span><span>what it takes</span></div><h3>A couple of hours a week</h3><p>Posters, a class announcement, a few conversations, one group chat. No experience needed — just knowing your school.</p></div>
     </div>
-    <div class="mentor-state" style="padding-top:26px">// the first ambassadors are being brought on now — applications are open.</div>
-    <div class="hero-actions">
+    <div class="section-head" style="padding-top:30px">
+      <p class="mono dim" style="font-size:13px" data-amb-count hidden></p>
+    </div>
+    <div class="mentor-state" data-amb-loading>// loading the ambassadors…</div>
+    <div class="mentor-state" data-amb-empty hidden>// the first ambassadors are being brought on right now — applications are open.</div>
+    <div class="mentor-state err" data-amb-error hidden>// couldn't load the ambassadors just now. Refresh, or email <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a>.</div>
+    <div class="mentor-grid" data-amb-grid hidden></div>
+    <div class="hero-actions" style="margin-top:30px">
       <a class="btn btn-primary btn-bracket" href="/apply/ambassadors/">Become an ambassador <span class="arr">&rarr;</span></a>
       <a class="btn btn-ghost" href="/apply/founders/">I'd rather apply as a founder</a>
     </div>
@@ -786,6 +792,109 @@ AMBASSADORS = form_page("Student ambassadors", "Run Batch Zero at your school.",
     "What we ask", ["A couple of hours a week", "You're a current high-school student", "You'll actually talk to people, not just post", "Parent/guardian consent if you're under 18"],
     AMBASSADORS_FORM, "Apply to be an ambassador", "Application received.", "We read every one. Expect a reply within a week — and if you're a fit, a short call with Rayan.",
     note="// about 5 minutes")
+
+AMBASSADOR_FOCUS = ["Clubs I'm in", "Class announcements", "Instagram / TikTok", "Group chats",
+                    "Teachers & counsellors", "School paper or radio", "Robotics / CS", "Local events"]
+
+AMBASSADOR_INVITE_FORM = f"""
+  <div class="fieldset"><span class="label plain">01 · You</span>
+    {field("email","Your email","email",maxlength=200,hint="// how we reach you — never shown on the site")}
+    <div class="f-row">{field("school","School",placeholder="Monte Vista High",maxlength=160)}{field("city","City",required=False,placeholder="Danville CA",maxlength=120)}</div>
+    {field("grad_year","Graduation year",as_="select",options=["2027","2028","2029","2030"])}
+  </div>
+  <div class="fieldset"><span class="label plain">02 · Your card</span>
+    {field("display_name","Name to show on the site",maxlength=80,hint="// we suggest first name + last initial — change it to whatever you're happy having public")}
+    {chips_other("focus","How you'll reach people at your school",AMBASSADOR_FOCUS,required=True,max_pick=3,hint="// pick up to three — these show as tags on your card")}
+  </div>
+  <div class="fieldset"><span class="label plain">03 · Consent</span>
+    {choice_cards("age_band","How old are you?",[("under18","I'm under 18","We'll need a parent or guardian's name and email before anything goes public."),("18plus","I'm 18 or older","Nothing else needed.")])}
+    <div id="guardian-box">
+      <div class="f-row">{field("guardian_name","Parent or guardian name",required=False,maxlength=120)}{field("guardian_email","Parent or guardian email","email",required=False,maxlength=200)}</div>
+      <p class="dim" style="font-size:14px;margin-top:4px">We email them a short note explaining what Batch Zero is and what you'll be doing. Either of you can ask us to take your card down at any time.</p>
+    </div>
+    {optin("show_publicly","Show me on the Batch Zero network page","Your chosen name, school, city and class year — and the tags above. No photo, no email, no contact details. Leave this off and you're still an ambassador; you just won't be listed.")}
+  </div>
+  <label class="check"><input type="checkbox" name="agree" value="yes"><span>I want to be a Batch Zero student ambassador, and I agree to the <a href="/terms/" style="color:var(--accent-2)">terms</a> and <a href="/privacy/" style="color:var(--accent-2)">privacy policy</a>.</span></label>
+"""
+
+AMBASSADOR_INVITE = f"""
+<div class="wrap invite-wrap">
+  <div class="state active" id="state-loading">
+    <div class="page-hero"><span class="label rv in">Ambassador signup</span><h1>Ambassador signup</h1><p class="lede">Loading your invite…</p></div>
+  </div>
+
+  <div class="state" id="state-invalid">
+    <div class="page-hero"><span class="label">Ambassador signup</span><h1>This link didn't work.</h1><p class="lede">We couldn't find an invite for it — it may have already been used, or the link got cut off in an email. Send us a note at <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a> and we'll sort it out.</p></div>
+  </div>
+
+  <div class="state" id="state-form">
+    <form class="app app-plain" id="amb-form" method="post" action="#" data-custom-submit>
+      <div class="page-hero" style="padding-bottom:26px">
+        <span class="label">Ambassador signup</span>
+        <h1>Hi <span id="hi-name">there</span> — you're in.</h1>
+        <p class="lede">You're running Batch Zero at your school. Two minutes here and you're on the team, with your card on the network page.</p>
+      </div>
+      <div class="invite-card">
+        <div class="invite-avatar" id="avatar">–</div>
+        <div class="invite-who">
+          <div class="invite-name" id="p-name">—</div>
+          <div class="invite-role" id="p-role" hidden></div>
+        </div>
+      </div>
+      {AMBASSADOR_INVITE_FORM}
+      <div class="form-foot">
+        <span class="note">// about two minutes · email us any time to change or remove any of this</span>
+        <div class="foot-btns"><button class="btn btn-primary btn-bracket" type="submit" id="submit-btn">Join as an ambassador <span class="arr">→</span></button></div>
+      </div>
+      <div class="form-error" id="form-msg" style="display:none"></div>
+    </form>
+  </div>
+
+  <div class="state" id="state-done">
+    <div class="page-hero" style="padding-bottom:12px"><span class="label">Ambassador signup</span><h1>You're on the team.</h1></div>
+    <div class="form-done" style="display:block">
+      <div class="ok-mark">[ ✓ ]</div>
+      <h3>Thanks — you're a Batch Zero ambassador.</h3>
+      <p class="dim" id="done-msg" style="margin-top:8px">We'll be in touch with the posters, the links and everything else you need to run this at your school.</p>
+      <p style="margin-top:16px"><a href="/network/#ambassadors" style="color:var(--accent-2)">See the network page &rarr;</a></p>
+    </div>
+  </div>
+</div>
+"""
+
+AMBASSADOR_INVITE_ADMIN = f"""
+<div class="wrap invite-wrap">
+  <div class="page-hero" style="padding-bottom:26px">
+    <span class="label">Internal</span>
+    <h1>Bring on an ambassador.</h1>
+    <p class="lede">Creates a one-off signup link with their details already filled in. Anything you leave blank, they fill in themselves.</p>
+  </div>
+  <form class="app" id="invite-form" method="post" action="#" data-custom-submit>
+    <div class="fieldset">
+      {field("admin_key","Admin key","password",hint="// checked inside create_ambassador_invite() — never stored in this page")}
+    </div>
+    <div class="fieldset"><span class="label plain">The ambassador</span>
+      <div class="f-row">{field("full_name","Full name",maxlength=120)}{field("email","Their email",required=False,type="email",hint="// only used to open a pre-written email",maxlength=200)}</div>
+      <div class="f-row">{field("school","School",required=False,maxlength=160)}{field("city","City",required=False,maxlength=120)}</div>
+      {field("grad_year","Graduation year",required=False,as_="select",options=["2027","2028","2029","2030"])}
+    </div>
+    <div class="form-foot">
+      <span class="note">// the link works once, for this person</span>
+      <div class="foot-btns"><button class="btn btn-primary btn-bracket" type="submit" id="create-btn">Create signup link <span class="arr">→</span></button></div>
+    </div>
+    <div class="form-error" id="form-msg" style="display:none"></div>
+  </form>
+  <div class="invite-result" id="result-box" hidden>
+    <span class="label plain">Their link</span>
+    <code id="link-box"></code>
+    <div class="foot-btns">
+      <button class="btn btn-ghost btn-sm" type="button" id="copy-btn">Copy link</button>
+      <button class="btn btn-primary btn-sm btn-bracket" type="button" id="mail-btn">Open email to send <span class="arr">→</span></button>
+    </div>
+  </div>
+</div>
+"""
+
 
 CONDUCT = """
 <div class="wrap page-hero">
@@ -966,11 +1075,13 @@ PAGES = [
     ("partners/index.html", "Business partners — Batch Zero", "Investors, sponsor companies and mentors: pick your door into Batch Zero.", PARTNERS, "/partners/"),
     ("apply/sponsors/index.html", "Sponsor a cohort — Batch Zero", "Fund the Demo Day prize, name a cohort, and meet high-school founders early.", SPONSORS, "/apply/sponsors/"),
     ("apply/companies/index.html", "Moved — Batch Zero", "This page moved to sponsor companies.", COMPANIES_REDIRECT, "/apply/sponsors/"),
-    ("network/index.html", "The network — Batch Zero", "The mentors and student ambassadors behind Batch Zero.", NETWORK, "/network/", False, ("/assets/js/mentors.js",)),
+    ("network/index.html", "The network — Batch Zero", "The mentors and student ambassadors behind Batch Zero.", NETWORK, "/network/", False, ("/assets/js/network.js",)),
     ("mentors/index.html", "Mentors — Batch Zero", "The mentors behind Batch Zero.", MENTORS_REDIRECT, "/network/"),
     ("apply/ambassadors/index.html", "Become an ambassador — Batch Zero", "Run Batch Zero at your high school: find the builders, bring them in, get the credit.", AMBASSADORS, "/apply/ambassadors/"),
     ("mentor-invite/index.html", "Mentor signup — Batch Zero", "Confirm your details and join the Batch Zero mentor roster.", MENTOR_INVITE, "/mentor-invite/", True, ("/assets/js/mentor-invite.js",)),
     ("mentor-invite/admin/index.html", "Invite a mentor — Batch Zero", "Internal tool: create a mentor invite link.", MENTOR_INVITE_ADMIN, "/mentor-invite/admin/", True, ("/assets/js/mentor-invite-admin.js",)),
+    ("ambassador-invite/index.html", "Ambassador signup — Batch Zero", "Confirm your details and join the Batch Zero student ambassador team.", AMBASSADOR_INVITE, "/ambassador-invite/", True, ("/assets/js/ambassador-invite.js",)),
+    ("ambassador-invite/admin/index.html", "Invite an ambassador — Batch Zero", "Internal tool: create an ambassador signup link.", AMBASSADOR_INVITE_ADMIN, "/ambassador-invite/admin/", True, ("/assets/js/ambassador-invite-admin.js",)),
     ("conduct/index.html", "Mentor code of conduct — Batch Zero", "The rules every Batch Zero mentor agrees to before working with student founders.", CONDUCT, "/conduct/"),
     ("mentor-invite/terms/index.html", "Mentor Terms of Service — Batch Zero", "The terms you agree to when you mentor for Batch Zero.", MENTOR_TERMS, "/mentor-invite/terms/", True),
     ("privacy/index.html", "Privacy policy — Batch Zero", "What Batch Zero collects, why, who can see it, and how students and parents can ask for it to be deleted.", PRIVACY, "/privacy/"),

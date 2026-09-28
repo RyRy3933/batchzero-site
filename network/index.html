@@ -83,8 +83,14 @@
       <div class="card rv rv-d1"><div class="idx"><span>02</span><span>what you get</span></div><h3>A real title and a cut</h3><p>Ambassador on the founding team, commission on what you bring in, and a reference from a program you helped build.</p></div>
       <div class="card rv rv-d2"><div class="idx"><span>03</span><span>what it takes</span></div><h3>A couple of hours a week</h3><p>Posters, a class announcement, a few conversations, one group chat. No experience needed — just knowing your school.</p></div>
     </div>
-    <div class="mentor-state" style="padding-top:26px">// the first ambassadors are being brought on now — applications are open.</div>
-    <div class="hero-actions">
+    <div class="section-head" style="padding-top:30px">
+      <p class="mono dim" style="font-size:13px" data-amb-count hidden></p>
+    </div>
+    <div class="mentor-state" data-amb-loading>// loading the ambassadors…</div>
+    <div class="mentor-state" data-amb-empty hidden>// the first ambassadors are being brought on right now — applications are open.</div>
+    <div class="mentor-state err" data-amb-error hidden>// couldn't load the ambassadors just now. Refresh, or email <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a>.</div>
+    <div class="mentor-grid" data-amb-grid hidden></div>
+    <div class="hero-actions" style="margin-top:30px">
       <a class="btn btn-primary btn-bracket" href="/apply/ambassadors/">Become an ambassador <span class="arr">&rarr;</span></a>
       <a class="btn btn-ghost" href="/apply/founders/">I'd rather apply as a founder</a>
     </div>
@@ -109,6 +115,6 @@
 </footer>
 <script src="/assets/js/config.js"></script>
 <script src="/assets/js/site.js" defer></script>
-<script src="/assets/js/mentors.js" defer></script>
+<script src="/assets/js/network.js" defer></script>
 </body>
 </html>
