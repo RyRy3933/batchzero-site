@@ -17,18 +17,22 @@
   const split = (s) => String(s || "").split(/[,;]/).map(a => a.trim()).filter(Boolean);
 
   /* One card. photo is optional and only ever used for mentors — ambassador cards are
-     initials by design: they're high-school students and their faces don't go on the web. */
+     initials by design: they're high-school students and their faces don't go on the web.
+
+     The initials are ALWAYS in the tile, with the photo layered on top of them. A LinkedIn
+     photo URL can expire, 403, or — as seen live — hang forever without ever firing `error`,
+     and an onerror handler alone leaves an empty circle in that last case. Layering means the
+     tile is never blank: if the image never paints, the initials are simply still showing. */
   function card({ name, role, tags, photo }) {
     const el = make("article", "mentor-card");
     const tile = make("div", "m-photo");
+    tile.appendChild(make("span", "m-ini", initials(name)));
     if (photo) {
       const img = document.createElement("img");
       img.src = photo; img.alt = ""; img.loading = "lazy"; img.referrerPolicy = "no-referrer";
-      // LinkedIn photo links expire — fall back to initials rather than a broken image
-      img.addEventListener("error", () => { tile.textContent = initials(name); });
+      // a failed image would otherwise show a broken-image icon on top of the initials
+      img.addEventListener("error", () => img.remove());
       tile.appendChild(img);
-    } else {
-      tile.textContent = initials(name);
     }
     el.appendChild(tile);
     el.appendChild(make("h3", "m-name", name || "—"));
