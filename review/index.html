@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review desk — Batch Zero</title>
+<meta name="description" content="Internal tool: read applications and turn a yes into an invite link.">
+<link rel="canonical" href="https://batchzero.co/review/">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#07080a">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon-180.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Batch Zero">
+<meta property="og:title" content="Review desk — Batch Zero">
+<meta property="og:description" content="Internal tool: read applications and turn a yes into an invite link.">
+<meta property="og:url" content="https://batchzero.co/review/">
+<meta property="og:image" content="https://batchzero.co/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+<div class="grid-bg"></div><div class="noise"></div><div class="spot"></div>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Batch Zero home"><img src="/assets/img/b0-mark-paper.svg" alt="[B0]" width="84" height="26"><span>BATCH ZERO</span></a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="/program/">Program</a>
+      <a href="/#how">How it works</a>
+      <a href="/#demo-day">Demo Day</a>
+      <a href="/network/">Network</a>
+      <a href="/about/">About</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-ghost btn-sm" href="/partners/">I'm a business partner</a>
+      <a class="btn btn-primary btn-sm btn-bracket" href="/apply/founders/">I'm a founder</a>
+      <button class="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<div class="mobile-menu">
+  <a href="/apply/founders/" style="color:var(--accent-2)">I'm a founder → apply</a><a href="/partners/">I'm a business partner</a>
+  <a href="/program/">Program</a><a href="/#how">How it works</a><a href="/#demo-day">Demo Day</a><a href="/network/">Network</a><a href="/about/">About</a>
+</div>
+
+<div class="wrap invite-wrap">
+  <div class="page-hero" style="padding-bottom:22px">
+    <span class="label">Internal</span>
+    <h1>Review desk.</h1>
+    <p class="lede">Every application, readable. Approve an ambassador and the signup link is made for you — nothing to retype. Their card goes up when they fill it in, not when you approve.</p>
+  </div>
+
+  <div id="gate">
+    <form class="app" id="key-form" method="post" action="#" data-custom-submit>
+      <div class="fieldset">
+        <div class="field"><label for="admin_key">Admin key <b>*</b></label><input id="admin_key" name="admin_key" type="password" placeholder="" required><span class="hint">// same key as the invite tools · held in this page only, never stored</span><span class="msg">// required — please fill this in</span></div>
+      </div>
+      <div class="form-foot">
+        <span class="note">// checked inside Postgres on every call</span>
+        <div class="foot-btns"><button class="btn btn-primary btn-bracket" type="submit">Open the desk <span class="arr">&rarr;</span></button></div>
+      </div>
+    </form>
+    <div class="form-error" id="rv-error" style="display:none"></div>
+  </div>
+
+  <div id="desk" hidden>
+    <div class="rv-bar">
+      <div class="rv-filters">
+        <label class="rv-f"><span>Type</span>
+          <select id="type-filter">
+            <option value="">All</option>
+            <option value="ambassador">Ambassadors</option>
+            <option value="founder">Founders</option>
+            <option value="mentor">Mentors</option>
+            <option value="investor">Investors</option>
+            <option value="sponsor">Sponsors</option>
+          </select>
+        </label>
+        <label class="rv-f"><span>Status</span>
+          <select id="status-filter">
+            <option value="">Open queue</option>
+            <option value="new">New</option>
+            <option value="accepted">Accepted</option>
+            <option value="rejected">Not a fit</option>
+            <option value="archived">Archived</option>
+          </select>
+        </label>
+      </div>
+      <button class="btn btn-ghost btn-sm" type="button" id="reload">Refresh</button>
+    </div>
+
+    <section class="rv-sec">
+      <div class="section-head" style="padding-bottom:8px">
+        <span class="label">Applications</span>
+        <p class="mono dim" style="font-size:13px" id="app-count"></p>
+      </div>
+      <div id="app-list"></div>
+    </section>
+
+    <section class="rv-sec">
+      <div class="section-head" style="padding-bottom:8px">
+        <span class="label">Chase list</span>
+        <h2 style="font-size:clamp(22px,2.4vw,30px)">Sent a link, haven't used it.</h2>
+        <p class="mono dim" style="font-size:13px" id="chase-count"></p>
+      </div>
+      <div id="chase-list"></div>
+    </section>
+  </div>
+</div>
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="/"><img src="/assets/img/b0-mark-paper.svg" alt="[B0]" width="84" height="26"><span>BATCH ZERO</span></a>
+        <p style="margin-top:16px;max-width:34ch">The accelerator for founders who haven't graduated yet. Five startups per cohort, eight weeks, one Demo Day.</p>
+      </div>
+      <div><h4>Program</h4><a href="/program/">How it works</a><a href="/program/#timeline">8-week timeline</a><a href="/#demo-day">Demo Day</a><a href="/#faq">FAQ</a><a href="/network/">The network</a></div>
+      <div><h4>Get involved</h4><a href="/apply/founders/">Founders — apply</a><a href="/partners/">Business partners</a><a href="/apply/investors/">Investors</a><a href="/apply/sponsors/">Sponsor companies</a><a href="/apply/mentors/">Mentors — apply</a><a href="/apply/ambassadors/">Student ambassadors</a><a href="/network/">Who's already in</a></div>
+      <div><h4>Company</h4><a href="/about/">About</a><a href="mailto:hello@batchzero.co">hello@batchzero.co</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/conduct/">Mentor conduct</a></div>
+    </div>
+    <div class="foot-bottom">
+      <span>© <span data-year></span> Batch Zero. Built by a high-school founder, for high-school founders.</span>
+      <span>batchzero.co · cohort_00</span>
+    </div>
+  </div>
+</footer>
+<script src="/assets/js/config.js"></script>
+<script src="/assets/js/site.js" defer></script>
+<script src="/assets/js/review.js" defer></script>
+</body>
+</html>

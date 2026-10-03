@@ -896,6 +896,74 @@ AMBASSADOR_INVITE_ADMIN = f"""
 """
 
 
+REVIEW = f"""
+<div class="wrap invite-wrap">
+  <div class="page-hero" style="padding-bottom:22px">
+    <span class="label">Internal</span>
+    <h1>Review desk.</h1>
+    <p class="lede">Every application, readable. Approve an ambassador and the signup link is made for you — nothing to retype. Their card goes up when they fill it in, not when you approve.</p>
+  </div>
+
+  <div id="gate">
+    <form class="app" id="key-form" method="post" action="#" data-custom-submit>
+      <div class="fieldset">
+        {field("admin_key","Admin key","password",hint="// same key as the invite tools · held in this page only, never stored")}
+      </div>
+      <div class="form-foot">
+        <span class="note">// checked inside Postgres on every call</span>
+        <div class="foot-btns"><button class="btn btn-primary btn-bracket" type="submit">Open the desk <span class="arr">&rarr;</span></button></div>
+      </div>
+    </form>
+    <div class="form-error" id="rv-error" style="display:none"></div>
+  </div>
+
+  <div id="desk" hidden>
+    <div class="rv-bar">
+      <div class="rv-filters">
+        <label class="rv-f"><span>Type</span>
+          <select id="type-filter">
+            <option value="">All</option>
+            <option value="ambassador">Ambassadors</option>
+            <option value="founder">Founders</option>
+            <option value="mentor">Mentors</option>
+            <option value="investor">Investors</option>
+            <option value="sponsor">Sponsors</option>
+          </select>
+        </label>
+        <label class="rv-f"><span>Status</span>
+          <select id="status-filter">
+            <option value="">Open queue</option>
+            <option value="new">New</option>
+            <option value="accepted">Accepted</option>
+            <option value="rejected">Not a fit</option>
+            <option value="archived">Archived</option>
+          </select>
+        </label>
+      </div>
+      <button class="btn btn-ghost btn-sm" type="button" id="reload">Refresh</button>
+    </div>
+
+    <section class="rv-sec">
+      <div class="section-head" style="padding-bottom:8px">
+        <span class="label">Applications</span>
+        <p class="mono dim" style="font-size:13px" id="app-count"></p>
+      </div>
+      <div id="app-list"></div>
+    </section>
+
+    <section class="rv-sec">
+      <div class="section-head" style="padding-bottom:8px">
+        <span class="label">Chase list</span>
+        <h2 style="font-size:clamp(22px,2.4vw,30px)">Sent a link, haven't used it.</h2>
+        <p class="mono dim" style="font-size:13px" id="chase-count"></p>
+      </div>
+      <div id="chase-list"></div>
+    </section>
+  </div>
+</div>
+"""
+
+
 CONDUCT = """
 <div class="wrap page-hero">
   <span class="label">For mentors</span>
@@ -1082,6 +1150,7 @@ PAGES = [
     ("mentor-invite/admin/index.html", "Invite a mentor — Batch Zero", "Internal tool: create a mentor invite link.", MENTOR_INVITE_ADMIN, "/mentor-invite/admin/", True, ("/assets/js/mentor-invite-admin.js",)),
     ("ambassador-invite/index.html", "Ambassador signup — Batch Zero", "Confirm your details and join the Batch Zero student ambassador team.", AMBASSADOR_INVITE, "/ambassador-invite/", True, ("/assets/js/ambassador-invite.js",)),
     ("ambassador-invite/admin/index.html", "Invite an ambassador — Batch Zero", "Internal tool: create an ambassador signup link.", AMBASSADOR_INVITE_ADMIN, "/ambassador-invite/admin/", True, ("/assets/js/ambassador-invite-admin.js",)),
+    ("review/index.html", "Review desk — Batch Zero", "Internal tool: read applications and turn a yes into an invite link.", REVIEW, "/review/", True, ("/assets/js/review.js",)),
     ("conduct/index.html", "Mentor code of conduct — Batch Zero", "The rules every Batch Zero mentor agrees to before working with student founders.", CONDUCT, "/conduct/"),
     ("mentor-invite/terms/index.html", "Mentor Terms of Service — Batch Zero", "The terms you agree to when you mentor for Batch Zero.", MENTOR_TERMS, "/mentor-invite/terms/", True),
     ("privacy/index.html", "Privacy policy — Batch Zero", "What Batch Zero collects, why, who can see it, and how students and parents can ask for it to be deleted.", PRIVACY, "/privacy/"),

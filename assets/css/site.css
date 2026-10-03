@@ -587,3 +587,30 @@ form:not(.stepper) [data-review] .step-hd, form:not(.stepper) [data-review-body]
 form.app-plain { border: 0; background: none; padding: 0; gap: 18px; }
 form.app-plain .fieldset, form.app-plain .form-foot, form.app-plain label.check, form.app-plain [data-linkedin-slot] { max-width: 100%; }
 #step-details .li-block { margin-bottom: 4px; }
+
+/* ── the review desk (/review/) ─────────────────────────────────────────── */
+.rv-bar { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 26px; }
+.rv-filters { display: flex; gap: 14px; flex-wrap: wrap; }
+.rv-f { display: grid; gap: 6px; }
+.rv-f > span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.rv-f select { min-width: 150px; }
+.rv-sec { margin-bottom: 44px; }
+.rv-card { border: 1px solid var(--line); border-radius: var(--r); padding: 20px 22px; margin-bottom: 14px; background: var(--card); }
+.rv-card.rv-slim { padding: 16px 18px; }
+.rv-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.rv-head h3 { font-size: 18px; letter-spacing: -0.01em; margin: 0; }
+.rv-pill { padding: 3px 9px; border: 1px solid var(--line-strong); border-radius: 999px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.rv-pill.rv-status { border-color: var(--accent-2); color: var(--accent-2); }
+.rv-when { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.rv-email { font-family: var(--mono); font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+.rv-answers { display: grid; grid-template-columns: minmax(120px, 190px) 1fr; gap: 6px 18px; margin: 16px 0 0; }
+.rv-answers dt { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+.rv-answers dd { margin: 0; font-size: 15px; line-height: 1.5; }
+.rv-note { margin: 14px 0 0; font-size: 14px; color: var(--muted); font-style: italic; }
+.rv-acts { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+.rv-msg { margin: 10px 0 0; font-size: 14px; color: var(--accent-2); }
+.rv-msg:empty { display: none; }
+.rv-link { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; padding: 12px 14px; border: 1px dashed var(--line-strong); border-radius: var(--r); }
+.rv-link code { font-family: var(--mono); font-size: 12px; color: var(--accent-2); word-break: break-all; flex: 1 1 320px; }
+.rv-empty { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+@media (max-width: 640px) { .rv-answers { grid-template-columns: 1fr; gap: 2px 0; } .rv-answers dd { margin-bottom: 10px; } }
