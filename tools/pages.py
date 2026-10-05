@@ -772,6 +772,7 @@ MENTORS_REDIRECT = """
 """
 
 AMBASSADORS_FORM = f"""
+{linkedin_block(title="Have a LinkedIn? Start there.", sub="One click fills in your name and email and shows us it's really you. No account? Skip it — it makes no difference to whether you're picked.", cta="Verify with LinkedIn", done="Verified through LinkedIn", or_line="or just fill it in yourself")}
 <div class="fieldset"><span class="label plain">01 · You</span>
   <div class="f-row">{field("name","Your name",placeholder="First and last",maxlength=120)}{field("email","Email","email",placeholder="you@school.edu",maxlength=200)}</div>
   <div class="f-row">{field("school","School + city",placeholder="Monte Vista High, Danville CA",maxlength=160)}{field("grad_year","Graduation year",as_="select",options=["2027","2028","2029","2030"])}</div>
@@ -785,11 +786,15 @@ AMBASSADORS_FORM = f"""
   {field("why","Why do you want to run this at your school?",as_="textarea",placeholder="Honest answer, two or three lines.",maxlength=800)}
   {field("organised","Anything you've organised before?",required=False,as_="textarea",placeholder="A club, an event, a team, a group project that shipped. Optional.",maxlength=600)}
 </div>
+<div class="fieldset"><span class="label plain">04 · If we pick you</span>
+  {optin("show_publicly","Show me on the Batch Zero network page","Your chosen name, school, city and class year, and up to three of the tags above. No photo, no email, no contact details. Leave this off and you can still be an ambassador — you just won't be listed.")}
+  {field("display_name","Name to show on the site",required=False,placeholder="Maya R.",maxlength=80,hint="// leave it blank and we'll use your first name and last initial")}
+</div>
 {consent("I'm currently a high-school student. If I'm selected and under 18, a parent or guardian will sign a consent form before I start. I agree to the <a href='/terms/' style='color:var(--accent-2)'>terms</a> and <a href='/privacy/' style='color:var(--accent-2)'>privacy policy</a>.")}
 """
 
 AMBASSADORS = form_page("Student ambassadors", "Run Batch Zero at your school.", "Find the students already building something, get them to apply, and get the credit for it. A couple of hours a week, a real title, and commission on what you bring in. About five minutes to apply.",
-    "What we ask", ["A couple of hours a week", "You're a current high-school student", "You'll actually talk to people, not just post", "Parent/guardian consent if you're under 18"],
+    "What we ask", ["A couple of hours a week", "You're a current high-school student", "You'll actually talk to people, not just post", "Parent/guardian consent if you're under 18", "This is the only form — there's no second one"],
     AMBASSADORS_FORM, "Apply to be an ambassador", "Application received.", "We read every one. Expect a reply within a week — and if you're a fit, a short call with Rayan.",
     note="// about 5 minutes")
 
@@ -901,7 +906,7 @@ REVIEW = f"""
   <div class="page-hero" style="padding-bottom:22px">
     <span class="label">Internal</span>
     <h1>Review desk.</h1>
-    <p class="lede">Every application, readable. Approve an ambassador and the signup link is made for you — nothing to retype. Their card goes up when they fill it in, not when you approve.</p>
+    <p class="lede">Every application, readable. Approve an ambassador and they go straight onto the network page — they already told you everything on the form, including whether they want to be listed.</p>
   </div>
 
   <div id="gate">

@@ -59,12 +59,29 @@
     <div class="form-layout">
       <aside class="form-aside rv">
         
-        <div class="req"><span class="label plain">What we ask</span><ul><li>A couple of hours a week</li><li>You're a current high-school student</li><li>You'll actually talk to people, not just post</li><li>Parent/guardian consent if you're under 18</li></ul></div>
+        <div class="req"><span class="label plain">What we ask</span><ul><li>A couple of hours a week</li><li>You're a current high-school student</li><li>You'll actually talk to people, not just post</li><li>Parent/guardian consent if you're under 18</li><li>This is the only form — there's no second one</li></ul></div>
         <p class="dim" style="font-size:14px">Questions before you apply? <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a></p>
       </aside>
       <div class="rv rv-d1">
         <form class="app" method="post" action="#">
           
+<div class="li-block" data-linkedin hidden>
+  <div class="li-start">
+    <div>
+      <b>Have a LinkedIn? Start there.</b>
+      <em>One click fills in your name and email and shows us it's really you. No account? Skip it — it makes no difference to whether you're picked.</em>
+    </div>
+    <button class="btn btn-ghost btn-bracket" type="button" data-linkedin-start>Verify with LinkedIn <span class="arr">→</span></button>
+  </div>
+  <div class="li-done" hidden>
+    <img alt="" data-linkedin-photo referrerpolicy="no-referrer" width="44" height="44">
+    <div><b data-linkedin-who></b><em>Verified through LinkedIn</em></div>
+    <button class="btn-plain" type="button" data-linkedin-clear>Not you?</button>
+  </div>
+  <p class="li-note" data-linkedin-note hidden></p>
+  <input type="hidden" name="linkedin_verified" value="" data-draft><input type="hidden" name="linkedin_id" value="" data-draft><input type="hidden" name="linkedin_name" value="" data-draft><input type="hidden" name="linkedin_email" value="" data-draft><input type="hidden" name="photo_url" value="" data-draft>
+</div>
+<p class="or-line" data-linkedin-or hidden><span>or just fill it in yourself</span></p>
 <div class="fieldset"><span class="label plain">01 · You</span>
   <div class="f-row"><div class="field"><label for="name">Your name <b>*</b></label><input id="name" name="name" type="text" placeholder="First and last" maxlength="120" required><span class="msg">// required — please fill this in</span></div><div class="field"><label for="email">Email <b>*</b></label><input id="email" name="email" type="email" placeholder="you@school.edu" maxlength="200" required><span class="msg">// required — please fill this in</span></div></div>
   <div class="f-row"><div class="field"><label for="school">School + city <b>*</b></label><input id="school" name="school" type="text" placeholder="Monte Vista High, Danville CA" maxlength="160" required><span class="msg">// required — please fill this in</span></div><div class="field"><label for="grad_year">Graduation year <b>*</b></label><select id="grad_year" name="grad_year" required><option value="">Select…</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option></select><span class="msg">// required — please fill this in</span></div></div>
@@ -77,6 +94,10 @@
   <div class="field"><label for="builders">Name two or three students at your school who are already building something. <b>*</b></label><textarea id="builders" name="builders" placeholder="First names are fine. What are they making? This is the job — if you can name them, you can do it." maxlength="800" required></textarea><span class="msg">// required — please fill this in</span></div>
   <div class="field"><label for="why">Why do you want to run this at your school? <b>*</b></label><textarea id="why" name="why" placeholder="Honest answer, two or three lines." maxlength="800" required></textarea><span class="msg">// required — please fill this in</span></div>
   <div class="field"><label for="organised">Anything you've organised before?</label><textarea id="organised" name="organised" placeholder="A club, an event, a team, a group project that shipped. Optional." maxlength="600" ></textarea><span class="msg">// required — please fill this in</span></div>
+</div>
+<div class="fieldset"><span class="label plain">04 · If we pick you</span>
+  <label class="optin"><input type="checkbox" name="show_publicly" value="yes"><span class="ot"><b>Show me on the Batch Zero network page</b><em>Your chosen name, school, city and class year, and up to three of the tags above. No photo, no email, no contact details. Leave this off and you can still be an ambassador — you just won't be listed.</em></span></label>
+  <div class="field"><label for="display_name">Name to show on the site</label><input id="display_name" name="display_name" type="text" placeholder="Maya R." maxlength="80" ><span class="hint">// leave it blank and we'll use your first name and last initial</span><span class="msg">// required — please fill this in</span></div>
 </div>
 <label class="check"><input type="checkbox" name="consent" value="yes"><span>I'm currently a high-school student. If I'm selected and under 18, a parent or guardian will sign a consent form before I start. I agree to the <a href='/terms/' style='color:var(--accent-2)'>terms</a> and <a href='/privacy/' style='color:var(--accent-2)'>privacy policy</a>.</span></label>
 

@@ -288,7 +288,7 @@
       const photo = val("photo_url");
       img.hidden = !photo;
       if (photo) { img.src = photo; img.alt = val("linkedin_name") ? `${val("linkedin_name")} on LinkedIn` : ""; }
-      ["first_name", "last_name", "email"].forEach(n => {
+      ["first_name", "last_name", "name", "email"].forEach(n => {
         const el = $(`[name="${n}"]`, form);
         if (el && el.value.trim()) el.closest(".field").classList.add("verified");
       });
@@ -326,6 +326,8 @@
         if (hid("linkedin_email")) hid("linkedin_email").value = email;
         if (hid("photo_url")) hid("photo_url").value = m.picture || m.avatar_url || "";
         fillIfEmpty("first_name", first); fillIfEmpty("last_name", lastName); fillIfEmpty("email", email);
+        // forms with one combined name field (the ambassador application) get the full name
+        fillIfEmpty("name", full || [first, lastName].filter(Boolean).join(" "));
         refresh(); announce(); onChange();
       } catch (e) {
         console.error("[B0] LinkedIn sign-in failed", e);

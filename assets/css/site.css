@@ -601,6 +601,8 @@ form.app-plain .fieldset, form.app-plain .form-foot, form.app-plain label.check,
 .rv-head h3 { font-size: 18px; letter-spacing: -0.01em; margin: 0; }
 .rv-pill { padding: 3px 9px; border: 1px solid var(--line-strong); border-radius: 999px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
 .rv-pill.rv-status { border-color: var(--accent-2); color: var(--accent-2); }
+.rv-pill.rv-ok { border-color: var(--accent-2); color: var(--accent-2); }
+.rv-card.rv-done { opacity: 0.62; }
 .rv-when { font-family: var(--mono); font-size: 12px; color: var(--muted); }
 .rv-email { font-family: var(--mono); font-size: 13px; color: var(--muted); margin: 6px 0 0; }
 .rv-answers { display: grid; grid-template-columns: minmax(120px, 190px) 1fr; gap: 6px 18px; margin: 16px 0 0; }

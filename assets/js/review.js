@@ -23,6 +23,7 @@
   const label = (k) => k.replace(/_/g, " ").replace(/^./, c => c.toUpperCase());
   const SKIP = new Set(["consent", "agree", "linkedin_verified", "linkedin_id", "linkedin_name",
                         "linkedin_email", "photo_url", "name", "email"]);
+  const NICER = { show_publicly: "Wants to be listed", display_name: "Name to show" };
 
   function answers(payload) {
     const wrap = make("dl", "rv-answers");
@@ -31,7 +32,7 @@
       let v = payload[k];
       if (Array.isArray(v)) v = v.join(", ");
       if (v == null || String(v).trim() === "") return;
-      wrap.appendChild(make("dt", null, label(k)));
+      wrap.appendChild(make("dt", null, NICER[k] || label(k)));
       wrap.appendChild(make("dd", null, String(v)));
     });
     return wrap;
@@ -57,6 +58,7 @@
     head.appendChild(make("span", "rv-pill", app.type));
     head.appendChild(make("span", "rv-when", when(app.created_at)));
     if (app.status && app.status !== "new") head.appendChild(make("span", "rv-pill rv-status", app.status));
+    if ((app.payload || {}).linkedin_verified === "yes") head.appendChild(make("span", "rv-pill rv-ok", "LinkedIn verified"));
     el.appendChild(head);
     if (app.email) el.appendChild(make("p", "rv-email", app.email));
     el.appendChild(answers(app.payload));
@@ -79,32 +81,32 @@
     };
 
     if (app.type === "ambassador") {
-      const invite = make("button", "btn btn-primary btn-sm btn-bracket", "Approve → create signup link");
-      invite.type = "button";
-      invite.onclick = async () => {
-        invite.disabled = true; invite.textContent = "Creating…";
+      // they ticked the box on the application, so approving is the whole thing — no second form
+      const wantsListing = (app.payload || {}).show_publicly === "yes";
+      const label = wantsListing ? "Approve → put them on the site" : "Approve (they didn't ask to be listed)";
+      const approve = make("button", "btn btn-primary btn-sm btn-bracket", label);
+      approve.type = "button";
+      approve.onclick = async () => {
+        approve.disabled = true; approve.textContent = "Approving…";
         try {
-          const p = app.payload || {};
-          // "Monte Vista High, Danville CA" → school and city, if they wrote it that way
-          const where = String(p.school || "").split(",");
-          const token = await window.B0.rpc("create_ambassador_invite", {
-            p_admin_key: KEY,
-            p_full_name: app.name,
-            p_email: app.email || null,
-            p_school: (where[0] || "").trim() || null,
-            p_city: (where[1] || "").trim() || null,
-            p_grad_year: p.grad_year || null,
-          });
-          await window.B0.rpc("set_application_status", { p_admin_key: KEY, p_id: app.id, p_status: "accepted" });
-          el.appendChild(linkBox(`${location.origin}/ambassador-invite/?token=${encodeURIComponent(token)}`));
-          invite.remove();
-          msg.textContent = "Send them this link. Their card goes up when they fill it in.";
+          const rows = await window.B0.rpc("approve_ambassador", { p_admin_key: KEY, p_application_id: app.id });
+          const r = (Array.isArray(rows) ? rows[0] : rows) || {};
+          // update this card in place rather than reloading — a reload would wipe the answer
+          // out from under them before they'd read it
+          acts.remove();
+          el.classList.add("rv-done");
+          if (!$(".rv-status", head)) head.appendChild(make("span", "rv-pill rv-status", "accepted"));
+          msg.textContent = r.already
+            ? `Already approved — on the site as ${r.display_name}.`
+            : r.published
+              ? `Done. They're on the network page now as ${r.display_name}.`
+              : "Approved, but no card: they didn't tick the box asking to be listed. If they'd like one, ask them, then flip show_publicly in Supabase.";
         } catch (err) {
-          msg.textContent = err.message || "Couldn't create the link.";
-          invite.disabled = false; invite.textContent = "Approve → create signup link";
+          msg.textContent = err.message || "Couldn't approve that.";
+          approve.disabled = false; approve.textContent = label;
         }
       };
-      acts.appendChild(invite);
+      acts.appendChild(approve);
     }
     acts.appendChild(mark("rejected", "Not a fit"));
     acts.appendChild(mark("archived", "Archive"));

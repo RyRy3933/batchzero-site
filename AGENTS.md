@@ -126,28 +126,40 @@ Ambassadors have the same two doors as mentors, and for the same reason: the app
 strangers reach you, the invite is how someone you've decided on gets onto the roster.
 
 ```
-/apply/ambassadors/       public application → public.applications (type 'ambassador')
-        ↓ you review
-/ambassador-invite/admin/ you create a signup link with their details prefilled   ← same admin key
-        ↓ you email them the link
-/ambassador-invite/?token=…  they confirm, choose their public name, give consent
-        ↓ instantly
-public.ambassadors → /network/#ambassadors
+/apply/ambassadors/   public application → public.applications (type 'ambassador')
+      ↓ you read it at /review/ and press Approve
+public.ambassadors → /network/#ambassadors          ← instantly, one click, no second form
+
+/ambassador-invite/admin/  …or make a link for someone who never applied
+      ↓ you email it
+/ambassador-invite/?token=…  they fill it in → same place
 ```
+
+**The application form carries the consent, which is why Approve can publish.** It asks for a
+"show me on the network page" tick and the name they want shown; `approve_ambassador()` reads
+both out of the payload. No tick, no card — they're still an ambassador, just not listed. The
+card shows first name + last initial unless they typed something else.
 
 `supabase/ambassadors.sql` has to be run once for the *application* form to work at all: **two places
 list the allowed types** (the column CHECK and the insert policy) and both must know `'ambassador'`,
 or every application is rejected by the database. `formType()` in `site.js` maps the URL to the type.
-`supabase/ambassador-roster.sql` builds the table, the three invite functions and `list_ambassadors()`.
+`supabase/ambassador-roster.sql` builds the table, the three invite functions and
+`list_ambassadors()`. `supabase/review.sql` adds the review desk's three functions, and
+`supabase/ambassador-approve.sql` adds `approve_ambassador()` and relaxes the roster gate.
 
 **Ambassadors are minors, so this flow is deliberately not the mentor flow:**
 
 - **No photos, ever.** There is no photo column. Cards are initials tiles. Don't add one.
 - **Nothing is public unless they tick the box** (`show_publicly`). Leave it off and they're still an
   ambassador — they're just not listed.
-- **Under 18 → a parent or guardian name and email are required** before the card can appear.
-  `list_ambassadors()` enforces this in SQL, not just in the form: drop the guardian email and the
-  card drops off the page.
+- **Guardian details are no longer collected, and `list_ambassadors()` no longer requires them.**
+  That check existed when signup was a second form; it was removed with `ambassador-approve.sql`
+  when Rayan chose to keep the public application form short. What protects a student now is
+  their own opt-in tick, the first-name-plus-initial default, and `published = false`. The site
+  still tells applicants a guardian signs a consent form before they start — that is now a
+  promise only a human keeps, so check it is actually happening before a cohort starts.
+- The `/ambassador-invite/` flow still asks the full consent set, guardian included, because it
+  is used for people who never filled in the application form.
 - **They choose the name that shows.** The form suggests first name + last initial ("Maya R.");
   they can make it their full name, but that's their call, not the default.
 - The card shows chosen name, school, city, class year and up to three tags. Email and guardian
@@ -207,9 +219,9 @@ To make another form step-by-step or give it drafts: wrap its sections in `step(
 - **Cohort dates** are placeholders: countdown target `CONFIG.cohortDeadline` in `site.js`; the schedule table and "closes October 31" lines are text in `pages.py`. Keep them consistent when you change one.
 - **Privacy / Terms** are real drafts (plain-English, pre-incorporation wording: "operated by its founder, no company yet"). Update section 1 of both when an entity is formed; keep the "last updated" date current; don't remove the not-yet-lawyer-reviewed note until a lawyer has reviewed them.
 - `hello@batchzero.co` is referenced but the mailbox may not exist yet.
-- **The guardian email is collected but nothing emails them yet.** The ambassador signup records the
-  parent/guardian name and address and the card won't appear without one, but sending them the note
-  the form promises is still a manual job. Do that before the first under-18 ambassador goes live.
+- **Guardian consent is entirely manual now.** The public application form no longer asks for a
+  guardian's details (see the ambassador section), and nothing emails them. The form still says a
+  guardian signs before they start, so that has to happen off-platform.
 - **There is no ambassador agreement page.** The signup links `/terms/` and `/privacy/`; mentors get
   `/mentor-invite/terms/` and `/conduct/`. Ambassadors should get their own short agreement.
 
