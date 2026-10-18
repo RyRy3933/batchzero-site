@@ -641,7 +641,7 @@ form.app-plain .fieldset, form.app-plain .form-foot, form.app-plain label.check,
 .fl-brand { display: flex; align-items: center; gap: 12px; font-family: var(--mono); font-weight: 700; font-size: 16px; letter-spacing: .14em; }
 .fl-meta { font-family: var(--mono); font-size: 13px; letter-spacing: .06em; color: #3d4148; }
 .fl-tag { margin-top: 28px; align-self: flex-start; font-family: var(--mono); font-weight: 700; font-size: 14px; letter-spacing: .06em; color: #fff; background: #2d57e0; padding: 7px 12px; }
-.fl-h { margin: 20px 0 0; font-size: 96px; line-height: .94; font-weight: 700; letter-spacing: -.035em; color: #0b0b0c; text-wrap: balance; }
+.fl-h { margin: 20px 0 0; font-size: 88px; line-height: .94; font-weight: 700; letter-spacing: -.035em; color: #0b0b0c; text-wrap: balance; }
 .fl-sub { margin: 20px 0 0; font-size: 22px; line-height: 1.4; max-width: 640px; color: #0b0b0c; }
 .fl-stats { margin-top: 28px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 2px solid #0b0b0c; border-bottom: 2px solid #0b0b0c; }
 .fl-stats > div { padding: 16px; border-right: 1px solid #0b0b0c; display: grid; gap: 8px; }

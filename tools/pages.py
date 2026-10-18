@@ -1142,8 +1142,8 @@ REFER_FLYER = """
         <span class="fl-meta">COHORT 01 · 2026</span>
       </div>
       <div class="fl-tag">// APPLICATIONS CLOSE OCT 31</div>
-      <h2 class="fl-h">Already building something?</h2>
-      <p class="fl-sub">Batch Zero is the online accelerator for high-school founders. Five startups get two mentors each, eight weeks of building, and a Demo Day in front of investors.</p>
+      <h2 class="fl-h">Take your business to the next level.</h2>
+      <p class="fl-sub">Batch Zero is the free online accelerator for high-school founders. Five startups get two mentors each, eight weeks of building, and a Demo Day in front of investors.</p>
       <div class="fl-stats">
         <div><b>05</b><span>startups per cohort</span></div>
         <div><b>02</b><span>mentors per team</span></div>

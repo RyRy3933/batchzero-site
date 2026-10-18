@@ -155,7 +155,7 @@ class BuiltPages(unittest.TestCase):
         html = read("refer/flyer/index.html")
         self.assertIn('name="robots" content="noindex"', html)
         self.assertIn("data-flyer-qr", html)
-        self.assertIn("Already building something?", html)
+        self.assertIn("Take your business to the next level.", html)
         self.assertNotIn("/refer/flyer/", read("sitemap.xml"))
         self.assertIn("Disallow: /refer/flyer/", read("robots.txt"))
         self.assertIn("/refer/", read("sitemap.xml"))
