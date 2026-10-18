@@ -1,0 +1,57 @@
+# Saves a copy of every mentor's LinkedIn photo into assets/img/mentors/ while the link still
+# works, so /network/ never falls back to initials when LinkedIn's link expires.
+# The script is tools/archive_mentor_photos.py — its header explains the whole thing.
+name: Archive mentor photos
+
+on:
+  schedule:
+    - cron: "17 13 * * *"     # daily, 6:17am Pacific (13:17 UTC in summer)
+  workflow_dispatch:           # Actions tab → "Archive mentor photos" → Run workflow
+
+permissions:
+  contents: write              # commit the saved photos
+  pages: write                 # ask Pages to rebuild after that commit
+
+concurrency:
+  group: mentor-photos
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Test
+        run: python3 -m unittest tools/test_archive_mentor_photos.py
+
+      - name: Save new photos, drop photos of anyone no longer listed
+        run: python3 tools/archive_mentor_photos.py
+
+      - name: Commit if anything changed
+        id: commit
+        run: |
+          git add assets/img/mentors
+          if git diff --cached --quiet; then
+            echo "Nothing new."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name  "batchzero-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Archive mentor photos"
+          git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      # pushes made by this workflow's token don't always kick off a Pages build on their own
+      - name: Rebuild the site
+        if: steps.commit.outputs.changed == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" --silent

@@ -43,7 +43,10 @@ assets/js/mentor-invite-admin.js /mentor-invite/admin/ page script (creates an i
 assets/js/mentors.js             /mentors/ page script (renders the roster)
 assets/media/                    hero-loop.webm/.mp4 (seamless loop), hero-poster.jpg
 assets/img/                      logo SVGs (final approved [B0] mark — do not redesign)
+assets/img/mentors/              self-hosted mentor photos + photos.json (written by the Action below)
 tools/build.py, tools/pages.py   HTML generator (see below)
+tools/archive_mentor_photos.py   saves mentor photos before LinkedIn's links expire (+ its tests)
+.github/workflows/mentor-photos.yml  runs that daily and commits what it saved
 favicon.*, og-image.png, site.webmanifest, robots.txt, sitemap.xml, CNAME, .nojekyll
 ```
 
@@ -96,7 +99,8 @@ Limits: the database rejects payloads over 20 KB (`supabase/schema.sql`). Long a
 Things that will bite whoever touches this next:
 
 - **LinkedIn's sign-in only returns name, email, photo and locale** — no headline, no work history, no profile URL. That's why role, company and the LinkedIn link are still typed, and why the `linkedin` field stays required.
-- **`photo_url` is a LinkedIn CDN link and expires.** Download the image when you approve a mentor; don't hotlink it from a public page months later.
+- **`photo_url` is a LinkedIn CDN link and expires.** The roster handles that itself — see
+  "The public roster" below.
 - **Applications are still inserted with the anon key**, never the signed-in user's token — the RLS policy only grants `insert` to `anon`, so sending the user token instead would fail.
 - Turning the flag on without configuring the provider would send mentors to a Supabase error page, so keep it off until setup is done.
 
@@ -186,7 +190,17 @@ independent, so one failing still renders the other.
   `update public.mentors set published = false where full_name = '…';` — no code change, the page
   picks it up on next load. `published` is null by default, which means visible.
 - `save_mentor_photo(p_token, p_photo_url)` is called by `/mentor-invite/` right after a mentor confirms, when they signed in with LinkedIn. It only accepts `*.licdn.com` URLs and only touches the row whose token is passed.
-- **Those photo URLs expire.** The card falls back to the mentor's initials when the image 404s, so the page never looks broken — but for anyone you want to keep on the page long-term, download the image, host it yourself and update `photo_url`.
+- **Those photo URLs expire (after a few weeks), so the page doesn't rely on them.** A daily
+  GitHub Action (`.github/workflows/mentor-photos.yml` → `tools/archive_mentor_photos.py`) calls
+  `list_mentors()`, copies each listed mentor's photo into `assets/img/mentors/<slug>.jpg` while
+  the link still works, and records it in `assets/img/mentors/photos.json`. `network.js` tries
+  that copy first, then `photo_url`, then shows initials. Hide a mentor (`published = false`) and
+  the next run deletes their saved photo too. Tests: `python3 -m unittest tools/test_archive_mentor_photos.py`.
+  `slug()` exists in both the script and `network.js` and must stay identical (a test checks).
+- **A link that already expired can't be archived.** Get a fresh one (open their LinkedIn
+  profile, copy the photo's image address) and run
+  `python3 tools/archive_mentor_photos.py --add "Full Name" "<url>"`, then commit. Run the Action
+  by hand from the Actions tab right after someone signs up if you don't want to wait a day.
 - `mentors.listed_at` is stamped by a trigger the first time areas are filled in, so the newest mentor leads the page. Later edits don't move it.
 - The roster lives on `/network/`; `/mentors/` is a redirect kept for old links. The page is client-rendered, so search engines mostly see the empty state. That's fine for a roster; don't build anything SEO-critical this way.
 
