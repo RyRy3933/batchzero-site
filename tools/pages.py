@@ -472,6 +472,9 @@ FOUNDERS_FORM = f"""
 <div class="fieldset"><span class="label plain">03 · Team &amp; video</span>
   {field("team","Who's on the team?",placeholder="Names + what each person does. 'Just me' is fine.")}
   {field("video","60-second video","url",placeholder="https://",hint="// unlisted YouTube or Loom. Show the product, say who you are. Phone camera is fine.")}
+  {field("referred_by","Did someone send you here?",short="Sent by",required=False,placeholder="Their full name, and their club or school",maxlength=160,hint="// optional — an ambassador, a club leader, a friend. If you get in, they get a thank-you.")}
+  <input type="hidden" name="ref" value="" data-draft>
+  <p class="mono dim ref-note" data-ref-note hidden></p>
 </div>
 {consent("I'm currently a high-school student. If I'm selected and under 18, a parent or guardian will sign a consent form. I agree to the <a href='/terms/' style='color:var(--accent-2)'>terms</a> and <a href='/privacy/' style='color:var(--accent-2)'>privacy policy</a>.")}
 """
@@ -930,6 +933,7 @@ REVIEW = f"""
             <option value="">All</option>
             <option value="ambassador">Ambassadors</option>
             <option value="founder">Founders</option>
+            <option value="referrer">Referrers</option>
             <option value="mentor">Mentors</option>
             <option value="investor">Investors</option>
             <option value="sponsor">Sponsors</option>
@@ -1038,8 +1042,137 @@ COMPANIES_REDIRECT = """
 <meta http-equiv="refresh" content="2;url=/apply/sponsors/">
 """
 
+# ── Referrals ────────────────────────────────────────────────────────────────
+# /refer/ explains the $100 bonus and hands out referral links; /refer/flyer/ prints the founder
+# flyer with the referrer's own QR. Both are driven by assets/js/referral.js. The payout rules
+# below are the source of truth — keep them in step with the ambassador brief.
+REFER_FORM = f"""
+<div class="fieldset"><span class="label plain">01 · You</span>
+  <div class="f-row">{field("name","Your name",placeholder="First and last",maxlength=120)}{field("email","Email","email",placeholder="you@school.edu",maxlength=200,hint="// where we tell you when someone you sent gets in")}</div>
+  <div class="f-row">{field("role","You are a…",as_="select",options=["Batch Zero ambassador","Club leader or officer","Student","Teacher or counsellor","Parent","Someone else"])}{field("school","School + city",placeholder="Monte Vista High, Danville CA",maxlength=160)}</div>
+  {field("club","Club or group you'll share it with",required=False,placeholder="DECA, Robotics, the CS club Discord…",maxlength=160,hint="// optional — helps us thank the right club")}
+</div>
+{consent("I'm signing up to refer founders to Batch Zero. You can email me about referrals I make. I agree to the <a href='/terms/' style='color:var(--accent-2)'>terms</a> and <a href='/privacy/' style='color:var(--accent-2)'>privacy policy</a>.")}
+"""
+
+REFER = f"""
+<div class="wrap page-hero">
+  <span class="label rv">Referrals · Cohort 01</span>
+  <h1 class="rv rv-d1">Know a founder? <span class="accent">Get $100.</span></h1>
+  <p class="lede rv rv-d2">Send a high-school founder to Batch Zero. If their startup is accepted into a cohort, you get $100. Students, club leaders, ambassadors, teachers — anyone can refer. Cohort 01 applications close October 31.</p>
+</div>
+<section style="padding-top:8px">
+  <div class="wrap">
+    <div class="grid cols-3">
+      <div class="card rv"><div class="idx"><span>01</span><span>one minute</span></div><h3>Get your link</h3><p>Fill in the form below. You get a personal link, a QR code, and a flyer with your QR already on it.</p></div>
+      <div class="card rv rv-d1"><div class="idx"><span>02</span><span>share it</span></div><h3>Send it to builders</h3><p>Your club's group chat, the student with the app everyone uses, the friend selling something online. They apply through your link.</p></div>
+      <div class="card rv rv-d2"><div class="idx"><span>03</span><span>$100 each</span></div><h3>They get in, you get paid</h3><p>Every startup you sent that's accepted earns you $100. Send three who get in, that's $300.</p></div>
+    </div>
+  </div>
+</section>
+<section style="padding-top:8px" id="clubs">
+  <div class="wrap">
+    <div class="card rv ref-club">
+      <div class="idx"><span>//</span><span>club leaders</span></div>
+      <h3>Run a business, tech or entrepreneurship club?</h3>
+      <p>Post your link in the club chat or put it on a slide at your next meeting. Every member whose startup is accepted earns you $100 — send two people, one gets in, that's $100 to you.</p>
+    </div>
+  </div>
+</section>
+<section style="padding-top:8px" id="link">
+  <div class="wrap">
+    <div class="form-layout">
+      <aside class="form-aside rv">
+        <div class="req"><span class="label plain">The rules</span><ul>
+          <li>$100 per startup accepted into a Batch Zero cohort.</li>
+          <li>It goes to the person whose link they applied through. No link? To whoever they name under "Did someone send you here?"</li>
+          <li>One bonus per accepted startup, however many founders are on the team.</li>
+          <li>You can't refer yourself or your own team.</li>
+          <li>Paid within 14 days of the cohort starting, by Venmo, Zelle, PayPal or gift card. Under 18? We pay a parent or guardian, or send a gift card.</li>
+          <li>Ambassadors earn the same bonus on top of everything else.</li>
+        </ul></div>
+        <p class="dim" style="font-size:14px">Questions? <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a></p>
+      </aside>
+      <div class="rv rv-d1">
+        <form class="app" method="post" action="#" data-refer data-custom-submit>
+          {REFER_FORM}
+          <div class="form-foot">
+            <span class="note">// takes about a minute</span>
+            <button class="btn btn-primary btn-bracket" type="submit">Get my referral link <span class="arr">→</span></button>
+          </div>
+        </form>
+        <div class="ref-done" data-refer-done hidden>
+          <div class="ok-mark">[ ✓ ]</div>
+          <h3 data-ref-who>Here's your link.</h3>
+          <div class="ref-grid">
+            <svg class="ref-qr" data-qr role="img" aria-label="QR code for your referral link"></svg>
+            <div class="ref-copy">
+              <span class="label plain">Your link</span>
+              <a class="ref-link" data-ref-link href="#">…</a>
+              <div class="ref-btns">
+                <button class="btn btn-primary btn-sm" type="button" data-copy-link>Copy link</button>
+                <a class="btn btn-ghost btn-sm" data-ref-flyer href="/refer/flyer/">Print flyers with your QR <span class="arr">→</span></a>
+              </div>
+              <p class="mono dim" style="font-size:13px">code · <span data-ref-code></span> · screenshot this page so you don't lose it</p>
+            </div>
+          </div>
+          <label class="ref-share-label" for="ref-share">Paste this in a group chat</label>
+          <textarea id="ref-share" class="ref-share" data-ref-share readonly rows="4"></textarea>
+          <div class="ref-btns"><button class="btn btn-ghost btn-sm" type="button" data-copy-share>Copy message</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+"""
+
+REFER_FLYER = """
+<div class="wrap page-hero no-print">
+  <span class="label">Referrals · flyer</span>
+  <h1>Your flyer, with your QR.</h1>
+  <p class="lede">Anyone who scans it applies through your link, so accepted founders count toward your $100. Print on US Letter at 100% scale.</p>
+  <p class="mono dim" data-flyer-missing hidden style="font-size:13px;margin-top:12px">// no referral code in this link — this flyer goes to the plain application. <a href="/refer/#link" style="color:var(--accent-2)">Get your code first →</a></p>
+  <div class="hero-actions"><button class="btn btn-primary btn-bracket" type="button" data-print>Print / save as PDF <span class="arr">→</span></button><a class="btn btn-ghost" href="/refer/">Back to referrals</a></div>
+</div>
+<section class="flyer-stage">
+  <article class="flyer" aria-label="Batch Zero founder flyer">
+    <div class="fl-main">
+      <div class="fl-top">
+        <div class="fl-brand"><img src="/assets/img/b0-mark-ink.svg" alt="[B0]" width="97" height="30"><span>BATCH ZERO</span></div>
+        <span class="fl-meta">COHORT 01 · 2026</span>
+      </div>
+      <div class="fl-tag">// APPLICATIONS CLOSE OCT 31</div>
+      <h2 class="fl-h">Already building something?</h2>
+      <p class="fl-sub">Batch Zero is the online accelerator for high-school founders. Five startups get two mentors each, eight weeks of building, and a Demo Day in front of investors.</p>
+      <div class="fl-stats">
+        <div><b>05</b><span>startups per cohort</span></div>
+        <div><b>02</b><span>mentors per team</span></div>
+        <div><b>08</b><span>weeks, fully online</span></div>
+        <div><b class="fl-accent">$0</b><span>free, no equity, ever</span></div>
+      </div>
+      <div class="fl-act">
+        <div class="fl-qr"><svg data-flyer-qr role="img" aria-label="QR code to apply"></svg></div>
+        <div class="fl-act-copy">
+          <div>
+            <div class="fl-scan">Scan to apply.</div>
+            <div class="fl-url">batchzero.co/apply/founders</div>
+          </div>
+          <p>For students who already started: users, revenue, a live app, or a prototype people actually use. Ideas alone don't count yet.</p>
+          <div class="fl-meta">10 MIN · 1 LINK · 1 SHORT VIDEO · OPEN TO ANY HIGH SCHOOLER</div>
+        </div>
+      </div>
+    </div>
+    <div class="fl-strip">
+      <div><div class="fl-strip-k">KNOW SOMEONE BUILDING?</div><div class="fl-strip-v">Refer them. $100 if they get in.</div></div>
+      <div class="fl-strip-url">batchzero.co/refer<span class="fl-code" data-flyer-code></span></div>
+    </div>
+  </article>
+</section>
+"""
+
+
 PRIVACY = """
-<div class="wrap page-hero"><span class="label">Legal</span><h1>Privacy policy</h1><p class="lede">Plain-English version first, full version below. Last updated September 26, 2026.</p></div>
+<div class="wrap page-hero"><span class="label">Legal</span><h1>Privacy policy</h1><p class="lede">Plain-English version first, full version below. Last updated October 18, 2026.</p></div>
 <section style="padding-top:8px"><div class="wrap"><div class="prose">
 <div class="card" style="margin-bottom:8px"><div class="idx"><span>tl;dr</span><span>the short version</span></div>
 <p>We collect what you type into our application forms and nothing else. We use it to run Batch Zero. We don't sell it, we don't run ad trackers, and nobody outside the team sees a student's application unless that student opts in. Email <a href="mailto:rayan@batchzero.co" style="color:var(--accent-2)">rayan@batchzero.co</a> to see, fix, or delete your data at any time.</p></div>
@@ -1052,6 +1185,7 @@ PRIVACY = """
 <p><strong>What we don't collect.</strong> We do not use advertising trackers, social-media pixels, or analytics cookies. We don't ask for your address, phone number, date of birth, or any government ID. We don't collect payment information on this site.</p>
 <p><strong>Signing in with LinkedIn (optional).</strong> The mentor application offers a "Continue with LinkedIn" button. If you use it, LinkedIn asks your permission and then gives us your name, email address and profile photo — nothing else, and never your password. We use it to fill in the form and to confirm you are who you say you are. We can't see your connections or your messages, and we can't post anything as you. You can skip it and type everything in instead, or click "Not you?" to remove what it filled in. We end the LinkedIn session as soon as we've read those three things.</p>
 <p><strong>Unfinished drafts.</strong> The mentor application saves your answers in your own browser as you type (using your browser's local storage), so you can close the tab and come back. That draft stays on your device and is never sent to us until you press submit. It's deleted from your browser when you submit or click "Start over", and you can also clear it by clearing your browser's site data.</p>
+<p><strong>Referrals.</strong> If you sign up for a referral link we store your name, email, role, school and (if you give it) your club, plus the code we generate for you, so we can pay you when someone you sent is accepted. When someone opens a referral link, the code in it is saved in their own browser's local storage for up to 60 days so it stays attached if they come back later to apply; it's sent to us only as part of an application, and only the code, never anything about the browser. Founders can also type the name of whoever sent them; we use it only to pay the referral bonus.</p>
 <p><strong>Video links.</strong> If you share a video (for example an unlisted YouTube or Loom link), the video stays on that service under its own privacy terms; we only store the link.</p>
 
 <h2>3. How we use it</h2>
@@ -1142,7 +1276,7 @@ PAGES = [
     ("index.html", "Batch Zero — The accelerator for high-school founders", D, HOME, "/"),
     ("program/index.html", "The program — Batch Zero", "Eight weeks, two mentors per team, a published selection rubric and a live Demo Day. Here's the week-by-week.", PROGRAM, "/program/"),
     ("about/index.html", "About — Batch Zero", "Built by a high-school founder, for high-school founders. Why Batch Zero exists and what we believe.", ABOUT, "/about/"),
-    ("apply/founders/index.html", "Apply as a founder — Batch Zero", "Apply to Cohort 01. Five spots for high-school startups that already exist.", FOUNDERS, "/apply/founders/"),
+    ("apply/founders/index.html", "Apply as a founder — Batch Zero", "Apply to Cohort 01. Five spots for high-school startups that already exist.", FOUNDERS, "/apply/founders/", False, ("/assets/js/referral.js",)),
     ("apply/mentors/index.html", "Become a mentor — Batch Zero", "Give a high-school founder two months. Weekly sessions, vetted mentors, real impact.", MENTORS, "/apply/mentors/"),
     ("apply/investors/index.html", "Investor access — Batch Zero", "See every selected startup first. Demo Day access and intro requests through the platform.", INVESTORS, "/apply/investors/"),
     ("partners/index.html", "Business partners — Batch Zero", "Investors, sponsor companies and mentors: pick your door into Batch Zero.", PARTNERS, "/partners/"),
@@ -1158,6 +1292,8 @@ PAGES = [
     ("review/index.html", "Review desk — Batch Zero", "Internal tool: read applications and turn a yes into an invite link.", REVIEW, "/review/", True, ("/assets/js/review.js",)),
     ("conduct/index.html", "Mentor code of conduct — Batch Zero", "The rules every Batch Zero mentor agrees to before working with student founders.", CONDUCT, "/conduct/"),
     ("mentor-invite/terms/index.html", "Mentor Terms of Service — Batch Zero", "The terms you agree to when you mentor for Batch Zero.", MENTOR_TERMS, "/mentor-invite/terms/", True),
+    ("refer/index.html", "Refer a founder, get $100 — Batch Zero", "Send a high-school founder to Batch Zero. If they're accepted into a cohort, you get $100.", REFER, "/refer/", False, ("/assets/js/vendor/qrcode.js", "/assets/js/referral.js")),
+    ("refer/flyer/index.html", "Your flyer — Batch Zero", "Print the Batch Zero founder flyer with your own referral QR code.", REFER_FLYER, "/refer/flyer/", True, ("/assets/js/vendor/qrcode.js", "/assets/js/referral.js")),
     ("privacy/index.html", "Privacy policy — Batch Zero", "What Batch Zero collects, why, who can see it, and how students and parents can ask for it to be deleted.", PRIVACY, "/privacy/"),
     ("terms/index.html", "Terms of use — Batch Zero", "The rules for using batchzero.co and applying to the program.", TERMS, "/terms/"),
 ]

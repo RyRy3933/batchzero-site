@@ -616,3 +616,57 @@ form.app-plain .fieldset, form.app-plain .form-foot, form.app-plain label.check,
 .rv-link code { font-family: var(--mono); font-size: 12px; color: var(--accent-2); word-break: break-all; flex: 1 1 320px; }
 .rv-empty { font-family: var(--mono); font-size: 13px; color: var(--muted); }
 @media (max-width: 640px) { .rv-answers { grid-template-columns: 1fr; gap: 2px 0; } .rv-answers dd { margin-bottom: 10px; } }
+
+/* ---------- referrals (/refer/, /refer/flyer/, the founder form's ref note) ---------- */
+.ref-note { font-size: 12.5px; margin: -6px 0 0; color: var(--accent-2); }
+.ref-club { border-color: var(--line-strong); }
+.ref-club p { max-width: 70ch; }
+.ref-done { padding: 36px 28px; border: 1px solid rgba(56,217,150,0.4); border-radius: var(--radius); background: rgba(56,217,150,0.05); display: grid; gap: 18px; }
+.ref-done .ok-mark { font-family: var(--mono); font-size: 32px; color: var(--ok); }
+.ref-grid { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; }
+.ref-qr { width: 168px; height: 168px; flex: 0 0 auto; border-radius: 8px; background: #fff; }
+.ref-copy { flex: 1 1 260px; min-width: 0; display: grid; gap: 10px; }
+.ref-link { font-family: var(--mono); font-size: 15px; color: var(--accent-2); overflow-wrap: anywhere; }
+.ref-btns { display: flex; flex-wrap: wrap; gap: 10px; }
+.ref-share-label { font-family: var(--mono); font-size: 12.5px; color: var(--muted); letter-spacing: .04em; }
+.ref-share { width: 100%; resize: vertical; font: 15px/1.5 var(--font); color: var(--ink); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); padding: 12px 14px; }
+
+/* The printable flyer: US Letter at 96px/in. On screen it's a scaled preview on the dark page;
+   printed, everything else on the page is hidden and the sheet fills the paper edge to edge. */
+.flyer-stage { padding: 0 16px 80px; display: flex; justify-content: center; position: relative; z-index: 1; }
+.flyer { width: 816px; height: 1056px; flex: 0 0 auto; box-sizing: border-box; background: #f5f5f0; color: #0b0b0c; font-family: var(--font); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.5); transform-origin: top center; }
+@media (max-width: 860px) { .flyer { zoom: 0.45; } }
+.fl-main { flex: 1 1 auto; padding: 56px 56px 28px; display: flex; flex-direction: column; }
+.fl-top { display: flex; justify-content: space-between; align-items: center; }
+.fl-brand { display: flex; align-items: center; gap: 12px; font-family: var(--mono); font-weight: 700; font-size: 16px; letter-spacing: .14em; }
+.fl-meta { font-family: var(--mono); font-size: 13px; letter-spacing: .06em; color: #3d4148; }
+.fl-tag { margin-top: 28px; align-self: flex-start; font-family: var(--mono); font-weight: 700; font-size: 14px; letter-spacing: .06em; color: #fff; background: #2d57e0; padding: 7px 12px; }
+.fl-h { margin: 20px 0 0; font-size: 96px; line-height: .94; font-weight: 700; letter-spacing: -.035em; color: #0b0b0c; text-wrap: balance; }
+.fl-sub { margin: 20px 0 0; font-size: 22px; line-height: 1.4; max-width: 640px; color: #0b0b0c; }
+.fl-stats { margin-top: 28px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 2px solid #0b0b0c; border-bottom: 2px solid #0b0b0c; }
+.fl-stats > div { padding: 16px; border-right: 1px solid #0b0b0c; display: grid; gap: 8px; }
+.fl-stats > div:first-child { padding-left: 0; }
+.fl-stats > div:last-child { padding-right: 0; border-right: 0; }
+.fl-stats b { font-family: var(--mono); font-size: 44px; line-height: 1; }
+.fl-stats span { font-size: 15px; line-height: 1.3; }
+.fl-accent { color: #2d57e0; }
+.fl-act { margin-top: 28px; display: flex; gap: 32px; align-items: stretch; }
+.fl-qr { flex: 0 0 auto; padding: 14px; border: 2px solid #0b0b0c; background: #fff; display: flex; }
+.fl-qr svg { width: 180px; height: 180px; display: block; }
+.fl-act-copy { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; }
+.fl-act-copy p { margin: 0; font-size: 17px; line-height: 1.45; }
+.fl-scan { font-size: 44px; line-height: 1; font-weight: 700; letter-spacing: -.02em; }
+.fl-url { margin-top: 10px; font-family: var(--mono); font-weight: 500; font-size: 18px; color: #2d57e0; }
+.fl-strip { flex: 0 0 auto; background: #2d57e0; color: #fff; padding: 22px 56px; display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.fl-strip-k { font-family: var(--mono); font-weight: 700; font-size: 13px; letter-spacing: .1em; }
+.fl-strip-v { margin-top: 4px; font-size: 28px; line-height: 1.15; font-weight: 700; letter-spacing: -.01em; }
+.fl-strip-url { font-family: var(--mono); font-weight: 700; font-size: 17px; white-space: nowrap; display: grid; justify-items: end; gap: 4px; }
+.fl-code { font-weight: 400; font-size: 11px; opacity: .85; }
+
+@media print {
+  @page { size: letter; margin: 0; }
+  html, body { background: #fff !important; }
+  .nav, .mobile-menu, footer, .no-print, .grid-bg, .noise, .spot { display: none !important; }
+  .flyer-stage { padding: 0; display: block; }
+  .flyer { zoom: 1; width: 8.5in; height: 11in; box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

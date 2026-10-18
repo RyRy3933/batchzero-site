@@ -647,6 +647,7 @@
   /* ---- public bits for page scripts ---- */
   window.B0 = {
     rpc,
+    submit: submitApplication,   // (type, data) → stores one row in public.applications; used by referral.js
     validate(form) { const bad = validateScope(form); if (bad) focusField(bad); return !bad; },
     escapeText: (s) => String(s == null ? "" : s),
   };

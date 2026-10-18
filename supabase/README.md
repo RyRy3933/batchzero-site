@@ -10,6 +10,7 @@ idempotent — running one twice is safe.
 | `mentor-invites.sql` | **Documentation**, not a migration. Describes what is live for the mentor invite flow, read out of the catalog. Section 1 refuses to run if `public.mentors` already exists. | don't run |
 | `mentor-roster.sql` | `list_mentors()`, `save_mentor_photo()`, the `listed_at` trigger, and the `photo_url` / `published` / `listed_at` columns. This is what puts a mentor on `/network/`. | ✅ run 2026-09-27 |
 | `ambassador-roster.sql` | `public.ambassadors`, the three invite functions, `list_ambassadors()`. Lifts the admin key out of `create_mentor_invite()` into `private.settings` so both invite tools share one key. | ✅ run 2026-09-27 |
+| `referrals.sql` | Adds `'referrer'` to the allowed types (both places) and `referral_report(admin_key)`: founder applications matched to whoever referred them, accepted first. Needs `review.sql` (for `check_admin_key`). | **not run yet — run before ambassadors start sharing links** |
 
 ## The two rules everything here follows
 

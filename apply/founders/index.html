@@ -78,6 +78,9 @@
 <div class="fieldset"><span class="label plain">03 · Team &amp; video</span>
   <div class="field"><label for="team">Who's on the team? <b>*</b></label><input id="team" name="team" type="text" placeholder="Names + what each person does. 'Just me' is fine." required><span class="msg">// required — please fill this in</span></div>
   <div class="field"><label for="video">60-second video <b>*</b></label><input id="video" name="video" type="url" placeholder="https://" required><span class="hint">// unlisted YouTube or Loom. Show the product, say who you are. Phone camera is fine.</span><span class="msg">// required — please fill this in</span></div>
+  <div class="field"><label for="referred_by" data-short="Sent by">Did someone send you here?</label><input id="referred_by" name="referred_by" type="text" placeholder="Their full name, and their club or school" maxlength="160" ><span class="hint">// optional — an ambassador, a club leader, a friend. If you get in, they get a thank-you.</span><span class="msg">// required — please fill this in</span></div>
+  <input type="hidden" name="ref" value="" data-draft>
+  <p class="mono dim ref-note" data-ref-note hidden></p>
 </div>
 <label class="check"><input type="checkbox" name="consent" value="yes"><span>I'm currently a high-school student. If I'm selected and under 18, a parent or guardian will sign a consent form. I agree to the <a href='/terms/' style='color:var(--accent-2)'>terms</a> and <a href='/privacy/' style='color:var(--accent-2)'>privacy policy</a>.</span></label>
 
@@ -99,7 +102,7 @@
         <p style="margin-top:16px;max-width:34ch">The accelerator for founders who haven't graduated yet. Five startups per cohort, eight weeks, one Demo Day.</p>
       </div>
       <div><h4>Program</h4><a href="/program/">How it works</a><a href="/program/#timeline">8-week timeline</a><a href="/#demo-day">Demo Day</a><a href="/#faq">FAQ</a><a href="/network/">The network</a></div>
-      <div><h4>Get involved</h4><a href="/apply/founders/">Founders — apply</a><a href="/partners/">Business partners</a><a href="/apply/investors/">Investors</a><a href="/apply/sponsors/">Sponsor companies</a><a href="/apply/mentors/">Mentors — apply</a><a href="/apply/ambassadors/">Student ambassadors</a><a href="/network/">Who's already in</a></div>
+      <div><h4>Get involved</h4><a href="/apply/founders/">Founders — apply</a><a href="/partners/">Business partners</a><a href="/apply/investors/">Investors</a><a href="/apply/sponsors/">Sponsor companies</a><a href="/apply/mentors/">Mentors — apply</a><a href="/apply/ambassadors/">Student ambassadors</a><a href="/refer/">Refer a founder · $100</a><a href="/network/">Who's already in</a></div>
       <div><h4>Company</h4><a href="/about/">About</a><a href="mailto:hello@batchzero.co">hello@batchzero.co</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/conduct/">Mentor conduct</a></div>
     </div>
     <div class="foot-bottom">
@@ -110,5 +113,6 @@
 </footer>
 <script src="/assets/js/config.js"></script>
 <script src="/assets/js/site.js" defer></script>
+<script src="/assets/js/referral.js" defer></script>
 </body>
 </html>

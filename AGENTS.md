@@ -27,6 +27,7 @@ index.html                       home
 program/  about/  privacy/  terms/   inner pages (each is <dir>/index.html)
 partners/                        chooser page: investor / sponsor company / mentor
 apply/{founders,mentors,investors,sponsors,ambassadors}/   application forms (companies/ is a redirect to sponsors/)
+refer/  refer/flyer/             referral program: get a $100 referral link; print the flyer with your QR
 network/                         public hub: the mentor roster (rendered from the database) + what ambassadors do
 mentors/                         redirect to /network/#mentors (the roster used to live here)
 mentor-invite/                   invited-mentor signup, /admin/ to create a link, /terms/ (mentor ToS) — noindex
@@ -34,6 +35,7 @@ supabase/schema.sql              applications table + RLS (anon = insert only)
 supabase/mentor-invites.sql      mentor_invites table + the three RPCs — READ ITS HEADER FIRST
 supabase/mentor-roster.sql       adds photo_url/published/listed_at + list_mentors() and save_mentor_photo()
 supabase/ambassadors.sql         lets applications accept type 'ambassador' (constraint + insert policy)
+supabase/referrals.sql           type 'referrer' + referral_report() (the $100 payout list)
 404.html                         GitHub Pages 404
 assets/css/site.css              all styling; design tokens in :root at the top
 assets/js/config.js              Supabase URL + anon key (public by design; the DB only allows inserts)
@@ -41,6 +43,8 @@ assets/js/site.js                nav, reveal-on-scroll, countdown, counters, for
 assets/js/mentor-invite.js       /mentor-invite/ page script (loads the invite, submits it)
 assets/js/mentor-invite-admin.js /mentor-invite/admin/ page script (creates an invite link)
 assets/js/mentors.js             /mentors/ page script (renders the roster)
+assets/js/referral.js            ?ref= capture on the founder form, /refer/ signup + QR, /refer/flyer/
+assets/js/vendor/qrcode.js       QR encoder (MIT), vendored
 assets/media/                    hero-loop.webm/.mp4 (seamless loop), hero-poster.jpg
 assets/img/                      logo SVGs (final approved [B0] mark — do not redesign)
 assets/img/mentors/              self-hosted mentor photos + photos.json (written by the Action below)
@@ -172,6 +176,33 @@ or every application is rejected by the database. `formType()` in `site.js` maps
 The admin key is shared with mentor invites. It lives as a constant inside `create_mentor_invite()`
 and, since `ambassador-roster.sql` ran, also in `private.settings` under `'ambassador_admin_key'`.
 Rotate both together.
+
+### Referrals ($100 per accepted startup)
+
+```
+/refer/                anyone gets a personal link → public.applications (type 'referrer', payload.code)
+      ↓ they share  https://batchzero.co/apply/founders/?ref=<code>   (or print /refer/flyer/?ref=<code>)
+/apply/founders/       ?ref= lands in the hidden `ref` input → founder payload.ref
+                       (+ optional "Did someone send you here?" → payload.referred_by)
+      ↓ you accept the founder at /review/
+referral_report(admin_key)   founder ⟷ referrer, accepted first = the payout list
+```
+
+- **The rule** (printed on `/refer/`, mirrored in the ambassador brief): one $100 per accepted startup, to the
+  referrer whose code is on the application; no code → whoever the founder named. Change it in both places.
+- **Codes** are `firstname-lastinitial-xxxx` (`maya-r-7k2f`), lowercase, from an alphabet without 0/o/1/l/i
+  because people read them off paper. `cleanRef()` in `assets/js/referral.js` rejects anything else.
+- **The code is remembered** in `localStorage` (`b0-ref`, 60 days) so a founder who scans a flyer and applies
+  later still carries it. A newer link replaces an older one. Disclosed in the privacy policy, section 2.
+- `supabase/referrals.sql` adds the `'referrer'` type (both places, like `ambassadors.sql`) and
+  `referral_report()`. **Until it runs**, `/refer/` still works: `referral.js` retries as type `'unknown'`
+  with `payload.kind = 'referrer'`, and the migration converts those rows when it runs.
+- The QR code is drawn by `assets/js/vendor/qrcode.js` (Kazuhiko Arase, MIT) — the one dependency on the site,
+  vendored, no CDN.
+- `/refer/flyer/` is the approved paper flyer in HTML/CSS, Letter size; printing hides the nav and footer
+  (`@media print` at the bottom of `site.css`). If the flyer copy changes, change it there too.
+- Tests: `python3 tools/build.py && python3 -m unittest tools/test_referrals.py` (needs node; the QR
+  round-trip test also uses OpenCV and skips without it).
 
 ### The public roster
 
