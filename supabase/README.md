@@ -8,7 +8,7 @@ idempotent — running one twice is safe.
 | `schema.sql` | `public.applications` + its insert-only RLS policy. The five application forms write here. | once, at setup |
 | `ambassadors.sql` | Adds `'ambassador'` to the allowed types, in **both** the column CHECK and the insert policy. Without it every ambassador application is rejected. | ✅ run 2026-09-27 |
 | `mentor-invites.sql` | **Documentation**, not a migration. Describes what is live for the mentor invite flow, read out of the catalog. Section 1 refuses to run if `public.mentors` already exists. | don't run |
-| `mentor-roster.sql` | `list_mentors()`, `save_mentor_photo()`, the `listed_at` trigger, and the `photo_url` / `published` / `listed_at` columns. This is what puts a mentor on `/network/`. | ✅ run 2026-09-27 |
+| `mentor-roster.sql` | `list_mentors()`, `save_mentor_photo()`, the `listed_at` trigger, and the `photo_url` / `published` / `listed_at` columns. This is what puts a mentor on `/network/` and in the homepage "Mentors:" strip. Since 2026-10-18 `list_mentors()` also returns `bio` and a checked `linkedin_url`. | ⚠️ **re-run** — changed 2026-10-18 (last run 2026-09-27) |
 | `ambassador-roster.sql` | `public.ambassadors`, the three invite functions, `list_ambassadors()`. Lifts the admin key out of `create_mentor_invite()` into `private.settings` so both invite tools share one key. | ✅ run 2026-09-27 |
 
 ## The two rules everything here follows

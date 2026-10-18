@@ -3,7 +3,7 @@
 Static site. No framework, no build step required to serve it — every file in this folder is what the browser gets.
 
 ```
-index.html                 home (video hero, how it works, four doors, demo day, schedule, FAQ)
+index.html                 home (hero with the "Mentors:" strip, how it works, two doors, demo day, schedule, FAQ)
 program/                   week-by-week program + selection rubric
 about/
 partners/                  "Which one are you?" chooser: investors / sponsor companies / mentors
@@ -14,11 +14,13 @@ privacy/  terms/           placeholder legal pages
 assets/css/site.css        all styling (design tokens at the top)
 assets/js/config.js        Supabase URL + anon key (fill these in)
 assets/js/site.js          nav, reveal-on-scroll, countdown, counters, form validation + Supabase submit
+assets/js/roster.js        the public mentor roster (list_mentors()), shared by /network/ and the homepage
+assets/js/home.js          the homepage "Mentors:" strip (slow drift, pause on hover)
 assets/media/              hero-intro.webm / .mp4 (plays once on load), hero-poster.jpg
 assets/img/                logo SVGs
 favicon.*, og-image.png, site.webmanifest, robots.txt, sitemap.xml
 Dockerfile + Caddyfile     how Railway serves it
-tools/                     build.py + pages.py — regenerate the HTML after editing copy
+tools/                     build.py + pages.py — regenerate the HTML after editing copy; test_*.py / *.mjs — tests
 ```
 
 ## Editing copy
@@ -41,6 +43,18 @@ The HTML pages are generated from `tools/pages.py` (one Python string per page, 
 ```
 python3 -m http.server 8080
 # → http://localhost:8080
+```
+
+## Tests
+
+`.github/workflows/tests.yml` runs all of these on every push. Locally, from this folder:
+
+```
+python3 -m unittest tools/test_archive_mentor_photos.py tools/test_roster_js.py     # needs node for some
+pip install playwright && python3 -m playwright install chromium                    # once
+python3 -m unittest tools/test_home_strip.py                                        # homepage + /network/ in a real browser
+npm i --prefix /tmp/pglite @electric-sql/pglite                                     # once
+PGLITE=/tmp/pglite/node_modules/@electric-sql/pglite/dist/index.js node tools/test_mentor_roster_sql.mjs
 ```
 
 ## Deploying

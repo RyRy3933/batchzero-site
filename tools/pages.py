@@ -1,5 +1,19 @@
 # Page bodies for the Batch Zero site. Each entry: (out_path, title, description, body_html, canonical_path)
 
+# The "Mentors:" strip at the bottom of the homepage hero. home.js swaps the skeleton cards for
+# the real roster (list_mentors()) and drives the slow drift; see the header of home.js.
+_MS_SKELETON = '<div class="ms-card ms-skel" aria-hidden="true"><span class="m-photo ms-photo"></span><span class="ms-body"><i></i><i></i><i></i><i></i></span></div>'
+MENTOR_STRIP = f"""    <div class="mentor-strip rv rv-d4" data-mentor-strip role="region" aria-labelledby="ms-label" aria-busy="true">
+      <div class="ms-head">
+        <span class="ms-label" id="ms-label">Mentors:</span>
+        <a class="ms-all" href="/network/#mentors">See all <span aria-hidden="true">&rarr;</span></a>
+      </div>
+      <div class="ms-viewport" data-ms-viewport>
+        <div class="ms-track" data-ms-track role="list">{_MS_SKELETON * 4}</div>
+      </div>
+    </div>
+    <noscript><style>.mentor-strip{{display:none}}</style></noscript>"""
+
 HOME = """
 <section class="hero">
   <div class="hero-bg" aria-hidden="true">
@@ -7,33 +21,36 @@ HOME = """
       <source src="/assets/media/hero-intro.webm" type="video/webm"><source src="/assets/media/hero-intro.mp4" type="video/mp4">
     </video>
   </div>
-  <div class="wrap">
+  <div class="wrap hero-grid">
     <div class="hero-copy">
       <span class="label rv">Cohort 01 · applications open</span>
-      <h1 class="rv rv-d1">The accelerator for founders who haven't <span class="accent">graduated</span> yet.</h1>
-      <p class="lede rv rv-d2">Batch Zero takes five high-school startups per cohort, pairs each one with two mentors for eight weeks, and puts them in front of investors at an online Demo Day. You already shipped something. We help you make it real.</p>
+      <h1 class="rv rv-d1">The Startup Accelerator for <span class="accent">High&nbsp;School Founders.</span></h1>
+      <p class="lede rv rv-d2">An 8-week online program for high-school startups that already exist. Each startup gets two dedicated mentors, and the cohort ends with an online Demo Day in front of investors. Free, no equity.</p>
       <div class="hero-actions rv rv-d3">
         <a class="btn btn-primary btn-lg btn-bracket" href="/apply/founders/">I'm a founder — apply <span class="arr">→</span></a>
         <a class="btn btn-ghost btn-lg" href="/partners/">I'm a business partner <span class="arr">→</span></a>
       </div>
-      <p class="dim" style="font-size:14px;margin-top:-10px">Investor, sponsor company, or mentor? <a href="/partners/" style="color:var(--accent-2)">Pick your door →</a> &nbsp;·&nbsp; <a href="/program/" style="color:var(--accent-2)">See the 8-week program</a></p>
+      <p class="dim hero-doors">Investor, sponsor company, or mentor? <a href="/partners/" style="color:var(--accent-2)">Pick your door →</a> &nbsp;·&nbsp; <a href="/program/" style="color:var(--accent-2)">See the 8-week program</a></p>
+    </div>
+{MENTOR_STRIP}
+    <div class="hero-side">
+      <div class="hero-visual rv rv-d2">
+        <div class="hud">
+          <div class="hud-ring"></div>
+          <video autoplay muted playsinline preload="auto" poster="/assets/media/hero-poster.jpg">
+            <source src="/assets/media/hero-intro.webm" type="video/webm"><source src="/assets/media/hero-intro.mp4" type="video/mp4">
+          </video>
+          <span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span>
+          <span class="hud-tag a"><span class="blink"></span>network / live</span>
+          <span class="hud-tag c">founders · mentors · capital</span>
+          <span class="hud-tag b">cohort_01 · 2026</span>
+        </div>
+      </div>
       <div class="hero-meta rv rv-d4">
         <div><span class="k">Per cohort</span><span class="v">05 startups</span></div>
         <div><span class="k">Length</span><span class="v">08 weeks</span></div>
         <div><span class="k">Cost to founders</span><span class="v">$0</span></div>
         <div><span class="k">Applications close in</span><span class="v mono" data-countdown><span data-d>--</span>d <span data-h>--</span>h <span data-m>--</span>m <span data-s>--</span>s</span></div>
-      </div>
-    </div>
-    <div class="hero-visual rv rv-d2">
-      <div class="hud">
-        <div class="hud-ring"></div>
-        <video autoplay muted playsinline preload="auto" poster="/assets/media/hero-poster.jpg">
-          <source src="/assets/media/hero-intro.webm" type="video/webm"><source src="/assets/media/hero-intro.mp4" type="video/mp4">
-        </video>
-        <span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span>
-        <span class="hud-tag a"><span class="blink"></span>network / live</span>
-        <span class="hud-tag c">founders · mentors · capital</span>
-        <span class="hud-tag b">cohort_01 · 2026</span>
       </div>
     </div>
   </div>
@@ -178,6 +195,8 @@ HOME = """
   </div>
 </section>
 """
+
+HOME = HOME.replace("{MENTOR_STRIP}", MENTOR_STRIP)
 
 PROGRAM = """
 <div class="wrap page-hero">
@@ -593,7 +612,7 @@ MENTOR_INVITE_FORM = f"""
     {chips_other("areas","What can you mentor on?",MENTOR_AREAS,required=True,max_pick=3,hint="// your top three — this is what we match teams on, and what founders see on your card")}
     {field("bio","Short bio",required=False,as_="textarea",placeholder="A sentence or two on your background — founders see this.",maxlength=500)}
   </div>
-  <label class="check"><input type="checkbox" name="agree" value="yes"><span>I agree to the <a href="/mentor-invite/terms/" style="color:var(--accent-2)">Mentor Terms of Service</a> and the <a href="/conduct/" style="color:var(--accent-2)">Code of Conduct</a>, including showing my name, photo, title, company and bio on the Batch Zero website.</span></label>
+  <label class="check"><input type="checkbox" name="agree" value="yes"><span>I agree to the <a href="/mentor-invite/terms/" style="color:var(--accent-2)">Mentor Terms of Service</a> and the <a href="/conduct/" style="color:var(--accent-2)">Code of Conduct</a>, including showing my name, photo, title, company, bio and a link to my LinkedIn profile on the Batch Zero website.</span></label>
 """
 
 MENTOR_INVITE = f"""
@@ -691,13 +710,13 @@ MENTOR_INVITE_ADMIN = f"""
 """
 
 MENTOR_TERMS = """
-<div class="wrap page-hero"><span class="label">Legal</span><h1 style="font-size:clamp(32px,4vw,52px)">Mentor Terms of Service</h1><p class="lede">The deal between you and Batch Zero when you mentor a team. Last updated September 25, 2026.</p></div>
+<div class="wrap page-hero"><span class="label">Legal</span><h1 style="font-size:clamp(32px,4vw,52px)">Mentor Terms of Service</h1><p class="lede">The deal between you and Batch Zero when you mentor a team. Last updated October 18, 2026.</p></div>
 <section style="padding-top:8px"><div class="wrap"><div class="prose">
 <p class="notice">A plain-English draft written at the pre-incorporation stage — not legal advice, and worth a lawyer's pass once Batch Zero has paid mentors or larger cohorts.</p>
 <h2>1. Your role</h2>
 <p>As a Batch Zero mentor you agree to advise founders in your assigned cohort as a volunteer — usually about 1&ndash;2 hours a week: one session with a team, plus light prep. Unless we agree otherwise in writing, mentoring is unpaid.</p>
 <h2>2. Use of your profile</h2>
-<p>You agree that Batch Zero may show your name, photo, title, company and short bio on the Batch Zero website and in related material — the mentor roster, cohort announcements, social posts — to introduce you to founders and the community. Ask us to change or remove any of it at any time at <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a>.</p>
+<p>You agree that Batch Zero may show your name, photo, title, company, short bio and a link to your LinkedIn profile on the Batch Zero website and in related material — the homepage, the mentor roster, cohort announcements, social posts — to introduce you to founders and the community. Ask us to change or remove any of it at any time at <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a>.</p>
 <h2>3. Confidentiality</h2>
 <p>Founders share early, non-public details of their startups with you. Keep that to yourself, and don't use it outside advising them.</p>
 <h2>4. No ownership of founder work</h2>
@@ -1039,7 +1058,7 @@ COMPANIES_REDIRECT = """
 """
 
 PRIVACY = """
-<div class="wrap page-hero"><span class="label">Legal</span><h1>Privacy policy</h1><p class="lede">Plain-English version first, full version below. Last updated September 26, 2026.</p></div>
+<div class="wrap page-hero"><span class="label">Legal</span><h1>Privacy policy</h1><p class="lede">Plain-English version first, full version below. Last updated October 18, 2026.</p></div>
 <section style="padding-top:8px"><div class="wrap"><div class="prose">
 <div class="card" style="margin-bottom:8px"><div class="idx"><span>tl;dr</span><span>the short version</span></div>
 <p>We collect what you type into our application forms and nothing else. We use it to run Batch Zero. We don't sell it, we don't run ad trackers, and nobody outside the team sees a student's application unless that student opts in. Email <a href="mailto:rayan@batchzero.co" style="color:var(--accent-2)">rayan@batchzero.co</a> to see, fix, or delete your data at any time.</p></div>
@@ -1061,7 +1080,7 @@ PRIVACY = """
 <p>Batch Zero is for high-school students. You must be at least 13 to use this site or apply; we do not knowingly collect information from anyone under 13, and we delete it if we find it. If you are under 18 and selected for a cohort, a parent or guardian must sign a consent form before you take part, and they can ask us at any time to see or delete your information. Parents: email <a href="mailto:rayan@batchzero.co" style="color:var(--accent-2)">rayan@batchzero.co</a> and we'll respond within a few days.</p>
 
 <h2>5. Who can see a student's information</h2>
-<p><strong>The mentor page.</strong> Mentors who accept an invite and agree to the mentor terms appear on our public <a href="/network/#mentors" style="color:var(--accent-2)">network page</a> — name, photo, role, company and the areas they mentor on. Never their email. Ask us and we'll take it down the same day.</p>
+<p><strong>The mentor page.</strong> Mentors who accept an invite and agree to the mentor terms appear on our public <a href="/network/#mentors" style="color:var(--accent-2)">network page</a> and on the homepage — name, photo, role, company, the areas they mentor on, a short bio and a link to their LinkedIn profile. Never their email. Ask us and we'll take it down the same day.</p>
 <p>Only the Batch Zero team and reviewers reviewing applications. Mentors see the applications of the teams they are matched with. Investors and sponsor companies do <strong>not</strong> receive contact details or full applications: they see the profile a founder chooses to make visible, and any introduction is requested through us and accepted by the founder first. We never share a student's information with a third party for that party's own marketing.</p>
 
 <h2>6. Services we rely on</h2>
@@ -1139,7 +1158,7 @@ NOTFOUND = """
 
 PAGES = [
     ("404.html", "Not found — Batch Zero", "Page not found.", NOTFOUND, "/404.html"),
-    ("index.html", "Batch Zero — The accelerator for high-school founders", D, HOME, "/"),
+    ("index.html", "Batch Zero — The startup accelerator for high-school founders", D, HOME, "/", False, ("/assets/js/roster.js", "/assets/js/home.js")),
     ("program/index.html", "The program — Batch Zero", "Eight weeks, two mentors per team, a published selection rubric and a live Demo Day. Here's the week-by-week.", PROGRAM, "/program/"),
     ("about/index.html", "About — Batch Zero", "Built by a high-school founder, for high-school founders. Why Batch Zero exists and what we believe.", ABOUT, "/about/"),
     ("apply/founders/index.html", "Apply as a founder — Batch Zero", "Apply to Cohort 01. Five spots for high-school startups that already exist.", FOUNDERS, "/apply/founders/"),
@@ -1148,7 +1167,7 @@ PAGES = [
     ("partners/index.html", "Business partners — Batch Zero", "Investors, sponsor companies and mentors: pick your door into Batch Zero.", PARTNERS, "/partners/"),
     ("apply/sponsors/index.html", "Sponsor a cohort — Batch Zero", "Fund the Demo Day prize, name a cohort, and meet high-school founders early.", SPONSORS, "/apply/sponsors/"),
     ("apply/companies/index.html", "Moved — Batch Zero", "This page moved to sponsor companies.", COMPANIES_REDIRECT, "/apply/sponsors/"),
-    ("network/index.html", "The network — Batch Zero", "The mentors and student ambassadors behind Batch Zero.", NETWORK, "/network/", False, ("/assets/js/network.js",)),
+    ("network/index.html", "The network — Batch Zero", "The mentors and student ambassadors behind Batch Zero.", NETWORK, "/network/", False, ("/assets/js/roster.js", "/assets/js/network.js")),
     ("mentors/index.html", "Mentors — Batch Zero", "The mentors behind Batch Zero.", MENTORS_REDIRECT, "/network/"),
     ("apply/ambassadors/index.html", "Become an ambassador — Batch Zero", "Run Batch Zero at your high school: find the builders, bring them in, get the credit.", AMBASSADORS, "/apply/ambassadors/"),
     ("mentor-invite/index.html", "Mentor signup — Batch Zero", "Confirm your details and join the Batch Zero mentor roster.", MENTOR_INVITE, "/mentor-invite/", True, ("/assets/js/mentor-invite.js",)),

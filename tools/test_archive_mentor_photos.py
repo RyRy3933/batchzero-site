@@ -2,7 +2,7 @@
 
     python3 -m unittest tools/test_archive_mentor_photos.py
 
-Standard library only. The slug-parity test also runs network.js's slug() under Node when
+Standard library only. The slug-parity test also runs roster.js's slug() under Node when
 Node is installed, and is skipped otherwise.
 """
 import json
@@ -31,13 +31,13 @@ class Slug(unittest.TestCase):
         self.assertEqual(amp.slug(""), "")
         self.assertEqual(amp.slug(None), "")
 
-    def test_matches_network_js(self):
+    def test_matches_roster_js(self):
         node = shutil.which("node")
         if not node:
             self.skipTest("node not installed")
-        src = (amp.ROOT / "assets" / "js" / "network.js").read_text(encoding="utf-8")
+        src = (amp.ROOT / "assets" / "js" / "roster.js").read_text(encoding="utf-8")
         m = re.search(r"const slug = \(name\) =>([\s\S]*?);\n", src)
-        self.assertIsNotNone(m, "slug() not found in network.js")
+        self.assertIsNotNone(m, "slug() not found in roster.js")
         js = f"const slug = (name) =>{m.group(1)};\nconsole.log(JSON.stringify({json.dumps(NAMES)}.map(slug)));"
         out = subprocess.run([node, "-e", js], capture_output=True, text=True, check=True).stdout
         self.assertEqual(json.loads(out), [amp.slug(n) for n in NAMES])

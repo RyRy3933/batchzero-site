@@ -1,12 +1,20 @@
--- Batch Zero — public mentor roster (/network/ and /mentors/)
+-- Batch Zero — public mentor roster (/network/ and the homepage "Mentors:" strip)
 --
--- Run once in Supabase → SQL Editor. Safe to run again: every step is idempotent.
+-- Run in Supabase → SQL Editor. Safe to run again: every step is idempotent. Re-run it whenever
+-- this file changes — it rebuilds list_mentors() from scratch.
 --
 -- WHAT THIS IS FOR
 --   A mentor finishes /mentor-invite/ and their card appears on the site on the next page
---   load. Nothing to approve, no second step. The card shows name, title, company, their
---   top-three areas and their LinkedIn photo — and nothing else. Email, bio, LinkedIn URL
---   and the invite token stay unreadable to the public key.
+--   load. Nothing to approve, no second step. Cards show name, title, company, their
+--   top-three areas, their photo, their short bio and a link to their LinkedIn profile —
+--   all of which the mentor terms (section 2) and the signup checkbox cover. Email and the
+--   invite token stay unreadable to the public key.
+--
+-- CHANGELOG
+--   2026-10-18  list_mentors() also returns bio and linkedin_url, for the homepage strip.
+--               linkedin_url is only returned when it is a linkedin.com profile link (/in/ or
+--               /pub/), so a typo or a stray value can never become a link on the site; the
+--               page checks it again before using it. Bio is trimmed and capped at 600 chars.
 --
 -- HOW "SIGNED UP" IS DECIDED
 --   areas_of_expertise is the tell. create_mentor_invite() never sets it (it has no areas
@@ -63,6 +71,8 @@ declare
   v_type text;
   v_m    text;   -- "their areas, as one string" over the table alias m
   v_new  text;   -- the same thing over NEW, inside the trigger
+  v_bio  text;   -- the bio column, or null if this project doesn't have one
+  v_li   text;   -- the LinkedIn profile URL, only when it really is one
 begin
   select data_type into v_type
     from information_schema.columns
@@ -78,19 +88,40 @@ begin
     v_new := 'new.areas_of_expertise::text';
   end if;
 
+  -- bio and linkedin_url are written by create_mentor_invite()/submit_mentor_signup(). Read them
+  -- only if the columns exist, so this script can't fail on an older table.
+  if exists (select 1 from information_schema.columns
+              where table_schema = 'public' and table_name = 'mentors' and column_name = 'bio') then
+    v_bio := 'nullif(btrim(left(m.bio::text, 600)), '''')';
+  else
+    v_bio := 'null::text';
+  end if;
+  if exists (select 1 from information_schema.columns
+              where table_schema = 'public' and table_name = 'mentors' and column_name = 'linkedin_url') then
+    -- a linkedin.com (or country subdomain) /in/ or /pub/ profile, with or without https://,
+    -- no spaces, quotes or angle brackets; anything else comes back as null
+    v_li := $re$case when btrim(m.linkedin_url::text) ~* '^(https?://)?([a-z0-9-]+\.)?linkedin\.com/(in|pub)/[^\s"''<>]+$'
+                       and length(btrim(m.linkedin_url::text)) <= 300
+                     then btrim(m.linkedin_url::text) end$re$;
+  else
+    v_li := 'null::text';
+  end if;
+
   -- everything the public page is allowed to see, and not one column more
   execute format($fn$
     create or replace function public.list_mentors()
-    returns table (full_name text, title text, company text, areas_of_expertise text, photo_url text)
+    returns table (full_name text, title text, company text, areas_of_expertise text, photo_url text,
+                   bio text, linkedin_url text)
     language sql security definer set search_path = public stable as $body$
-      select m.full_name::text, m.title::text, m.company::text, %1$s, m.photo_url::text
+      select m.full_name::text, m.title::text, m.company::text, %1$s, m.photo_url::text,
+             %2$s, %3$s
         from public.mentors m
        where coalesce(m.published, true)
          and coalesce(btrim(%1$s), '') <> ''
        order by m.listed_at desc nulls last, m.full_name
        limit 500;
     $body$
-  $fn$, v_m);
+  $fn$, v_m, v_bio, v_li);
 
   -- stamp the moment they finished, so the newest mentor leads the page
   execute format($fn$
@@ -160,7 +191,17 @@ select m.full_name,
   from public.mentors m
  order by m.listed_at desc nulls last, m.full_name;
 
+-- ── 7. what each card will show on the homepage strip ───────────────────────
+--     no bio → the card shows "title · company" instead; no link → no "View on LinkedIn"
+select l.full_name,
+       l.bio is not null          as has_bio,
+       l.linkedin_url is not null as has_linkedin_link,
+       l.linkedin_url
+  from public.list_mentors() l;
+
 -- Later, if you ever need them:
 --   hide someone     update public.mentors set published = false where full_name = 'Name Here';
 --   show them again  update public.mentors set published = null  where full_name = 'Name Here';
 --   swap the photo   update public.mentors set photo_url = 'https://…' where full_name = 'Name Here';
+--   set a bio        update public.mentors set bio = '…' where full_name = 'Name Here';
+--   fix their link   update public.mentors set linkedin_url = 'https://www.linkedin.com/in/…' where full_name = 'Name Here';

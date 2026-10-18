@@ -4,7 +4,7 @@
 Why: mentors sign in with LinkedIn at /mentor-invite/, and the photo LinkedIn hands back is a
 signed media.licdn.com link that stops working after a few weeks. Hotlinking it means the
 roster quietly turns into initials. This script copies each photo into assets/img/mentors/
-while the link still works and records it in photos.json, which assets/js/network.js reads
+while the link still works and records it in photos.json, which assets/js/roster.js reads
 first. It runs every day from .github/workflows/mentor-photos.yml, so a new mentor's photo is
 saved well before their link expires.
 
@@ -45,14 +45,14 @@ MANIFEST = PHOTO_DIR / "photos.json"
 MAX_BYTES = 5 * 1024 * 1024           # a LinkedIn profile photo is ~10-200 KB
 TIMEOUT = 20
 USER_AGENT = "batchzero-photo-archiver/1.0 (+https://batchzero.co)"
-FILE_RE = re.compile(r"^[a-z0-9-]+\.(jpe?g|png|webp)$")   # same rule network.js enforces
+FILE_RE = re.compile(r"^[a-z0-9-]+\.(jpe?g|png|webp)$")   # same rule roster.js enforces
 
 # LinkedIn photos only — the same rule save_mentor_photo() applies in the database
 LICDN_RE = re.compile(r"^https://([a-z0-9-]+\.)+licdn\.com/[^\s\"'<>]+$")
 
 
 def slug(name: str) -> str:
-    """Must stay identical to slug() in assets/js/network.js."""
+    """Must stay identical to slug() in assets/js/roster.js."""
     s = unicodedata.normalize("NFKD", str(name or ""))
     s = "".join(c for c in s if not unicodedata.combining(c))
     s = re.sub(r"[^a-z0-9]+", "-", s.lower())

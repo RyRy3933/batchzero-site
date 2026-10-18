@@ -1,0 +1,49 @@
+# Runs every test in tools/ on each push and pull request. Pages still deploys main on its own —
+# this doesn't block a deploy, it tells you (red X on the commit) when something broke.
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Generated pages match tools/pages.py
+        run: |
+          python3 tools/build.py > /dev/null
+          git diff --exit-code || { echo "::error::Run python3 tools/build.py and commit the result."; exit 1; }
+
+      - name: Unit tests (photo archiver, roster.js)
+        run: python3 -m unittest tools/test_archive_mentor_photos.py tools/test_roster_js.py
+
+      - name: Database function (supabase/mentor-roster.sql on real Postgres)
+        run: |
+          npm i --silent --prefix "$RUNNER_TEMP/pglite" @electric-sql/pglite
+          PGLITE="$RUNNER_TEMP/pglite/node_modules/@electric-sql/pglite/dist/index.js" node tools/test_mentor_roster_sql.mjs
+
+      - name: Browser tests (homepage hero + mentor strip, /network/)
+        run: |
+          pip install --quiet playwright
+          python3 -m playwright install --with-deps chromium
+          python3 -m unittest tools/test_home_strip.py

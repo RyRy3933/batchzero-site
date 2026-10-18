@@ -38,15 +38,19 @@ supabase/ambassadors.sql         lets applications accept type 'ambassador' (con
 assets/css/site.css              all styling; design tokens in :root at the top
 assets/js/config.js              Supabase URL + anon key (public by design; the DB only allows inserts)
 assets/js/site.js                nav, reveal-on-scroll, countdown, counters, form validation, step-by-step forms, drafts, LinkedIn sign-in, Supabase submit
+assets/js/roster.js              the public mentor roster: one list_mentors() call, photo fallbacks, LinkedIn link check — shared by home + /network/
+assets/js/home.js                homepage "Mentors:" strip in the hero (see "The homepage hero" below)
 assets/js/mentor-invite.js       /mentor-invite/ page script (loads the invite, submits it)
 assets/js/mentor-invite-admin.js /mentor-invite/admin/ page script (creates an invite link)
-assets/js/mentors.js             /mentors/ page script (renders the roster)
+assets/js/network.js             /network/ page script (renders both rosters)
 assets/media/                    hero-loop.webm/.mp4 (seamless loop), hero-poster.jpg
 assets/img/                      logo SVGs (final approved [B0] mark — do not redesign)
 assets/img/mentors/              self-hosted mentor photos + photos.json (written by the Action below)
 tools/build.py, tools/pages.py   HTML generator (see below)
 tools/archive_mentor_photos.py   saves mentor photos before LinkedIn's links expire (+ its tests)
+tools/test_*.py, tools/*.mjs     tests — see "Tests" below
 .github/workflows/mentor-photos.yml  runs that daily and commits what it saved
+.github/workflows/tests.yml      runs every test on each push (doesn't block the Pages deploy)
 favicon.*, og-image.png, site.webmanifest, robots.txt, sitemap.xml, CNAME, .nojekyll
 ```
 
@@ -175,12 +179,18 @@ Rotate both together.
 
 ### The public roster
 
-`/network/` renders both rosters from `assets/js/network.js`: `list_mentors()` and
-`list_ambassadors()`. Each returns **only** the fields the card shows. Email, token and guardian
+`/network/` renders both rosters from `assets/js/network.js`: `list_mentors()` (through
+`roster.js`) and `list_ambassadors()`. The homepage strip reads the same `list_mentors()` through
+`roster.js`. Each returns **only** the fields the card shows. Email, token and guardian
 contact are never in either result — keep it that way if you extend them. The two calls are
 independent, so one failing still renders the other.
 
-`list_mentors()` returns `full_name, title, company, areas_of_expertise, photo_url`.
+`list_mentors()` returns `full_name, title, company, areas_of_expertise, photo_url, bio, linkedin_url`.
+`bio` is trimmed and capped at 600 characters. `linkedin_url` is only returned when it is a
+linkedin.com `/in/` or `/pub/` profile link (null otherwise), and `roster.js` checks it again
+before it becomes an `href` — keep both locks. Bio and the LinkedIn link were added to the
+mentor ToS (section 2), the signup checkbox and the privacy policy on 2026-10-18; anything
+else you want to show publicly needs the same three changes first.
 
 - **A mentor counts as signed up when `areas_of_expertise` is non-empty.** `create_mentor_invite()`
   never sets it; `submit_mentor_signup()` always does, because the form makes them pick three. That
@@ -193,10 +203,10 @@ independent, so one failing still renders the other.
 - **Those photo URLs expire (after a few weeks), so the page doesn't rely on them.** A daily
   GitHub Action (`.github/workflows/mentor-photos.yml` → `tools/archive_mentor_photos.py`) calls
   `list_mentors()`, copies each listed mentor's photo into `assets/img/mentors/<slug>.jpg` while
-  the link still works, and records it in `assets/img/mentors/photos.json`. `network.js` tries
+  the link still works, and records it in `assets/img/mentors/photos.json`. `roster.js` tries
   that copy first, then `photo_url`, then shows initials. Hide a mentor (`published = false`) and
   the next run deletes their saved photo too. Tests: `python3 -m unittest tools/test_archive_mentor_photos.py`.
-  `slug()` exists in both the script and `network.js` and must stay identical (a test checks).
+  `slug()` exists in both the script and `roster.js` and must stay identical (a test checks).
 - **A link that already expired can't be archived.** Get a fresh one (open their LinkedIn
   profile, copy the photo's image address) and run
   `python3 tools/archive_mentor_photos.py --add "Full Name" "<url>"`, then commit. Run the Action
@@ -218,6 +228,40 @@ Flag private pages `noindex` and that's all you have to do.
 - The invite token is kept in `sessionStorage` (`b0-invite-token` for mentors, `b0-amb-token` for ambassadors), because the LinkedIn round trip comes back without the query string and people reload.
 
 To make another form step-by-step or give it drafts: wrap its sections in `step()`, add a `review_step()`, and pass `steps=True` to `form_page` (drafts come with it). Keep the founder form short either way.
+
+## The homepage hero
+
+The hero is the whole first screen: headline, buttons and the video with the cohort numbers
+under it, then the **"Mentors:" strip** pinned to the bottom so it's visible on load. Layout is
+a grid in `site.css` (`.hero-grid`) whose empty rows soak up spare height; type and gaps scale
+with viewport *height* too, so the strip fits down to a 1366×650 browser window. On phones the
+order is copy → mentors → numbers → video. `tools/test_home_strip.py` checks twelve viewport
+sizes — run it after any change to the hero.
+
+The strip (`assets/js/home.js`, header explains everything):
+
+- One compact card per mentor from `list_mentors()`: portrait (archived photo → LinkedIn photo →
+  initials), name, bio clamped to 3 lines (falls back to "title · company"), "View on LinkedIn".
+- Drifts left at ~26px/s, in real time (a slow machine sees the same speed). Pauses on mouse
+  hover and resumes on leave; also pauses while a link has keyboard focus (and slides that card
+  into view), while a finger drags it, when it's off screen and when the tab is hidden.
+- The loop is made of inert, `aria-hidden` copies after the real cards, so screen readers and
+  the Tab key meet each mentor once.
+- Holds still (plain swipeable row) with `prefers-reduced-motion` or fewer than 3 mentors.
+- Four skeleton cards in the HTML hold its space until the data arrives, so nothing jumps. If
+  the call fails or nobody is listed, the strip is removed entirely — never an empty row.
+
+## Tests
+
+`.github/workflows/tests.yml` runs all of these on every push; run them locally before pushing
+anything that touches the hero, the roster or the SQL (commands are in `README.md`):
+
+| file | covers |
+|---|---|
+| `tools/test_archive_mentor_photos.py` | the daily photo archiver; `slug()` parity with `roster.js` |
+| `tools/test_roster_js.py` | `roster.js`: the LinkedIn link check, row normalising, one request per page |
+| `tools/test_home_strip.py` | real Chromium: hero copy, cards, motion, hover/focus/touch, reduced motion, empty/error, above-the-fold at 12 sizes, `/network/` |
+| `tools/test_mentor_roster_sql.mjs` | `supabase/mentor-roster.sql` on real Postgres (PGlite): upgrade from the live version, idempotent, only public columns, bad links nulled |
 
 ## Design rules
 
