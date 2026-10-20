@@ -48,6 +48,7 @@ NAV = """<header class="nav">
       <a href="/#how">How it works</a>
       <a href="/#demo-day">Demo Day</a>
       <a href="/network/">Network</a>
+      <a href="/apply/ambassadors/">Ambassadors</a>
       <a href="/about/">About</a>
     </nav>
     <div class="nav-cta">
@@ -59,7 +60,7 @@ NAV = """<header class="nav">
 </header>
 <div class="mobile-menu">
   <a href="/apply/founders/" style="color:var(--accent-2)">I'm a founder → apply</a><a href="/partners/">I'm a business partner</a>
-  <a href="/program/">Program</a><a href="/#how">How it works</a><a href="/#demo-day">Demo Day</a><a href="/network/">Network</a><a href="/about/">About</a>
+  <a href="/program/">Program</a><a href="/#how">How it works</a><a href="/#demo-day">Demo Day</a><a href="/network/">Network</a><a href="/apply/ambassadors/">Ambassadors</a><a href="/about/">About</a>
 </div>
 """
 
