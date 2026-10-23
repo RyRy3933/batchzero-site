@@ -19,8 +19,15 @@ Run it by hand from the site root:
   python3 tools/archive_mentor_photos.py                     # the daily sync
   python3 tools/archive_mentor_photos.py --dry-run           # say what would change
   python3 tools/archive_mentor_photos.py --add "Greg Nagy" "https://media.licdn.com/…"
-      # save a fresh photo for one mentor (e.g. after their stored link already expired);
-      # the name must match their card exactly. Replaces any copy already saved.
+  python3 tools/archive_mentor_photos.py --add "Wendy Chan" ~/Downloads/wendy.jpg
+      # save a photo for one mentor from a fresh LinkedIn link OR a local JPEG/PNG/WebP file
+      # (e.g. their stored link already expired, or they never had one). The name must match
+      # their card exactly. Replaces any copy already saved.
+
+Never silent: any listed mentor still without a saved photo after the run is printed under
+"NEEDS A PHOTO", written to the GitHub run summary, and counted in the `missing` step output —
+the workflow turns red on it (after committing whatever it did save), so GitHub emails you
+the day it happens instead of the roster quietly turning into initials.
 
 Standard library only; Python 3.10+. No tokens: the anon key is public by design.
 """
@@ -122,6 +129,59 @@ def download(photo_url: str) -> tuple[bytes, str]:
     return data, ext
 
 
+def read_local(path: str) -> tuple[bytes, str]:
+    """A headshot from disk, for --add. Same checks as a download: real image, under 5 MB."""
+    f = Path(path).expanduser()
+    if not f.is_file():
+        raise ValueError(f"no such file: {path}")
+    if f.stat().st_size > MAX_BYTES:
+        raise ValueError("bigger than 5 MB")
+    data = f.read_bytes()
+    ext = sniff(data)
+    if not ext:
+        raise ValueError("not a JPEG, PNG or WebP image")
+    return data, ext
+
+
+def fetch_source(source: str) -> tuple[bytes, str]:
+    """--add takes either a LinkedIn image link or a path to an image file."""
+    return download(source) if source.startswith(("http://", "https://")) else read_local(source)
+
+
+def missing_photos(mentors: list[dict], manifest: dict[str, str], check_disk: bool = True) -> list[str]:
+    """Listed mentors whose card would show initials: no saved copy. A dry run writes no files,
+    so it goes by the manifest alone (store() still records what it would have saved)."""
+    out = []
+    for m in mentors:
+        name = (m or {}).get("full_name") or ""
+        key = slug(name)
+        have = manifest.get(key)
+        if key and not (have and (not check_disk or (PHOTO_DIR / have).is_file())):
+            out.append(name)
+    return out
+
+
+def report(missing: list[str], problems: list[str]) -> None:
+    """Make a missing photo impossible to miss: stdout, the run summary, and a step output."""
+    why = {line.split(": ", 1)[0]: line.split(": ", 1)[1] for line in problems if ": " in line}
+    lines = [f"{n} — {why.get(n, 'no LinkedIn photo on file')}" for n in missing]
+    for line in lines:
+        print(f"NEEDS A PHOTO  {line}")
+    if lines:
+        print('  fix: python3 tools/archive_mentor_photos.py --add "Name" <fresh LinkedIn image link or image file>')
+    summary = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary and lines:
+        with open(summary, "a", encoding="utf-8") as f:
+            f.write("### Mentors showing initials instead of a photo\n\n")
+            f.write("".join(f"- {line}\n" for line in lines))
+            f.write('\nFix: `python3 tools/archive_mentor_photos.py --add "Name" <fresh LinkedIn image link or image file>`, '
+                    "then commit `assets/img/mentors/`.\n")
+    out = os.environ.get("GITHUB_OUTPUT")
+    if out:
+        with open(out, "a", encoding="utf-8") as f:
+            f.write(f"missing={len(lines)}\n")
+
+
 def load_manifest() -> dict[str, str]:
     try:
         m = json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -187,8 +247,9 @@ def sync(mentors: list[dict], manifest: dict[str, str], dry: bool,
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     p.add_argument("--dry-run", action="store_true", help="report what would change, write nothing")
-    p.add_argument("--add", nargs=2, action="append", metavar=("NAME", "PHOTO_URL"), default=[],
-                   help="save this LinkedIn photo for this listed mentor (repeatable)")
+    p.add_argument("--add", nargs=2, action="append", metavar=("NAME", "SOURCE"), default=[],
+                   help="save a photo for this listed mentor from a LinkedIn image link or a local "
+                        "JPEG/PNG/WebP file (repeatable)")
     a = p.parse_args(argv)
 
     url, key = read_config()
@@ -202,7 +263,7 @@ def main(argv: list[str] | None = None) -> int:
     names = {slug(m.get("full_name") or ""): m.get("full_name") for m in mentors}
     failed = False
 
-    for name, photo_url in a.add:
+    for name, source in a.add:
         k = slug(name)
         if k not in names:
             print(f"archive: {name!r} isn't on the roster (listed: {', '.join(filter(None, names.values()))})",
@@ -210,7 +271,7 @@ def main(argv: list[str] | None = None) -> int:
             failed = True
             continue
         try:
-            data, ext = download(photo_url)
+            data, ext = fetch_source(source)
         except ValueError as e:
             print(f"archive: {name}: {e}", file=sys.stderr)
             failed = True
@@ -226,8 +287,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"skipped  {line}")
     if not a.dry_run:
         save_manifest(manifest)
-    if not (a.add or saved or removed or problems):
-        print(f"archive: all {len(mentors)} mentor(s) up to date")
+    missing = missing_photos(mentors, manifest, check_disk=not a.dry_run)
+    report(missing, problems)
+    if not (a.add or saved or removed or problems or missing):
+        print(f"archive: all {len(mentors)} mentor(s) have a saved photo")
     return 1 if failed else 0
 
 
