@@ -132,5 +132,114 @@ class Sync(unittest.TestCase):
             amp.MANIFEST = saved_manifest
 
 
+class NeverSilent(unittest.TestCase):
+    """A mentor showing initials must surface — stdout, run summary, step output — every run."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.photos = self.tmp / "mentors"
+        self.photos.mkdir()
+        self._saved = (amp.PHOTO_DIR, amp.MANIFEST, amp.list_mentors, amp.download, amp.read_config)
+        amp.PHOTO_DIR, amp.MANIFEST = self.photos, self.photos / "photos.json"
+        amp.read_config = lambda: ("https://example.supabase.co", "anon")
+        self.roster = [
+            {"full_name": "Pouria Sanae", "photo_url": "https://media.licdn.com/pouria"},
+            {"full_name": "Wendy Chan", "photo_url": None},
+            {"full_name": "Greg Nagy", "photo_url": "https://media.licdn.com/expired-greg"},
+        ]
+        amp.list_mentors = lambda url, key: self.roster
+
+        def fake_download(url):
+            if "expired" in url:
+                raise ValueError("LinkedIn answered 403 (the link has probably expired)")
+            return JPEG, "jpg"
+        amp.download = fake_download
+        self.summary, self.output = self.tmp / "summary.md", self.tmp / "output.txt"
+        self.env = {"GITHUB_STEP_SUMMARY": str(self.summary), "GITHUB_OUTPUT": str(self.output)}
+
+    def tearDown(self):
+        amp.PHOTO_DIR, amp.MANIFEST, amp.list_mentors, amp.download, amp.read_config = self._saved
+        shutil.rmtree(self.tmp)
+
+    def run_main(self, *args):
+        import contextlib, io, os
+        from unittest import mock
+        buf = io.StringIO()
+        if self.output.exists():
+            self.output.unlink()
+        with mock.patch.dict(os.environ, self.env), contextlib.redirect_stdout(buf), \
+                contextlib.redirect_stderr(io.StringIO()):
+            code = amp.main(list(args))
+        return code, buf.getvalue()
+
+    def test_missing_photos_are_reported_everywhere(self):
+        code, out = self.run_main()
+        self.assertEqual(code, 0)                       # still saves what it can, then reports
+        self.assertIn("saved    Pouria Sanae", out)
+        self.assertIn("NEEDS A PHOTO  Wendy Chan — no LinkedIn photo on file", out)
+        self.assertIn("NEEDS A PHOTO  Greg Nagy — LinkedIn answered 403", out)
+        self.assertNotIn("NEEDS A PHOTO  Pouria", out)
+        summary = self.summary.read_text()
+        self.assertIn("Wendy Chan", summary)
+        self.assertIn("Greg Nagy", summary)
+        self.assertIn("missing=2", self.output.read_text())   # the workflow fails on this
+
+    def test_all_saved_reports_zero(self):
+        self.roster = self.roster[:1]
+        self.run_main()
+        self.assertIn("missing=0", self.output.read_text())
+        self.assertFalse(self.summary.exists())
+        _, out = self.run_main()
+        self.assertIn("all 1 mentor(s) have a saved photo", out)
+
+    def test_add_from_local_file_fixes_a_mentor_with_no_link(self):
+        headshot = self.tmp / "wendy.png"
+        headshot.write_bytes(PNG)
+        code, out = self.run_main("--add", "Wendy Chan", str(headshot))
+        self.assertEqual(code, 0)
+        self.assertIn("added    Wendy Chan -> wendy-chan.png", out)
+        self.assertTrue((self.photos / "wendy-chan.png").is_file())
+        self.assertEqual(json.loads(amp.MANIFEST.read_text())["wendy-chan"], "wendy-chan.png")
+        self.assertNotIn("NEEDS A PHOTO  Wendy", out)
+        self.assertIn("missing=1", self.output.read_text())   # only Greg left
+
+    def test_add_rejects_bad_input(self):
+        not_image = self.tmp / "notes.jpg"
+        not_image.write_bytes(b"hello, not a jpeg")
+        self.assertEqual(self.run_main("--add", "Wendy Chan", str(not_image))[0], 1)
+        self.assertEqual(self.run_main("--add", "Wendy Chan", str(self.tmp / "nope.jpg"))[0], 1)
+        self.assertEqual(self.run_main("--add", "Not A Mentor", str(not_image))[0], 1)
+        self.assertFalse((self.photos / "wendy-chan.jpg").exists())
+
+    def test_add_still_takes_linkedin_links(self):
+        code, out = self.run_main("--add", "Greg Nagy", "https://media.licdn.com/fresh-greg")
+        self.assertEqual(code, 0)
+        self.assertIn("added    Greg Nagy -> greg-nagy.jpg", out)
+        self.assertIn("missing=1", self.output.read_text())   # Wendy
+
+    def test_dry_run_reports_without_writing(self):
+        code, out = self.run_main("--dry-run")
+        self.assertEqual(code, 0)
+        self.assertIn("NEEDS A PHOTO  Wendy Chan", out)
+        self.assertNotIn("NEEDS A PHOTO  Pouria", out)        # would be saved
+        self.assertEqual(list(self.photos.iterdir()), [])
+
+
+class RepoPhotos(unittest.TestCase):
+    """The committed photos themselves: every manifest entry is a real, reasonable image."""
+
+    def test_manifest_entries_are_real_images(self):
+        manifest = json.loads(amp.MANIFEST.read_text())
+        self.assertTrue(manifest)
+        for key, file in manifest.items():
+            self.assertRegex(file, amp.FILE_RE)
+            self.assertEqual(file.split(".")[0], key)
+            data = (amp.PHOTO_DIR / file).read_bytes()
+            self.assertIsNotNone(amp.sniff(data), file)
+            self.assertLess(len(data), 200_000, f"{file} is heavy for a 72px avatar")
+        on_disk = {p.name for p in amp.PHOTO_DIR.iterdir() if p.name != "photos.json"}
+        self.assertEqual(on_disk, set(manifest.values()), "orphan or missing photo files")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,12 +1,26 @@
 # Saves a copy of every mentor's LinkedIn photo into assets/img/mentors/ while the link still
 # works, so /network/ never falls back to initials when LinkedIn's link expires.
 # The script is tools/archive_mentor_photos.py — its header explains the whole thing.
+#
+# The run goes RED (and GitHub emails you) whenever a listed mentor still has no saved photo —
+# the run summary names who and why. Fix one from here: Actions → "Archive mentor photos" →
+# Run workflow → their name + a LinkedIn image link (right-click their photo → Copy image
+# address). Or locally: python3 tools/archive_mentor_photos.py --add "Name" path/to/photo.jpg
 name: Archive mentor photos
 
 on:
   schedule:
     - cron: "17 13 * * *"     # daily, 6:17am Pacific (13:17 UTC in summer)
   workflow_dispatch:           # Actions tab → "Archive mentor photos" → Run workflow
+    inputs:
+      mentor_name:
+        description: "Optional: mentor's name, exactly as on their card"
+        required: false
+        default: ""
+      photo_link:
+        description: "Their LinkedIn image link (right-click their LinkedIn photo → Copy image address)"
+        required: false
+        default: ""
 
 permissions:
   contents: write              # commit the saved photos
@@ -31,7 +45,20 @@ jobs:
         run: python3 -m unittest tools/test_archive_mentor_photos.py
 
       - name: Save new photos, drop photos of anyone no longer listed
-        run: python3 tools/archive_mentor_photos.py
+        id: archive
+        env:                                   # inputs go through env, never into the script text
+          MENTOR_NAME: ${{ inputs.mentor_name }}
+          PHOTO_LINK: ${{ inputs.photo_link }}
+        run: |
+          if [ -n "$MENTOR_NAME" ] || [ -n "$PHOTO_LINK" ]; then
+            if [ -z "$MENTOR_NAME" ] || [ -z "$PHOTO_LINK" ]; then
+              echo "::error::Give both the mentor's name and the photo link."; exit 1
+            fi
+            case "$PHOTO_LINK" in https://*) ;; *) echo "::error::The photo link must start with https://"; exit 1 ;; esac
+            python3 tools/archive_mentor_photos.py --add "$MENTOR_NAME" "$PHOTO_LINK"
+          else
+            python3 tools/archive_mentor_photos.py
+          fi
 
       - name: Commit if anything changed
         id: commit
@@ -55,3 +82,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh api -X POST "repos/${{ github.repository }}/pages/builds" --silent
+
+      # last, so whatever could be saved is already committed and live
+      - name: Every mentor has a photo
+        if: steps.archive.outputs.missing != '0'
+        env:
+          MISSING: ${{ steps.archive.outputs.missing }}
+        run: |
+          echo "::error::${MISSING:-?} mentor(s) are showing initials instead of a photo — see the run summary for who and how to fix it."
+          exit 1

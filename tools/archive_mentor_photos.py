@@ -212,8 +212,9 @@ def store(manifest: dict[str, str], key: str, data: bytes, ext: str, dry: bool) 
 
 
 def sync(mentors: list[dict], manifest: dict[str, str], dry: bool,
-         fetch=download) -> tuple[list[str], list[str], list[str]]:
+         fetch=None) -> tuple[list[str], list[str], list[str]]:
     """The daily pass. Returns (saved, removed, problems) as human-readable lines."""
+    fetch = fetch or download                         # looked up per call, so tests can stub it
     saved, removed, problems = [], [], []
     listed = {}
     for m in mentors:
