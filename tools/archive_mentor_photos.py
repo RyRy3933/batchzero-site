@@ -1,30 +1,31 @@
 #!/usr/bin/env python3
-"""Keep a self-hosted copy of every mentor photo shown on /network/.
+"""Keep a self-hosted copy of every photo on /network/ — mentors and student ambassadors.
 
-Why: mentors sign in with LinkedIn at /mentor-invite/, and the photo LinkedIn hands back is a
-signed media.licdn.com link that stops working after a few weeks. Hotlinking it means the
-roster quietly turns into initials. This script copies each photo into assets/img/mentors/
-while the link still works and records it in photos.json, which assets/js/roster.js reads
-first. It runs every day from .github/workflows/mentor-photos.yml, so a new mentor's photo is
-saved well before their link expires.
+Why: the photo LinkedIn hands back at sign-in (mentors at /mentor-invite/, ambassadors on the
+application form) is a signed media.licdn.com link that stops working after a few weeks.
+Hotlinking it means the roster quietly turns into initials. This script copies each photo
+into assets/img/mentors/ or assets/img/ambassadors/ while the link still works and records it
+in that folder's photos.json, which assets/js/roster.js reads first. It runs every day from
+.github/workflows/mentor-photos.yml, so a new person's photo is saved before their link expires.
 
-What it does, every run:
-  1. Calls list_mentors() with the public anon key from assets/js/config.js — the same call
-     the /network/ page makes, so it only ever sees what the page already shows.
-  2. Downloads the photo of any listed mentor who doesn't have a saved copy yet.
-  3. Deletes saved photos of anyone no longer listed (hidden with published = false, or
-     removed), so taking someone off the site takes their photo off the site too.
+What it does, every run, for each roster (list_mentors() by full_name, list_ambassadors() by
+display_name — the name on the card):
+  1. Calls the roster function with the public anon key from assets/js/config.js — the same
+     call the /network/ page makes, so it only ever sees what the page already shows.
+  2. Downloads the photo of anyone listed who doesn't have a saved copy yet.
+  3. Deletes saved photos of anyone no longer listed (hidden with published = false, unticked,
+     or removed), so taking someone off the site takes their photo off the site too.
 
 Run it by hand from the site root:
   python3 tools/archive_mentor_photos.py                     # the daily sync
   python3 tools/archive_mentor_photos.py --dry-run           # say what would change
   python3 tools/archive_mentor_photos.py --add "Greg Nagy" "https://media.licdn.com/…"
-  python3 tools/archive_mentor_photos.py --add "Wendy Chan" ~/Downloads/wendy.jpg
-      # save a photo for one mentor from a fresh LinkedIn link OR a local JPEG/PNG/WebP file
-      # (e.g. their stored link already expired, or they never had one). The name must match
+  python3 tools/archive_mentor_photos.py --add "Maya R." ~/Downloads/maya.jpg
+      # save a photo for one listed mentor or ambassador from a fresh LinkedIn link OR a local
+      # JPEG/PNG/WebP file (their link expired, or they never had one). The name must match
       # their card exactly. Replaces any copy already saved.
 
-Never silent: any listed mentor still without a saved photo after the run is printed under
+Never silent: anyone listed who still has no saved photo after the run is printed under
 "NEEDS A PHOTO", written to the GitHub run summary, and counted in the `missing` step output —
 the workflow turns red on it (after committing whatever it did save), so GitHub emails you
 the day it happens instead of the roster quietly turning into initials.
@@ -48,6 +49,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CONFIG_JS = ROOT / "assets" / "js" / "config.js"
 PHOTO_DIR = ROOT / "assets" / "img" / "mentors"
 MANIFEST = PHOTO_DIR / "photos.json"
+AMB_PHOTO_DIR = ROOT / "assets" / "img" / "ambassadors"
 
 MAX_BYTES = 5 * 1024 * 1024           # a LinkedIn profile photo is ~10-200 KB
 TIMEOUT = 20
@@ -91,9 +93,9 @@ def read_config() -> tuple[str, str]:
     return url.rstrip("/"), key
 
 
-def list_mentors(url: str, key: str) -> list[dict]:
+def _rpc_list(fn: str, url: str, key: str) -> list[dict]:
     req = urllib.request.Request(
-        f"{url}/rest/v1/rpc/list_mentors",
+        f"{url}/rest/v1/rpc/{fn}",
         data=b"{}",
         method="POST",
         headers={"apikey": key, "Authorization": f"Bearer {key}",
@@ -102,8 +104,29 @@ def list_mentors(url: str, key: str) -> list[dict]:
     with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
         rows = json.load(r)
     if not isinstance(rows, list):
-        raise ValueError(f"list_mentors returned {type(rows).__name__}, expected a list")
+        raise ValueError(f"{fn} returned {type(rows).__name__}, expected a list")
     return rows
+
+
+def list_mentors(url: str, key: str) -> list[dict]:
+    return _rpc_list("list_mentors", url, key)
+
+
+def list_ambassadors(url: str, key: str) -> list[dict]:
+    return _rpc_list("list_ambassadors", url, key)
+
+
+def rosters() -> list[tuple[str, str, Path, Path]]:
+    """(label, name field, photo folder, manifest) per roster. Built per call so tests can
+    point the folders somewhere else."""
+    return [
+        ("mentor", "full_name", PHOTO_DIR, MANIFEST),
+        ("ambassador", "display_name", AMB_PHOTO_DIR, AMB_PHOTO_DIR / "photos.json"),
+    ]
+
+
+def fetch_roster(label: str, url: str, key: str) -> list[dict]:
+    return (list_mentors if label == "mentor" else list_ambassadors)(url, key)
 
 
 def download(photo_url: str) -> tuple[bytes, str]:
@@ -148,23 +171,26 @@ def fetch_source(source: str) -> tuple[bytes, str]:
     return download(source) if source.startswith(("http://", "https://")) else read_local(source)
 
 
-def missing_photos(mentors: list[dict], manifest: dict[str, str], check_disk: bool = True) -> list[str]:
-    """Listed mentors whose card would show initials: no saved copy. A dry run writes no files,
+def missing_photos(people: list[dict], manifest: dict[str, str], check_disk: bool = True,
+                   name_key: str = "full_name", photo_dir: Path | None = None) -> list[str]:
+    """Listed people whose card would show initials: no saved copy. A dry run writes no files,
     so it goes by the manifest alone (store() still records what it would have saved)."""
+    photo_dir = photo_dir or PHOTO_DIR
     out = []
-    for m in mentors:
-        name = (m or {}).get("full_name") or ""
+    for m in people:
+        name = (m or {}).get(name_key) or ""
         key = slug(name)
         have = manifest.get(key)
-        if key and not (have and (not check_disk or (PHOTO_DIR / have).is_file())):
+        if key and not (have and (not check_disk or (photo_dir / have).is_file())):
             out.append(name)
     return out
 
 
-def report(missing: list[str], problems: list[str]) -> None:
-    """Make a missing photo impossible to miss: stdout, the run summary, and a step output."""
+def report(missing: list[tuple[str, str]], problems: list[str]) -> None:
+    """Make a missing photo impossible to miss: stdout, the run summary, and a step output.
+    `missing` is (roster label, name on the card) pairs."""
     why = {line.split(": ", 1)[0]: line.split(": ", 1)[1] for line in problems if ": " in line}
-    lines = [f"{n} — {why.get(n, 'no LinkedIn photo on file')}" for n in missing]
+    lines = [f"{n} ({label}) — {why.get(n, 'no LinkedIn photo on file')}" for label, n in missing]
     for line in lines:
         print(f"NEEDS A PHOTO  {line}")
     if lines:
@@ -172,19 +198,22 @@ def report(missing: list[str], problems: list[str]) -> None:
     summary = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary and lines:
         with open(summary, "a", encoding="utf-8") as f:
-            f.write("### Mentors showing initials instead of a photo\n\n")
+            f.write("### Showing initials instead of a photo\n\n")
             f.write("".join(f"- {line}\n" for line in lines))
-            f.write('\nFix: `python3 tools/archive_mentor_photos.py --add "Name" <fresh LinkedIn image link or image file>`, '
-                    "then commit `assets/img/mentors/`.\n")
+            f.write("\nFix: Actions → *Archive mentor photos* → Run workflow with their name (as on the card) and a "
+                    "LinkedIn image link — or locally "
+                    '`python3 tools/archive_mentor_photos.py --add "Name" <image link or file>`, '
+                    "then commit `assets/img/`.\n")
     out = os.environ.get("GITHUB_OUTPUT")
     if out:
         with open(out, "a", encoding="utf-8") as f:
             f.write(f"missing={len(lines)}\n")
 
 
-def load_manifest() -> dict[str, str]:
+def load_manifest(path: Path | None = None) -> dict[str, str]:
+    path = path or MANIFEST
     try:
-        m = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        m = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
         return {}
     except json.JSONDecodeError:
@@ -194,38 +223,42 @@ def load_manifest() -> dict[str, str]:
         if isinstance(m, dict) else {}
 
 
-def save_manifest(m: dict[str, str]) -> None:
-    PHOTO_DIR.mkdir(parents=True, exist_ok=True)
-    MANIFEST.write_text(json.dumps(dict(sorted(m.items())), indent=2) + "\n", encoding="utf-8")
+def save_manifest(m: dict[str, str], path: Path | None = None) -> None:
+    path = path or MANIFEST
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(dict(sorted(m.items())), indent=2) + "\n", encoding="utf-8")
 
 
-def store(manifest: dict[str, str], key: str, data: bytes, ext: str, dry: bool) -> str:
+def store(manifest: dict[str, str], key: str, data: bytes, ext: str, dry: bool,
+          photo_dir: Path | None = None) -> str:
+    photo_dir = photo_dir or PHOTO_DIR
     name = f"{key}.{ext}"
     if not dry:
-        PHOTO_DIR.mkdir(parents=True, exist_ok=True)
+        photo_dir.mkdir(parents=True, exist_ok=True)
         old = manifest.get(key)
         if old and old != name:
-            (PHOTO_DIR / old).unlink(missing_ok=True)
-        (PHOTO_DIR / name).write_bytes(data)
+            (photo_dir / old).unlink(missing_ok=True)
+        (photo_dir / name).write_bytes(data)
     manifest[key] = name
     return name
 
 
-def sync(mentors: list[dict], manifest: dict[str, str], dry: bool,
-         fetch=None) -> tuple[list[str], list[str], list[str]]:
-    """The daily pass. Returns (saved, removed, problems) as human-readable lines."""
+def sync(people: list[dict], manifest: dict[str, str], dry: bool, fetch=None,
+         name_key: str = "full_name", photo_dir: Path | None = None) -> tuple[list[str], list[str], list[str]]:
+    """The daily pass for one roster. Returns (saved, removed, problems) as readable lines."""
     fetch = fetch or download                         # looked up per call, so tests can stub it
+    photo_dir = photo_dir or PHOTO_DIR
     saved, removed, problems = [], [], []
     listed = {}
-    for m in mentors:
-        name = (m or {}).get("full_name") or ""
+    for m in people:
+        name = (m or {}).get(name_key) or ""
         key = slug(name)
         if key:
             listed[key] = (name, (m or {}).get("photo_url") or "")
 
     for key, (name, url) in listed.items():
         have = manifest.get(key)
-        if have and (PHOTO_DIR / have).is_file():
+        if have and (photo_dir / have).is_file():
             continue
         if not url:
             continue                                  # no photo to keep; initials it is
@@ -234,12 +267,12 @@ def sync(mentors: list[dict], manifest: dict[str, str], dry: bool,
         except ValueError as e:
             problems.append(f"{name}: {e}")
             continue
-        saved.append(f"{name} -> {store(manifest, key, data, ext, dry)}")
+        saved.append(f"{name} -> {store(manifest, key, data, ext, dry, photo_dir)}")
 
     for key in sorted(set(manifest) - set(listed)):
         removed.append(f"{key} ({manifest[key]})")
         if not dry:
-            (PHOTO_DIR / manifest[key]).unlink(missing_ok=True)
+            (photo_dir / manifest[key]).unlink(missing_ok=True)
         del manifest[key]
 
     return saved, removed, problems
@@ -249,49 +282,61 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     p.add_argument("--dry-run", action="store_true", help="report what would change, write nothing")
     p.add_argument("--add", nargs=2, action="append", metavar=("NAME", "SOURCE"), default=[],
-                   help="save a photo for this listed mentor from a LinkedIn image link or a local "
-                        "JPEG/PNG/WebP file (repeatable)")
+                   help="save a photo for this listed mentor or ambassador (the name on their card) "
+                        "from a LinkedIn image link or a local JPEG/PNG/WebP file (repeatable)")
     a = p.parse_args(argv)
 
     url, key = read_config()
-    try:
-        mentors = list_mentors(url, key)
-    except Exception as e:                            # noqa: BLE001 — any failure means "stop, change nothing"
-        print(f"archive: list_mentors failed, nothing changed: {e}", file=sys.stderr)
-        return 1
+    groups = []                                       # (label, name_key, dir, manifest_path, people, manifest)
+    for label, name_key, photo_dir, manifest_path in rosters():
+        try:
+            people = fetch_roster(label, url, key)
+        except Exception as e:                        # noqa: BLE001 — any failure means "stop, change nothing"
+            print(f"archive: list_{label}s failed, nothing changed: {e}", file=sys.stderr)
+            return 1
+        groups.append((label, name_key, photo_dir, manifest_path, people, load_manifest(manifest_path)))
 
-    manifest = load_manifest()
-    names = {slug(m.get("full_name") or ""): m.get("full_name") for m in mentors}
     failed = False
-
     for name, source in a.add:
         k = slug(name)
-        if k not in names:
-            print(f"archive: {name!r} isn't on the roster (listed: {', '.join(filter(None, names.values()))})",
-                  file=sys.stderr)
+        hits = [g for g in groups if any(slug((m or {}).get(g[1]) or "") == k for m in g[4])]
+        if len(hits) != 1:
+            listed = "; ".join(f"{g[0]}s: " + ", ".join(filter(None, ((m or {}).get(g[1]) for m in g[4])))
+                               for g in groups)
+            why = "matches more than one card" if hits else "isn't on the site"
+            print(f"archive: {name!r} {why} (listed — {listed})", file=sys.stderr)
             failed = True
             continue
+        label, name_key, photo_dir, _, people, manifest = hits[0]
+        shown = next((m or {}).get(name_key) for m in people if slug((m or {}).get(name_key) or "") == k)
         try:
             data, ext = fetch_source(source)
         except ValueError as e:
             print(f"archive: {name}: {e}", file=sys.stderr)
             failed = True
             continue
-        print(f"added    {names[k]} -> {store(manifest, k, data, ext, a.dry_run)}")
+        print(f"added    {shown} ({label}) -> {store(manifest, k, data, ext, a.dry_run, photo_dir)}")
 
-    saved, removed, problems = sync(mentors, manifest, a.dry_run)
-    for line in saved:
-        print(f"saved    {line}")
-    for line in removed:
-        print(f"removed  {line} (no longer on the roster)")
-    for line in problems:
-        print(f"skipped  {line}")
-    if not a.dry_run:
-        save_manifest(manifest)
-    missing = missing_photos(mentors, manifest, check_disk=not a.dry_run)
-    report(missing, problems)
-    if not (a.add or saved or removed or problems or missing):
-        print(f"archive: all {len(mentors)} mentor(s) have a saved photo")
+    missing, all_problems, changed, total = [], [], False, 0
+    for label, name_key, photo_dir, manifest_path, people, manifest in groups:
+        saved, removed, problems = sync(people, manifest, a.dry_run, name_key=name_key, photo_dir=photo_dir)
+        for line in saved:
+            print(f"saved    {line} ({label})")
+        for line in removed:
+            print(f"removed  {line} ({label}, no longer on the site)")
+        for line in problems:
+            print(f"skipped  {line} ({label})")
+        if not a.dry_run:
+            save_manifest(manifest, manifest_path)
+        missing += [(label, n) for n in
+                    missing_photos(people, manifest, not a.dry_run, name_key=name_key, photo_dir=photo_dir)]
+        all_problems += problems
+        changed = changed or bool(saved or removed or problems)
+        total += len(people)
+
+    report(missing, all_problems)
+    if not (a.add or changed or missing):
+        print(f"archive: all {total} people on the site have a saved photo")
     return 1 if failed else 0
 
 

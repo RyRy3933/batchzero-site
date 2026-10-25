@@ -76,7 +76,7 @@ class HomeStrip(unittest.TestCase):
         cls.srv.shutdown()
 
     # ---------- helpers ----------
-    def open(self, path="/", mentors=MENTORS, status=200, w=1440, h=900, reduced=False, delay=0):
+    def open(self, path="/", mentors=MENTORS, status=200, w=1440, h=900, reduced=False, delay=0, ambassadors=()):
         ctx = self.browser.new_context(viewport={"width": w, "height": h}, reduced_motion="reduce" if reduced else "no-preference")
         page = ctx.new_page()
         self.addCleanup(ctx.close)
@@ -94,7 +94,8 @@ class HomeStrip(unittest.TestCase):
             name = route.request.url.rsplit("/", 1)[1]
             if status != 200:
                 return route.fulfill(status=status, content_type="application/json", body='{"message":"test failure"}')
-            route.fulfill(status=200, content_type="application/json", body=json.dumps(mentors if name == "list_mentors" else []))
+            body = mentors if name == "list_mentors" else list(ambassadors) if name == "list_ambassadors" else []
+            route.fulfill(status=200, content_type="application/json", body=json.dumps(body))
         page.route(SUPABASE + "**", rpc)
         page.route("https://*.licdn.com/**", lambda r: r.abort())
         page.goto(self.base + path, wait_until="domcontentloaded")
@@ -332,6 +333,32 @@ class HomeStrip(unittest.TestCase):
         self.assertEqual(page.locator("[data-mentor-grid] .m-role").first.inner_text(), "CEO · Alpha")
         self.assertEqual(page.locator("[data-mentor-grid] .m-tag").first.inner_text(), "Sales")
         self.assertEqual(errors, [])
+
+    def test_network_page_shows_ambassador_photos(self):
+        # "Rayan S." has a committed photo in assets/img/ambassadors/; "Nobody Y." has nothing
+        ambassadors = [
+            {"display_name": "Rayan S.", "school": "Monte Vista High School", "city": "Danville CA",
+             "grad_year": "2027", "focus": "Clubs you're in, Local events", "photo_url": None},
+            {"display_name": "Nobody Y.", "school": "Somewhere High", "city": None, "grad_year": "2028",
+             "focus": None, "photo_url": "https://media.licdn.com/expired"},
+        ]
+        page, errors = self.open("/network/", ambassadors=ambassadors)
+        page.wait_for_selector("[data-amb-grid]:not([hidden]) .mentor-card")
+        cards = page.locator("[data-amb-grid] .mentor-card")
+        self.assertEqual(cards.count(), 2)
+        self.assertEqual(page.inner_text("[data-amb-count]"), "// 2 ambassadors confirmed so far")
+        page.wait_for_function("""() => { const i = document.querySelector('[data-amb-grid] .mentor-card img');
+                                          return i && i.complete && i.naturalWidth > 0; }""", timeout=5000)
+        first = cards.nth(0)
+        self.assertTrue(first.locator("img").get_attribute("src").endswith("/assets/img/ambassadors/rayan-s.jpg"))
+        self.assertEqual(first.locator(".m-ini").inner_text(), "RS")         # initials stay underneath
+        self.assertEqual(first.locator(".m-role").inner_text(), "Monte Vista High School · Danville CA")
+        self.assertEqual(first.locator(".m-tag").all_inner_texts(), ["Class of 2027", "Clubs you're in", "Local events"])
+        # no saved copy and a dead LinkedIn link: the <img> goes away, the initials show, no broken icon
+        page.wait_for_function("() => !document.querySelectorAll('[data-amb-grid] .mentor-card')[1].querySelector('img')",
+                               timeout=5000)
+        self.assertEqual(cards.nth(1).locator(".m-ini").inner_text(), "NY")
+        self.assertEqual([e for e in errors if "licdn" not in e and "ERR_FAILED" not in e], [])
 
 
 if __name__ == "__main__":

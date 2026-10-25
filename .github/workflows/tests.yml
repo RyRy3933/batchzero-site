@@ -37,10 +37,11 @@ jobs:
       - name: Unit tests (photo archiver, roster.js)
         run: python3 -m unittest tools/test_archive_mentor_photos.py tools/test_roster_js.py
 
-      - name: Database function (supabase/mentor-roster.sql on real Postgres)
+      - name: Database functions (mentor-roster.sql + ambassador-photos.sql on real Postgres)
         run: |
           npm i --silent --prefix "$RUNNER_TEMP/pglite" @electric-sql/pglite
           PGLITE="$RUNNER_TEMP/pglite/node_modules/@electric-sql/pglite/dist/index.js" node tools/test_mentor_roster_sql.mjs
+          PGLITE="$RUNNER_TEMP/pglite/node_modules/@electric-sql/pglite/dist/index.js" node tools/test_ambassador_photos_sql.mjs
 
       - name: Browser tests (homepage hero + mentor strip, /network/)
         run: |

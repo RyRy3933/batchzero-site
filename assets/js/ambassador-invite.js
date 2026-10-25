@@ -1,6 +1,7 @@
 /* Batch Zero — /ambassador-invite/: the invited-ambassador signup.
-   Loads the invite by its token, then calls submit_ambassador_signup(). No LinkedIn here:
-   ambassadors are high-school students, and no photo of theirs goes on the site. */
+   Loads the invite by its token, then calls submit_ambassador_signup(). No LinkedIn here,
+   so an ambassador who joins by invite has no photo until one is added with
+   tools/archive_mentor_photos.py --add (the daily photo job flags them). */
 (function () {
   const $  = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));

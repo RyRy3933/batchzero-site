@@ -8,7 +8,8 @@
 --
 -- WHERE IT DELIBERATELY DIFFERS FROM MENTORS, AND WHY
 --   Ambassadors are high-school students, most of them under 18.
---     * No photos. Ever. The card is an initials tile — there is no photo column to fill.
+--     * Photos: none in this file. supabase/ambassador-photos.sql (2026-10-24) adds them, shown only
+--       on cards that are already public — see that file's header.
 --     * Nothing goes public unless they tick the box that says so (show_publicly).
 --     * Under-18s must give a parent/guardian name and email before the card can appear.
 --     * They choose the name that shows — "Maya R." is the default the form suggests.

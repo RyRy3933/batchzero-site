@@ -24,27 +24,29 @@
     return max && t.length > max ? t.slice(0, max - 1).trimEnd() + "…" : t;
   };
 
-  /* Self-hosted mentor photos. LinkedIn photo links expire after a few weeks, so a daily
-     GitHub Action (.github/workflows/mentor-photos.yml → tools/archive_mentor_photos.py)
-     copies each mentor's photo into assets/img/mentors/ while the link is still fresh and
-     lists it in photos.json, keyed by slug(full_name). Cards use that copy first and only
-     fall back to the LinkedIn link for someone the Action hasn't caught yet.
+  /* Self-hosted photos. LinkedIn photo links expire after a few weeks, so a daily GitHub
+     Action (.github/workflows/mentor-photos.yml → tools/archive_mentor_photos.py) copies each
+     listed person's photo into assets/img/mentors/ or assets/img/ambassadors/ while the link is
+     still fresh and lists it in that folder's photos.json, keyed by slug(name on the card).
+     Cards use that copy first and only fall back to the LinkedIn link for someone the Action
+     hasn't caught yet.
      slug() must stay identical to slug() in tools/archive_mentor_photos.py (a test checks). */
   const PHOTO_DIR = "/assets/img/mentors/";
+  const AMBASSADOR_PHOTO_DIR = "/assets/img/ambassadors/";
   const slug = (name) =>
-    String(name || "").normalize("NFKD").replace(/[̀-ͯ]/g, "")
+    String(name || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
       .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  let manifestP = null;
+  const manifests = {};
   // never rejects: a missing or broken manifest just means "no local photos yet"
-  const localPhotos = () => manifestP || (manifestP =
-    fetch(PHOTO_DIR + "photos.json", { cache: "no-cache" })
+  const localPhotos = (dir = PHOTO_DIR) => manifests[dir] || (manifests[dir] =
+    fetch(dir + "photos.json", { cache: "no-cache" })
       .then(r => (r.ok ? r.json() : {}))
       .then(m => (m && typeof m === "object" && !Array.isArray(m) ? m : {}))
       .catch(() => ({})));
-  const localPhoto = (manifest, name) => {
+  const localPhoto = (manifest, name, dir = PHOTO_DIR) => {
     const file = (manifest || {})[slug(name)];
     // a bare file name only — the manifest can't point the page anywhere else
-    return typeof file === "string" && /^[a-z0-9-]+\.(jpe?g|png|webp)$/.test(file) ? PHOTO_DIR + file : "";
+    return typeof file === "string" && /^[a-z0-9-]+\.(jpe?g|png|webp)$/.test(file) ? dir + file : "";
   };
 
   /* A LinkedIn profile link, or "" if it isn't one. The database already filters these
@@ -117,5 +119,30 @@
     return mentorsP;
   }
 
-  window.B0Roster = { make, initials, split, clean, slug, localPhoto, localPhotos, linkedInUrl, photoTile, normalize, mentors };
+  /* Every listed ambassador, newest first, each with photos = [our copy, their LinkedIn link].
+     list_ambassadors() only returns people who ticked "show me on the network page". */
+  let ambassadorsP = null;
+  function ambassadors() {
+    if (!ambassadorsP) {
+      if (!window.B0 || typeof window.B0.rpc !== "function") return Promise.reject(new Error("site.js not loaded"));
+      ambassadorsP = Promise.all([window.B0.rpc("list_ambassadors"), localPhotos(AMBASSADOR_PHOTO_DIR)])
+        .then(([rows, manifest]) => (Array.isArray(rows) ? rows : []).map((r) => {
+          const a = r || {};
+          const name = clean(a.display_name, 80);
+          return {
+            name,
+            school: clean(a.school, 160),
+            city: clean(a.city, 120),
+            grad_year: clean(a.grad_year, 20),
+            focus: split(a.focus),
+            photos: [localPhoto(manifest, name, AMBASSADOR_PHOTO_DIR), a.photo_url].filter(Boolean),
+          };
+        }).filter(a => a.name))
+        .catch(err => { ambassadorsP = null; throw err; });
+    }
+    return ambassadorsP;
+  }
+
+  window.B0Roster = { make, initials, split, clean, slug, localPhoto, localPhotos, linkedInUrl, photoTile, normalize, mentors,
+                      ambassadors, PHOTO_DIR, AMBASSADOR_PHOTO_DIR };
 })();

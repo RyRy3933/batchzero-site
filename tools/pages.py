@@ -791,7 +791,7 @@ MENTORS_REDIRECT = """
 """
 
 AMBASSADORS_FORM = f"""
-{linkedin_block(title="Have a LinkedIn? Start there.", sub="One click fills in your name and email and shows us it's really you. No account? Skip it — it makes no difference to whether you're picked.", cta="Verify with LinkedIn", done="Verified through LinkedIn", or_line="or just fill it in yourself")}
+{linkedin_block(title="Have a LinkedIn? Start there.", sub="One click fills in your name, email and photo and shows us it's really you. No account? Skip it — it makes no difference to whether you're picked.", cta="Verify with LinkedIn", done="Verified through LinkedIn", or_line="or just fill it in yourself")}
 <div class="fieldset"><span class="label plain">01 · You</span>
   <div class="f-row">{field("name","Your name",placeholder="First and last",maxlength=120)}{field("email","Email","email",placeholder="you@school.edu",maxlength=200)}</div>
   <div class="f-row">{field("school","School + city",placeholder="Monte Vista High, Danville CA",maxlength=160)}{field("grad_year","Graduation year",as_="select",options=["2027","2028","2029","2030"])}</div>
@@ -806,7 +806,7 @@ AMBASSADORS_FORM = f"""
   {field("organised","Anything you've organised before?",required=False,as_="textarea",placeholder="A club, an event, a team, a group project that shipped. Optional.",maxlength=600)}
 </div>
 <div class="fieldset"><span class="label plain">04 · If we pick you</span>
-  {optin("show_publicly","Show me on the Batch Zero network page","Your chosen name, school, city and class year, and up to three of the tags above. No photo, no email, no contact details. Leave this off and you can still be an ambassador — you just won't be listed.")}
+  {optin("show_publicly","Show me on the Batch Zero network page","Your photo, chosen name, school, city and class year, and up to three of the tags above. No email, no contact details. Leave this off and you can still be an ambassador — you just won't be listed.")}
   {field("display_name","Name to show on the site",required=False,placeholder="Maya R.",maxlength=80,hint="// leave it blank and we'll use your first name and last initial")}
 </div>
 {consent("I'm currently a high-school student. If I'm selected and under 18, a parent or guardian will sign a consent form before I start. I agree to the <a href='/terms/' style='color:var(--accent-2)'>terms</a> and <a href='/privacy/' style='color:var(--accent-2)'>privacy policy</a>.")}
@@ -836,7 +836,7 @@ AMBASSADOR_INVITE_FORM = f"""
       <div class="f-row">{field("guardian_name","Parent or guardian name",required=False,maxlength=120)}{field("guardian_email","Parent or guardian email","email",required=False,maxlength=200)}</div>
       <p class="dim" style="font-size:14px;margin-top:4px">We email them a short note explaining what Batch Zero is and what you'll be doing. Either of you can ask us to take your card down at any time.</p>
     </div>
-    {optin("show_publicly","Show me on the Batch Zero network page","Your chosen name, school, city and class year — and the tags above. No photo, no email, no contact details. Leave this off and you're still an ambassador; you just won't be listed.")}
+    {optin("show_publicly","Show me on the Batch Zero network page","Your photo, chosen name, school, city and class year — and the tags above. No email, no contact details. Leave this off and you're still an ambassador; you just won't be listed.")}
   </div>
   <label class="check"><input type="checkbox" name="agree" value="yes"><span>I want to be a Batch Zero student ambassador, and I agree to the <a href="/terms/" style="color:var(--accent-2)">terms</a> and <a href="/privacy/" style="color:var(--accent-2)">privacy policy</a>.</span></label>
 """
@@ -1058,7 +1058,7 @@ COMPANIES_REDIRECT = """
 """
 
 PRIVACY = """
-<div class="wrap page-hero"><span class="label">Legal</span><h1>Privacy policy</h1><p class="lede">Plain-English version first, full version below. Last updated October 18, 2026.</p></div>
+<div class="wrap page-hero"><span class="label">Legal</span><h1>Privacy policy</h1><p class="lede">Plain-English version first, full version below. Last updated October 24, 2026.</p></div>
 <section style="padding-top:8px"><div class="wrap"><div class="prose">
 <div class="card" style="margin-bottom:8px"><div class="idx"><span>tl;dr</span><span>the short version</span></div>
 <p>We collect what you type into our application forms and nothing else. We use it to run Batch Zero. We don't sell it, we don't run ad trackers, and nobody outside the team sees a student's application unless that student opts in. Email <a href="mailto:rayan@batchzero.co" style="color:var(--accent-2)">rayan@batchzero.co</a> to see, fix, or delete your data at any time.</p></div>
@@ -1081,6 +1081,7 @@ PRIVACY = """
 
 <h2>5. Who can see a student's information</h2>
 <p><strong>The mentor page.</strong> Mentors who accept an invite and agree to the mentor terms appear on our public <a href="/network/#mentors" style="color:var(--accent-2)">network page</a> and on the homepage — name, photo, role, company, the areas they mentor on, a short bio and a link to their LinkedIn profile. Never their email. Ask us and we'll take it down the same day.</p>
+<p><strong>The ambassador page.</strong> Student ambassadors who tick "Show me on the Batch Zero network page" appear on the <a href="/network/#ambassadors" style="color:var(--accent-2)">network page</a> with their photo, the name they chose, school, city, class year and a few tags. The photo is the one from their LinkedIn sign-in, or one they or a parent send us. Never their email or a parent's contact details. Untick the box, or ask a parent to email <a href="mailto:hello@batchzero.co" style="color:var(--accent-2)">hello@batchzero.co</a>, and the card and photo come down the same day.</p>
 <p>Only the Batch Zero team and reviewers reviewing applications. Mentors see the applications of the teams they are matched with. Investors and sponsor companies do <strong>not</strong> receive contact details or full applications: they see the profile a founder chooses to make visible, and any introduction is requested through us and accepted by the founder first. We never share a student's information with a third party for that party's own marketing.</p>
 
 <h2>6. Services we rely on</h2>

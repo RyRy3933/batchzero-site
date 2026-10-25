@@ -34,11 +34,12 @@ supabase/schema.sql              applications table + RLS (anon = insert only)
 supabase/mentor-invites.sql      mentor_invites table + the three RPCs — READ ITS HEADER FIRST
 supabase/mentor-roster.sql       adds photo_url/published/listed_at + list_mentors() and save_mentor_photo()
 supabase/ambassadors.sql         lets applications accept type 'ambassador' (constraint + insert policy)
+supabase/ambassador-photos.sql   ambassadors.photo_url, copied from the application's LinkedIn sign-in; list_ambassadors() returns it
 404.html                         GitHub Pages 404
 assets/css/site.css              all styling; design tokens in :root at the top
 assets/js/config.js              Supabase URL + anon key (public by design; the DB only allows inserts)
 assets/js/site.js                nav, reveal-on-scroll, countdown, counters, form validation, step-by-step forms, drafts, LinkedIn sign-in, Supabase submit
-assets/js/roster.js              the public mentor roster: one list_mentors() call, photo fallbacks, LinkedIn link check — shared by home + /network/
+assets/js/roster.js              both public rosters: one list_mentors() / list_ambassadors() call each, photo fallbacks, LinkedIn link check — shared by home + /network/
 assets/js/home.js                homepage "Mentors:" strip in the hero (see "The homepage hero" below)
 assets/js/mentor-invite.js       /mentor-invite/ page script (loads the invite, submits it)
 assets/js/mentor-invite-admin.js /mentor-invite/admin/ page script (creates an invite link)
@@ -46,8 +47,9 @@ assets/js/network.js             /network/ page script (renders both rosters)
 assets/media/                    hero-loop.webm/.mp4 (seamless loop), hero-poster.jpg
 assets/img/                      logo SVGs (final approved [B0] mark — do not redesign)
 assets/img/mentors/              self-hosted mentor photos + photos.json (written by the Action below)
+assets/img/ambassadors/          self-hosted ambassador photos + photos.json (same Action), keyed by the name on their card
 tools/build.py, tools/pages.py   HTML generator (see below)
-tools/archive_mentor_photos.py   saves mentor photos before LinkedIn's links expire (+ its tests)
+tools/archive_mentor_photos.py   saves mentor + ambassador photos before LinkedIn's links expire (+ its tests)
 tools/test_*.py, tools/*.mjs     tests — see "Tests" below
 .github/workflows/mentor-photos.yml  runs that daily and commits what it saved
 .github/workflows/tests.yml      runs every test on each push (doesn't block the Pages deploy)
@@ -157,7 +159,14 @@ or every application is rejected by the database. `formType()` in `site.js` maps
 
 **Ambassadors are minors, so this flow is deliberately not the mentor flow:**
 
-- **No photos, ever.** There is no photo column. Cards are initials tiles. Don't add one.
+- **Photos are part of being listed (since 2026-10-24, Rayan's call).** The "show me on the
+  network page" tick on both forms now says it covers their photo, and so does the privacy
+  policy (section 5). `supabase/ambassador-photos.sql` adds `ambassadors.photo_url`, copied by a
+  trigger from the application's LinkedIn sign-in (`payload.photo_url`), and `list_ambassadors()`
+  returns it — still behind every existing gate. The daily photo Action archives it into
+  `assets/img/ambassadors/` and goes red for any listed ambassador without one; add those with
+  `--add "Name As On Card" <link or file>`. Unlisting someone removes their saved photo on the
+  next run. To drop only a photo: null `photo_url` and delete their file + manifest entry.
 - **Nothing is public unless they tick the box** (`show_publicly`). Leave it off and they're still an
   ambassador — they're just not listed.
 - **Guardian details are no longer collected, and `list_ambassadors()` no longer requires them.**
@@ -170,7 +179,7 @@ or every application is rejected by the database. `formType()` in `site.js` maps
   is used for people who never filled in the application form.
 - **They choose the name that shows.** The form suggests first name + last initial ("Maya R.");
   they can make it their full name, but that's their call, not the default.
-- The card shows chosen name, school, city, class year and up to three tags. Email and guardian
+- The card shows photo, chosen name, school, city, class year and up to three tags. Email and guardian
   contact are never in `list_ambassadors()`'s result — keep it that way.
 
 The admin key is shared with mentor invites. It lives as a constant inside `create_mentor_invite()`
@@ -179,8 +188,8 @@ Rotate both together.
 
 ### The public roster
 
-`/network/` renders both rosters from `assets/js/network.js`: `list_mentors()` (through
-`roster.js`) and `list_ambassadors()`. The homepage strip reads the same `list_mentors()` through
+`/network/` renders both rosters from `assets/js/network.js`, both through `roster.js`:
+`list_mentors()` and `list_ambassadors()` (each with its own self-hosted photo folder). The homepage strip reads the same `list_mentors()` through
 `roster.js`. Each returns **only** the fields the card shows. Email, token and guardian
 contact are never in either result — keep it that way if you extend them. The two calls are
 independent, so one failing still renders the other.
@@ -258,7 +267,7 @@ anything that touches the hero, the roster or the SQL (commands are in `README.m
 
 | file | covers |
 |---|---|
-| `tools/test_archive_mentor_photos.py` | the daily photo archiver; `slug()` parity with `roster.js` |
+| `tools/test_archive_mentor_photos.py` | the daily photo archiver (both rosters, never-silent reporting, `--add`); `slug()` parity with `roster.js`; every committed photo is a real image |
 | `tools/test_roster_js.py` | `roster.js`: the LinkedIn link check, row normalising, one request per page |
 | `tools/test_home_strip.py` | real Chromium: hero copy, cards, motion, hover/focus/touch, reduced motion, empty/error, above-the-fold at 12 sizes, `/network/` |
 | `tools/test_mentor_roster_sql.mjs` | `supabase/mentor-roster.sql` on real Postgres (PGlite): upgrade from the live version, idempotent, only public columns, bad links nulled |

@@ -7,10 +7,11 @@
   const $ = (s, r = document) => r.querySelector(s);
   const R = window.B0Roster;
   if (!window.B0 || !R) return;
-  const { make, split } = R;
+  const { make } = R;
 
-  /* One card. Photos are only ever used for mentors — ambassador cards are initials by design:
-     they're high-school students and their faces don't go on the web. */
+  /* One card, mentor or ambassador: photo (initials underneath until it paints), name, role, tags.
+     Ambassadors only reach this page if they ticked "show me on the network page", which covers
+     their photo (supabase/ambassador-photos.sql). */
   function card({ name, role, tags, photos }) {
     const el = make("article", "mentor-card");
     el.appendChild(R.photoTile(name, photos));
@@ -61,11 +62,12 @@
   });
 
   roster({
-    load: () => window.B0.rpc("list_ambassadors"), prefix: "amb", label: "ambassador",
+    load: R.ambassadors, prefix: "amb", label: "ambassador",
     toCard: (a) => ({
-      name: a.display_name,
+      name: a.name,
       role: [a.school, a.city].filter(Boolean).join(" · "),
-      tags: (a.grad_year ? [`Class of ${a.grad_year}`] : []).concat(split(a.focus)),
+      tags: (a.grad_year ? [`Class of ${a.grad_year}`] : []).concat(a.focus),
+      photos: a.photos,
     }),
   });
 })();

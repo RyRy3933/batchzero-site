@@ -133,21 +133,25 @@ class Sync(unittest.TestCase):
 
 
 class NeverSilent(unittest.TestCase):
-    """A mentor showing initials must surface — stdout, run summary, step output — every run."""
+    """Anyone showing initials must surface — stdout, run summary, step output — every run."""
 
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp())
         self.photos = self.tmp / "mentors"
+        self.amb = self.tmp / "ambassadors"
         self.photos.mkdir()
-        self._saved = (amp.PHOTO_DIR, amp.MANIFEST, amp.list_mentors, amp.download, amp.read_config)
-        amp.PHOTO_DIR, amp.MANIFEST = self.photos, self.photos / "photos.json"
+        self._saved = (amp.PHOTO_DIR, amp.MANIFEST, amp.AMB_PHOTO_DIR, amp.list_mentors,
+                       amp.list_ambassadors, amp.download, amp.read_config)
+        amp.PHOTO_DIR, amp.MANIFEST, amp.AMB_PHOTO_DIR = self.photos, self.photos / "photos.json", self.amb
         amp.read_config = lambda: ("https://example.supabase.co", "anon")
         self.roster = [
             {"full_name": "Pouria Sanae", "photo_url": "https://media.licdn.com/pouria"},
             {"full_name": "Wendy Chan", "photo_url": None},
             {"full_name": "Greg Nagy", "photo_url": "https://media.licdn.com/expired-greg"},
         ]
+        self.ambassadors = []
         amp.list_mentors = lambda url, key: self.roster
+        amp.list_ambassadors = lambda url, key: self.ambassadors
 
         def fake_download(url):
             if "expired" in url:
@@ -158,7 +162,8 @@ class NeverSilent(unittest.TestCase):
         self.env = {"GITHUB_STEP_SUMMARY": str(self.summary), "GITHUB_OUTPUT": str(self.output)}
 
     def tearDown(self):
-        amp.PHOTO_DIR, amp.MANIFEST, amp.list_mentors, amp.download, amp.read_config = self._saved
+        (amp.PHOTO_DIR, amp.MANIFEST, amp.AMB_PHOTO_DIR, amp.list_mentors,
+         amp.list_ambassadors, amp.download, amp.read_config) = self._saved
         shutil.rmtree(self.tmp)
 
     def run_main(self, *args):
@@ -176,8 +181,8 @@ class NeverSilent(unittest.TestCase):
         code, out = self.run_main()
         self.assertEqual(code, 0)                       # still saves what it can, then reports
         self.assertIn("saved    Pouria Sanae", out)
-        self.assertIn("NEEDS A PHOTO  Wendy Chan — no LinkedIn photo on file", out)
-        self.assertIn("NEEDS A PHOTO  Greg Nagy — LinkedIn answered 403", out)
+        self.assertIn("NEEDS A PHOTO  Wendy Chan (mentor) — no LinkedIn photo on file", out)
+        self.assertIn("NEEDS A PHOTO  Greg Nagy (mentor) — LinkedIn answered 403", out)
         self.assertNotIn("NEEDS A PHOTO  Pouria", out)
         summary = self.summary.read_text()
         self.assertIn("Wendy Chan", summary)
@@ -190,14 +195,14 @@ class NeverSilent(unittest.TestCase):
         self.assertIn("missing=0", self.output.read_text())
         self.assertFalse(self.summary.exists())
         _, out = self.run_main()
-        self.assertIn("all 1 mentor(s) have a saved photo", out)
+        self.assertIn("all 1 people on the site have a saved photo", out)
 
     def test_add_from_local_file_fixes_a_mentor_with_no_link(self):
         headshot = self.tmp / "wendy.png"
         headshot.write_bytes(PNG)
         code, out = self.run_main("--add", "Wendy Chan", str(headshot))
         self.assertEqual(code, 0)
-        self.assertIn("added    Wendy Chan -> wendy-chan.png", out)
+        self.assertIn("added    Wendy Chan (mentor) -> wendy-chan.png", out)
         self.assertTrue((self.photos / "wendy-chan.png").is_file())
         self.assertEqual(json.loads(amp.MANIFEST.read_text())["wendy-chan"], "wendy-chan.png")
         self.assertNotIn("NEEDS A PHOTO  Wendy", out)
@@ -214,7 +219,7 @@ class NeverSilent(unittest.TestCase):
     def test_add_still_takes_linkedin_links(self):
         code, out = self.run_main("--add", "Greg Nagy", "https://media.licdn.com/fresh-greg")
         self.assertEqual(code, 0)
-        self.assertIn("added    Greg Nagy -> greg-nagy.jpg", out)
+        self.assertIn("added    Greg Nagy (mentor) -> greg-nagy.jpg", out)
         self.assertIn("missing=1", self.output.read_text())   # Wendy
 
     def test_dry_run_reports_without_writing(self):
@@ -224,21 +229,75 @@ class NeverSilent(unittest.TestCase):
         self.assertNotIn("NEEDS A PHOTO  Pouria", out)        # would be saved
         self.assertEqual(list(self.photos.iterdir()), [])
 
+    # ---------- ambassadors ----------
+    def test_ambassadors_are_archived_into_their_own_folder(self):
+        self.roster = self.roster[:1]
+        self.ambassadors = [
+            {"display_name": "Maya R.", "school": "Monte Vista", "photo_url": "https://media.licdn.com/maya"},
+            {"display_name": "Sam K.", "school": "Dougherty Valley", "photo_url": None},
+        ]
+        code, out = self.run_main()
+        self.assertEqual(code, 0)
+        self.assertIn("saved    Maya R. -> maya-r.jpg (ambassador)", out)
+        self.assertTrue((self.amb / "maya-r.jpg").is_file())
+        self.assertEqual(json.loads((self.amb / "photos.json").read_text()), {"maya-r": "maya-r.jpg"})
+        self.assertFalse((self.photos / "maya-r.jpg").exists())       # never mixed with mentors
+        self.assertIn("NEEDS A PHOTO  Sam K. (ambassador) — no LinkedIn photo on file", out)
+        self.assertIn("Sam K.", self.summary.read_text())
+        self.assertIn("missing=1", self.output.read_text())
+
+    def test_add_finds_an_ambassador_by_card_name(self):
+        self.ambassadors = [{"display_name": "Sam K.", "photo_url": None}]
+        headshot = self.tmp / "sam.jpg"
+        headshot.write_bytes(JPEG)
+        code, out = self.run_main("--add", "Sam K.", str(headshot))
+        self.assertEqual(code, 0)
+        self.assertIn("added    Sam K. (ambassador) -> sam-k.jpg", out)
+        self.assertTrue((self.amb / "sam-k.jpg").is_file())
+
+    def test_unlisted_ambassador_loses_their_photo(self):
+        # unticking "show me", published = false or removal all mean: off the site, photo too
+        self.amb.mkdir()
+        (self.amb / "gone-s.jpg").write_bytes(JPEG)
+        (self.amb / "photos.json").write_text(json.dumps({"gone-s": "gone-s.jpg"}))
+        code, out = self.run_main()
+        self.assertEqual(code, 0)
+        self.assertIn("removed  gone-s (gone-s.jpg) (ambassador, no longer on the site)", out)
+        self.assertFalse((self.amb / "gone-s.jpg").exists())
+        self.assertEqual(json.loads((self.amb / "photos.json").read_text()), {})
+
+    def test_same_name_on_both_rosters_is_refused(self):
+        self.ambassadors = [{"display_name": "Wendy Chan", "photo_url": None}]
+        headshot = self.tmp / "w.jpg"
+        headshot.write_bytes(JPEG)
+        code, _ = self.run_main("--add", "Wendy Chan", str(headshot))
+        self.assertEqual(code, 1)
+
+    def test_a_failing_roster_changes_nothing(self):
+        def boom(url, key):
+            raise OSError("down")
+        amp.list_ambassadors = boom
+        code, _ = self.run_main()
+        self.assertEqual(code, 1)
+        self.assertEqual(list(self.photos.iterdir()), [])              # mentors untouched too
+
 
 class RepoPhotos(unittest.TestCase):
     """The committed photos themselves: every manifest entry is a real, reasonable image."""
 
     def test_manifest_entries_are_real_images(self):
-        manifest = json.loads(amp.MANIFEST.read_text())
-        self.assertTrue(manifest)
-        for key, file in manifest.items():
-            self.assertRegex(file, amp.FILE_RE)
-            self.assertEqual(file.split(".")[0], key)
-            data = (amp.PHOTO_DIR / file).read_bytes()
-            self.assertIsNotNone(amp.sniff(data), file)
-            self.assertLess(len(data), 200_000, f"{file} is heavy for a 72px avatar")
-        on_disk = {p.name for p in amp.PHOTO_DIR.iterdir() if p.name != "photos.json"}
-        self.assertEqual(on_disk, set(manifest.values()), "orphan or missing photo files")
+        for folder in (amp.PHOTO_DIR, amp.AMB_PHOTO_DIR):
+            with self.subTest(folder=folder.name):
+                manifest = json.loads((folder / "photos.json").read_text())
+                self.assertTrue(manifest)
+                for key, file in manifest.items():
+                    self.assertRegex(file, amp.FILE_RE)
+                    self.assertEqual(file.split(".")[0], key)
+                    data = (folder / file).read_bytes()
+                    self.assertIsNotNone(amp.sniff(data), file)
+                    self.assertLess(len(data), 200_000, f"{file} is heavy for a 72px avatar")
+                on_disk = {p.name for p in folder.iterdir() if p.name != "photos.json"}
+                self.assertEqual(on_disk, set(manifest.values()), "orphan or missing photo files")
 
 
 if __name__ == "__main__":
